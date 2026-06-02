@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pride-forged-postgres
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-pride_forged}
+      POSTGRES_USER: ${POSTGRES_USER:-pride}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pride_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pride} -d ${POSTGRES_DB:-pride_forged}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [pride]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pride-forged-backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "8000"
+    networks: [pride]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pride-forged-frontend
+    restart: unless-stopped
+    env_file: .env
+    depends_on: [backend]
+    expose:
+      - "3000"
+    networks: [pride]
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pride-forged-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [frontend, backend]
+    networks: [pride]
+
+volumes:
+  postgres_data:
+
+networks:
+  pride:
+    driver: bridge
