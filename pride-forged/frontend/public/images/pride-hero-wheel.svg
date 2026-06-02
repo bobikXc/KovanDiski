@@ -1,0 +1,22 @@
+<svg width="1200" height="1000" viewBox="0 0 1200 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1000" rx="64" fill="#0D1B2A"/>
+  <circle cx="600" cy="500" r="360" fill="url(#outer)" stroke="#778DA9" stroke-width="22"/>
+  <circle cx="600" cy="500" r="282" fill="#0D1B2A" stroke="white" stroke-opacity="0.18" stroke-width="16"/>
+  <g filter="url(#glow)">
+    <path d="M600 216L642 431L818 300L700 483L926 500L700 517L818 700L642 569L600 784L558 569L382 700L500 517L274 500L500 483L382 300L558 431L600 216Z" fill="#778DA9" fill-opacity="0.72"/>
+    <path d="M600 276L632 444L770 342L678 486L856 500L678 514L770 658L632 556L600 724L568 556L430 658L522 514L344 500L522 486L430 342L568 444L600 276Z" fill="#FFFFFF" fill-opacity="0.16"/>
+  </g>
+  <circle cx="600" cy="500" r="92" fill="#FFFFFF"/>
+  <circle cx="600" cy="500" r="52" fill="#1B263B"/>
+  <circle cx="600" cy="500" r="390" stroke="white" stroke-opacity="0.08" stroke-width="2" stroke-dasharray="12 18"/>
+  <defs>
+    <radialGradient id="outer" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(454 282) rotate(58) scale(720)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.24"/>
+      <stop offset="0.45" stop-color="#778DA9" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#1B263B"/>
+    </radialGradient>
+    <filter id="glow" x="194" y="136" width="812" height="648" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="34" flood-color="#778DA9" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+</svg>
