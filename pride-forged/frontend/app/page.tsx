@@ -1,3 +1,4 @@
+import { AboutSection } from "@/components/sections/AboutSection";
 import { AdvantagesSection } from "@/components/sections/AdvantagesSection";
 import { CTASection } from "@/components/sections/CTASection";
 import { FeaturedWheels } from "@/components/sections/FeaturedWheels";
@@ -14,6 +15,7 @@ export default async function Home() {
       <AdvantagesSection />
       <FeaturedWheels wheels={wheels} />
       <VehicleSelector brands={brands} />
+      <AboutSection />
       <CTASection />
     </>
   );
