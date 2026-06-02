@@ -9,26 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { Brand } from "@/lib/api";
 
-const modelOptions: Record<string, string[]> = {
-  bmw: ["m3", "m4", "m5", "x5m", "x6m"],
-  mercedes: ["c63-amg", "e63-amg", "g63-amg"],
-  audi: ["rs6", "rs7", "rsq8"],
-  porsche: ["911", "panamera", "cayenne-coupe"],
-  tesla: ["model-3", "model-s", "model-x"]
-};
-
 const selectorClass = "h-14 rounded-full border border-white/10 bg-secondary/90 px-5 text-white outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30";
 
 type SelectorForm = { brand: string; model: string };
 
 export function VehicleSelector({ brands }: { brands: Brand[] }) {
   const router = useRouter();
-  const { register, handleSubmit, watch } = useForm<SelectorForm>({ defaultValues: { brand: brands[0]?.slug ?? "bmw", model: "" } });
+  const { register, handleSubmit, watch } = useForm<SelectorForm>({ defaultValues: { brand: brands[0]?.slug ?? "", model: "" } });
   const selectedBrand = watch("brand");
-  const models = useMemo(() => modelOptions[selectedBrand] ?? [], [selectedBrand]);
+  const models = useMemo(() => brands.find((brand) => brand.slug === selectedBrand)?.models ?? [], [brands, selectedBrand]);
 
   function onSubmit(values: SelectorForm) {
-    router.push(values.model ? `/cars/${values.brand}/${values.model}` : `/cars/${values.brand}`);
+    if (!values.brand) return;
+    router.push(values.model ? `/vehicles/${values.brand}/${values.model}` : `/vehicles/${values.brand}`);
   }
 
   return (
@@ -52,19 +45,19 @@ export function VehicleSelector({ brands }: { brands: Brand[] }) {
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
               <label className="grid gap-2 text-sm text-white/60">
                 Марка
-                <select {...register("brand")} className={selectorClass}>
+                <select {...register("brand")} className={selectorClass} disabled={brands.length === 0}>
                   {brands.map((brand) => <option key={brand.slug} value={brand.slug}>{brand.name}</option>)}
                 </select>
               </label>
               <label className="grid gap-2 text-sm text-white/60">
                 Модель
-                <select {...register("model")} className={selectorClass}>
+                <select {...register("model")} className={selectorClass} disabled={models.length === 0}>
                   <option value="">Любая модель</option>
-                  {models.map((model) => <option key={model} value={model}>{model.toUpperCase()}</option>)}
+                  {models.map((model) => <option key={model.slug} value={model.slug}>{model.name}</option>)}
                 </select>
               </label>
               <div className="flex items-end">
-                <Button type="submit" size="lg" variant="secondary" className="w-full md:w-auto">Подобрать</Button>
+                <Button type="submit" size="lg" variant="secondary" className="w-full md:w-auto" disabled={brands.length === 0}>Подобрать</Button>
               </div>
             </form>
           </div>
