@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 214 52% 11%;
+  --foreground: 0 0% 100%;
+  --border: 214 25% 28%;
+  --input: 214 25% 28%;
+  --ring: 213 20% 56%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: #0d1b2a;
+  color: #ffffff;
+}
+
+.premium-gradient {
+  background:
+    radial-gradient(circle at top left, rgba(119, 141, 169, 0.28), transparent 32rem),
+    linear-gradient(135deg, #0d1b2a 0%, #1b263b 56%, #0d1b2a 100%);
+}
+
+.mesh-card {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04)),
+    radial-gradient(circle at 30% 20%, rgba(119,141,169,0.24), transparent 16rem);
+}
