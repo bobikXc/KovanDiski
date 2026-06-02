@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   ["Каталог", "/catalog"],
-  ["Подбор", "/cars"],
+  ["Подбор", "/vehicles"],
   ["О компании", "/about"],
   ["Контакты", "/contact"]
 ];
