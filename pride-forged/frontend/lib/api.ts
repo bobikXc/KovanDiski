@@ -1,8 +1,11 @@
 import axios, { AxiosError } from "axios";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost/api",
-  timeout: 8000
+  baseURL:
+    typeof window === "undefined"
+      ? process.env.INTERNAL_API_URL
+      : process.env.NEXT_PUBLIC_API_URL,
+  timeout: 8000,
 });
 
 export type WheelImage = {
