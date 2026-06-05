@@ -25,7 +25,7 @@ export default async function CatalogPage() {
       <div className="mx-auto max-w-7xl">
         <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">PRIDE Forged</p>
         <h1 className="mt-4 text-4xl font-black sm:text-6xl">Каталог кованых дисков</h1>
-        <p className="mt-5 max-w-3xl text-lg leading-8 text-white/68">
+        <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite/70">
           Полная линейка премиальных моделей с изображениями, характеристиками и переходом в детальную карточку.
         </p>
 

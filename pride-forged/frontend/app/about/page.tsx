@@ -19,7 +19,7 @@ export default function AboutPage() {
             <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">О компании</p>
             <h1 className="mt-4 text-5xl font-black">PRIDE Forged</h1>
           </div>
-          <div className="space-y-6 text-lg leading-9 text-white/72">
+          <div className="space-y-6 text-lg leading-9 text-graphite/70">
             {paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           </div>
         </div>

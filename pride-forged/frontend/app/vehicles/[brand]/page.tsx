@@ -43,7 +43,7 @@ export default async function BrandPage({ params }: BrandPageProps) {
         <div className="mx-auto max-w-7xl">
           <Link href="/vehicles" className="text-sm text-accent">← Все марки</Link>
           <h1 className="mt-5 text-5xl font-black">Диски для {brand.name}</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-white/68">
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite/70">
             Выберите модель автомобиля, чтобы увидеть подходящие диски из таблицы Fitment.
           </p>
           {(brand.models ?? []).length === 0 ? (

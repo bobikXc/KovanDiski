@@ -6,7 +6,7 @@ export function LoadingState({ title = "Загружаем данные" }: { ti
         <h1 className="mt-4 text-4xl font-black sm:text-6xl">{title}</h1>
         <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-80 animate-pulse rounded-[1.5rem] border border-white/10 bg-white/10" />
+            <div key={index} className="h-80 animate-pulse rounded-[1.5rem] border border-primary/10 bg-white/60" />
           ))}
         </div>
       </div>

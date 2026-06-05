@@ -14,7 +14,7 @@ export function getWheelImage(wheel: Wheel, index = 0) {
 export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }) {
   return (
     <Link href={`/catalog/${wheel.slug}`} className="block h-full">
-      <Card className="group h-full overflow-hidden p-4 transition duration-300 hover:-translate-y-2 hover:border-accent/70 hover:bg-white/10 sm:p-6">
+      <Card className="group h-full overflow-hidden p-4 transition duration-300 hover:-translate-y-2 hover:border-accent/70 hover:bg-white/80 sm:p-6">
         <div className="mesh-card relative mb-6 flex aspect-square items-center justify-center overflow-hidden rounded-3xl">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.16),transparent_42%)]" />
           <Image
@@ -28,7 +28,7 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="text-2xl font-bold">{wheel.name}</h3>
-            <p className="mt-2 text-sm text-white/60">
+            <p className="mt-2 text-sm text-graphite/60">
               {wheel.diameter}″ • {wheel.width}J • ET{wheel.et} • {wheel.pcd}
             </p>
           </div>
