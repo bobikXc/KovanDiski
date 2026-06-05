@@ -1,7 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+
+import { LiquidCard } from "@/components/ui/liquid-card";
+import { Reveal } from "@/components/ui/reveal";
 
 const milestones = [
   ["01", "Бриф", "Изучаем автомобиль, тормоза, сценарий езды и желаемую визуальную посадку."],
@@ -10,18 +13,16 @@ const milestones = [
 ];
 
 export function AboutSection() {
+  const { scrollYProgress } = useScroll();
+  const imageY = useTransform(scrollYProgress, [0.35, 0.75], [-34, 34]);
+
   return (
-    <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -34 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.75 }}
-          className="relative"
-        >
-          <div className="absolute -inset-4 rounded-[2.5rem] bg-accent/10 blur-2xl" />
-          <div className="glass-card relative overflow-hidden rounded-[2rem] p-3 sm:p-4">
+    <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8 lg:py-32">
+      <div className="absolute left-1/2 top-24 -z-10 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full bg-accent/10 blur-3xl" />
+      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
+        <motion.div style={{ y: imageY }} className="relative order-2 lg:order-1">
+          <div className="absolute -inset-4 rounded-[2.5rem] bg-white/70 blur-2xl" />
+          <LiquidCard className="relative overflow-hidden rounded-[2rem] p-3 sm:p-4">
             <Image
               src="/images/pride-studio.svg"
               alt="Ателье PRIDE Forged для премиальных автомобилей"
@@ -29,34 +30,35 @@ export function AboutSection() {
               height={800}
               className="h-auto w-full rounded-[1.5rem] object-cover"
             />
-          </div>
+          </LiquidCard>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 34 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.75 }}
-        >
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">О бренде</p>
-          <h2 className="mt-4 text-3xl font-black sm:text-5xl lg:text-6xl">PRIDE Forged — ателье точной посадки</h2>
-          <p className="mt-6 text-lg leading-9 text-white/70">
-            Мы создаём кованые диски как персональный аксессуар автомобиля: с инженерной точностью, выразительным дизайном и вниманием к каждой детали комплекта.
-          </p>
-          <div className="mt-8 space-y-4">
-            {milestones.map(([number, title, text]) => (
-              <div key={number} className="glass-card rounded-3xl p-5 transition hover:-translate-y-1 hover:border-accent/60">
-                <div className="flex gap-4">
-                  <span className="text-xl font-black text-accent">{number}</span>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">{title}</h3>
-                    <p className="mt-2 leading-7 text-white/62">{text}</p>
+        <div className="order-1 lg:order-2">
+          <Reveal>
+            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">О бренде</p>
+            <h2 className="mt-4 text-5xl font-black leading-[0.9] tracking-[-0.08em] text-primary sm:text-7xl lg:text-8xl">
+              Ателье точной посадки
+            </h2>
+            <p className="mt-7 text-xl leading-9 text-graphite/70">
+              PRIDE Forged создаёт кованые диски как персональный аксессуар автомобиля: с инженерной точностью, скульптурной геометрией и вниманием к каждой детали комплекта.
+            </p>
+          </Reveal>
+          <div className="mt-9 space-y-4">
+            {milestones.map(([number, title, text], index) => (
+              <Reveal key={number} delay={index * 0.08}>
+                <LiquidCard interactive className="p-5">
+                  <div className="flex gap-4">
+                    <span className="text-xl font-black text-accent">{number}</span>
+                    <div>
+                      <h3 className="text-lg font-bold text-primary">{title}</h3>
+                      <p className="mt-2 leading-7 text-graphite/60">{text}</p>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </LiquidCard>
+              </Reveal>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

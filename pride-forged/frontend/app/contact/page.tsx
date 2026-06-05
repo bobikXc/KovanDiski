@@ -20,7 +20,7 @@ export default function ContactPage() {
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">Контакты</p>
           <h1 className="mt-4 text-5xl font-black">Обсудим ваш проект</h1>
-          <div className="mt-8 space-y-4 text-white/70">
+          <div className="mt-8 space-y-4 text-graphite/70">
             <p>Москва, премиальный шоурум PRIDE Forged</p>
             <p>+7 (495) 000-00-00</p>
             <p>sales@pride-forged.ru</p>
@@ -28,10 +28,10 @@ export default function ContactPage() {
         </div>
         <Card className="p-6 sm:p-8">
           <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4">
-            <input {...register("name", { required: true })} placeholder="Ваше имя" className="h-12 rounded-2xl border border-white/10 bg-secondary px-5 text-white placeholder:text-white/40" />
-            <input {...register("phone", { required: true })} placeholder="Телефон" className="h-12 rounded-2xl border border-white/10 bg-secondary px-5 text-white placeholder:text-white/40" />
-            <input {...register("car")} placeholder="Автомобиль" className="h-12 rounded-2xl border border-white/10 bg-secondary px-5 text-white placeholder:text-white/40" />
-            <textarea {...register("message")} placeholder="Комментарий" rows={5} className="rounded-2xl border border-white/10 bg-secondary p-5 text-white placeholder:text-white/40" />
+            <input {...register("name", { required: true })} placeholder="Ваше имя" className="h-12 rounded-2xl border border-primary/10 bg-white/70 px-5 text-primary placeholder:text-graphite/40" />
+            <input {...register("phone", { required: true })} placeholder="Телефон" className="h-12 rounded-2xl border border-primary/10 bg-white/70 px-5 text-primary placeholder:text-graphite/40" />
+            <input {...register("car")} placeholder="Автомобиль" className="h-12 rounded-2xl border border-primary/10 bg-white/70 px-5 text-primary placeholder:text-graphite/40" />
+            <textarea {...register("message")} placeholder="Комментарий" rows={5} className="rounded-2xl border border-primary/10 bg-white/70 p-5 text-primary placeholder:text-graphite/40" />
             <Button type="submit" size="lg" variant="secondary">Отправить заявку</Button>
           </form>
         </Card>

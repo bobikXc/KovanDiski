@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import type { Brand } from "@/lib/api";
 
-const selectorClass = "h-14 rounded-full border border-white/10 bg-secondary/90 px-5 text-white outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30";
+const selectorClass = "h-14 rounded-full border border-primary/10 bg-white/70 px-5 text-primary outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/30";
 
 type SelectorForm = { brand: string; model: string };
 
@@ -38,18 +38,18 @@ export function VehicleSelector({ brands }: { brands: Brand[] }) {
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">Fitment concierge</p>
               <h2 className="mt-4 text-3xl font-black sm:text-5xl">Подбор по автомобилю</h2>
-              <p className="mt-5 leading-8 text-white/64">
+              <p className="mt-5 leading-8 text-graphite/60">
                 Выберите марку и модель — мы предложим безопасную посадку, нужную ширину, вылет и визуальный stance без догадок.
               </p>
             </div>
             <form onSubmit={handleSubmit(onSubmit)} className="grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-              <label className="grid gap-2 text-sm text-white/60">
+              <label className="grid gap-2 text-sm text-graphite/60">
                 Марка
                 <select {...register("brand")} className={selectorClass} disabled={brands.length === 0}>
                   {brands.map((brand) => <option key={brand.slug} value={brand.slug}>{brand.name}</option>)}
                 </select>
               </label>
-              <label className="grid gap-2 text-sm text-white/60">
+              <label className="grid gap-2 text-sm text-graphite/60">
                 Модель
                 <select {...register("model")} className={selectorClass} disabled={models.length === 0}>
                   <option value="">Любая модель</option>
