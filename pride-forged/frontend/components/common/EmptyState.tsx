@@ -4,7 +4,7 @@ export function EmptyState({ title, description }: { title: string; description:
   return (
     <Card className="mx-auto max-w-3xl p-8 text-center">
       <p className="text-2xl font-black">{title}</p>
-      <p className="mt-3 text-graphite/60">{description}</p>
+      <p className="mt-3 text-graphite">{description}</p>
     </Card>
   );
 }

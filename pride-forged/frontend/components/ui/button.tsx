@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "default" | "secondary" | "outline";
+type ButtonVariant = "default" | "secondary" | "outline" | "ghost";
 type ButtonSize = "default" | "lg";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -15,9 +15,10 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variants: Record<ButtonVariant, string> = {
-  default: "border border-primary bg-primary text-white shadow-[0_18px_40px_rgba(13,27,42,0.18)] hover:bg-accent hover:border-accent",
-  secondary: "border border-accent bg-accent text-white hover:border-primary hover:bg-primary",
-  outline: "liquid-card border-white/60 bg-white/50 text-primary hover:border-primary/20 hover:bg-white/80"
+  default: "metal-sheen !border-accent/45 !bg-accent/90 text-white shadow-[0_18px_48px_rgba(62,110,168,0.30)] hover:-translate-y-0.5 hover:!bg-[#4F82BD] hover:shadow-[0_22px_62px_rgba(62,110,168,0.42)]",
+  secondary: "metal-sheen !border-primary/20 !bg-primary/95 text-secondary shadow-[0_18px_48px_rgba(244,247,251,0.10)] hover:-translate-y-0.5 hover:!bg-white",
+  outline: "liquid-glass !border-primary/16 !bg-surface/35 text-primary hover:-translate-y-0.5 hover:!border-accent/45 hover:!bg-surface/55",
+  ghost: "!border-transparent !bg-transparent text-primary shadow-none hover:-translate-y-0.5 hover:!bg-surface/45"
 };
 
 const sizes: Record<ButtonSize, string> = {

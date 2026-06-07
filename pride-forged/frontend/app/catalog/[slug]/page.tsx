@@ -3,10 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getWheelImage } from "@/components/catalog/WheelCard";
+import { WheelCard, formatWheelPrice, getWheelImageOrFallback } from "@/components/catalog/WheelCard";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ApiRequestError, getFitments, getWheel } from "@/lib/api";
+import { LiquidCard } from "@/components/ui/liquid-card";
+import { ApiRequestError, getFitments, getWheel, getWheels } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: WheelPageProps): Promise<Meta
         description: `Кованый диск ${wheel.name}: параметры, цена и совместимость.`,
         type: "website",
         url: `/catalog/${wheel.slug}`,
-        images: [{ url: getWheelImage(wheel), alt: wheel.name }]
+        images: [{ url: getWheelImageOrFallback(wheel), alt: wheel.name }]
       }
     };
   } catch (error) {
@@ -39,7 +39,8 @@ export default async function WheelPage({ params }: WheelPageProps) {
   const { slug } = await params;
 
   try {
-    const [wheel, fitments] = await Promise.all([getWheel(slug), getFitments({ wheelSlug: slug })]);
+    const [wheel, fitments, wheels] = await Promise.all([getWheel(slug), getFitments({ wheelSlug: slug }), getWheels()]);
+    const related = wheels.filter((item) => item.slug !== wheel.slug).slice(0, 3);
     const specs = [
       ["Диаметр", `${wheel.diameter}″`],
       ["Ширина", `${wheel.width}J`],
@@ -50,51 +51,85 @@ export default async function WheelPage({ params }: WheelPageProps) {
     ];
 
     return (
-      <section className="px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2">
-          <div className="mesh-card relative flex min-h-[460px] items-center justify-center overflow-hidden rounded-[2rem] border border-primary/10">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.18),transparent_45%)]" />
-            <Image
-              src={getWheelImage(wheel)}
-              alt={`Кованый диск ${wheel.name}`}
-              width={1000}
-              height={1000}
-              className="relative h-[78%] w-[78%] object-contain drop-shadow-[0_30px_65px_rgba(13,27,42,0.24)]"
-              priority
-            />
-          </div>
-          <div>
-            <Link href="/catalog" className="text-sm text-accent">← Назад в каталог</Link>
-            <h1 className="mt-5 text-5xl font-black">{wheel.name}</h1>
-            <p className="mt-6 text-lg leading-8 text-graphite/70">{wheel.description}</p>
-            <p className="mt-8 text-3xl font-black">от {Number(wheel.price).toLocaleString("ru-RU")} ₽</p>
-            <div className="mt-8 grid grid-cols-2 gap-4">
+      <section className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
+        <div className="absolute -right-40 top-16 -z-10 h-[34rem] w-[34rem] rounded-full bg-accent/15 blur-3xl" />
+        <div className="absolute left-[-18rem] top-80 -z-10 h-[36rem] w-[36rem] rounded-full bg-accent/10 blur-3xl" />
+
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <LiquidCard className="mesh-card relative flex min-h-[440px] items-center justify-center overflow-hidden rounded-[2rem] p-4 sm:min-h-[560px]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(244,247,251,0.16),transparent_42%)]" />
+            <div className="absolute inset-x-16 bottom-16 h-12 rounded-full bg-black/45 blur-3xl" />
+            <div className="relative aspect-square w-full max-w-[620px] overflow-hidden rounded-full">
+              <Image
+                src={getWheelImageOrFallback(wheel)}
+                alt={`Кованый диск ${wheel.name}`}
+                fill
+                sizes="(min-width: 1024px) 48vw, 92vw"
+                className="object-contain object-center drop-shadow-[0_30px_65px_rgba(0,0,0,0.42)]"
+                priority
+              />
+            </div>
+          </LiquidCard>
+
+          <div className="relative">
+            <Link href="/catalog" className="text-sm font-semibold text-accent transition hover:text-primary">Назад в каталог</Link>
+            <p className="mt-8 text-sm font-semibold uppercase tracking-[0.35em] text-accent">Forged wheel</p>
+            <h1 className="mt-4 text-5xl font-black leading-none text-primary sm:text-7xl">{wheel.name}</h1>
+            <p className="mt-6 text-lg leading-8 text-graphite">{wheel.description}</p>
+            <LiquidCard className="mt-8 rounded-2xl p-5">
+              <p className="text-sm uppercase tracking-[0.24em] text-graphite/45">Цена</p>
+              <p className="mt-2 text-3xl font-black text-primary">{formatWheelPrice(wheel.price)}</p>
+            </LiquidCard>
+            <div className="mt-6 grid grid-cols-2 gap-4">
               {specs.map(([label, value]) => (
-                <Card key={label} className="p-5">
+                <LiquidCard key={label} className="rounded-2xl p-5">
                   <p className="text-sm text-graphite/50">{label}</p>
                   <p className="mt-2 text-xl font-bold">{value}</p>
-                </Card>
+                </LiquidCard>
               ))}
             </div>
-            <Button asChild size="lg" className="mt-8"><Link href="/contact">Запросить расчет</Link></Button>
+            <Button asChild size="lg" className="mt-8 w-full sm:w-auto"><Link href="/contact">Получить консультацию</Link></Button>
           </div>
         </div>
 
         <div className="mx-auto mt-14 max-w-7xl">
-          <h2 className="text-3xl font-black">Совместимость Fitment</h2>
-          {fitments.length === 0 ? (
-            <p className="mt-4 text-graphite/60">Для этой модели пока нет привязанных автомобилей.</p>
-          ) : (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {fitments.map((fitment) => (
-                <Card key={fitment.id} className="p-5">
-                  <p className="text-lg font-bold">{fitment.vehicle_model.name}</p>
-                  <p className="mt-2 text-sm text-graphite/60">Проверенный fitment из FastAPI backend</p>
-                </Card>
-              ))}
+          <LiquidCard className="rounded-[2rem] p-6 sm:p-8">
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">Fitment</p>
+                <h2 className="mt-3 text-3xl font-black text-primary sm:text-5xl">Подходит для</h2>
+              </div>
+              <Button asChild variant="outline"><Link href="/fitment">Подобрать по автомобилю</Link></Button>
             </div>
-          )}
+            {fitments.length === 0 ? (
+              <p className="mt-6 text-graphite">Для этой модели пока нет привязанных автомобилей. Специалист PRIDE проверит параметры под ваш кузов вручную.</p>
+            ) : (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {fitments.map((fitment) => (
+                  <LiquidCard key={fitment.id} interactive className="rounded-2xl p-5">
+                    <p className="text-lg font-bold text-primary">{fitment.vehicle_model.name}</p>
+              <p className="mt-2 text-sm text-graphite/70">Проверенный fitment из FastAPI backend</p>
+                  </LiquidCard>
+                ))}
+              </div>
+            )}
+          </LiquidCard>
         </div>
+
+        {related.length > 0 && (
+          <div className="mx-auto mt-14 max-w-7xl">
+            <div className="mb-6 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">PRIDE selection</p>
+                <h2 className="mt-3 text-3xl font-black text-primary sm:text-5xl">Похожие модели</h2>
+              </div>
+              <Button asChild variant="outline"><Link href="/catalog">Весь каталог</Link></Button>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {related.map((item, index) => <WheelCard key={item.slug} wheel={item} index={index} />)}
+            </div>
+          </div>
+        )}
       </section>
     );
   } catch (error) {

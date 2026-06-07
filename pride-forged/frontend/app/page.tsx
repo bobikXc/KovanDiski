@@ -4,6 +4,7 @@ import { CTASection } from "@/components/sections/CTASection";
 import { FeaturedWheels } from "@/components/sections/FeaturedWheels";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { VehicleSelector } from "@/components/sections/VehicleSelector";
+import { WheelCalculatorCTA } from "@/components/wheel-calculator-cta";
 import { getBrandsWithModels, getWheels } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function Home() {
       <AdvantagesSection />
       <FeaturedWheels wheels={wheels} />
       <VehicleSelector brands={brands} />
+      <WheelCalculatorCTA />
       <AboutSection />
       <CTASection />
     </>

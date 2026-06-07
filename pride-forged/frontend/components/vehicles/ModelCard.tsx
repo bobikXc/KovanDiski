@@ -15,7 +15,7 @@ export function ModelCard({ brand, model }: { brand: Brand; model: VehicleModel 
     <Link href={`/vehicles/${brand.slug}/${model.slug}`} className="block h-full">
       <Card className="h-full p-7 transition hover:-translate-y-1 hover:border-accent/40">
         <p className="text-2xl font-black">{model.name}</p>
-        <p className="mt-3 text-graphite/60">Fitment {yearsLabel(model)}</p>
+        <p className="mt-3 text-graphite">Fitment {yearsLabel(model)}</p>
       </Card>
     </Link>
   );

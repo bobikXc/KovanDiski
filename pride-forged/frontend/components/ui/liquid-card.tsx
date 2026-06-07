@@ -2,19 +2,23 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-type LiquidCardProps = React.HTMLAttributes<HTMLDivElement> & {
+type LiquidGlassProps = React.HTMLAttributes<HTMLDivElement> & {
   interactive?: boolean;
 };
 
-export function LiquidCard({ className, interactive = false, ...props }: LiquidCardProps) {
+export function LiquidGlass({ className, interactive = false, ...props }: LiquidGlassProps) {
   return (
     <div
       className={cn(
-        "liquid-card rounded-[2rem] shadow-liquid",
-        interactive && "transition duration-300 hover:scale-[1.03] hover:border-white/70 hover:shadow-liquidHover",
+        "liquid-glass rounded-[1.5rem] shadow-liquid",
+        interactive && "transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:shadow-liquidHover",
         className
       )}
       {...props}
     />
   );
+}
+
+export function LiquidCard(props: LiquidGlassProps) {
+  return <LiquidGlass {...props} />;
 }

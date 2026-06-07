@@ -53,7 +53,7 @@ export default async function ModelPage({ params }: ModelPageProps) {
         <div className="mx-auto max-w-7xl">
           <Link href={`/vehicles/${brand.slug}`} className="text-sm text-accent">← Назад к моделям</Link>
           <h1 className="mt-5 text-5xl font-black">PRIDE для {brand.name} {model.name}</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite/70">
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite">
             Подходящие диски загружены из endpoint Fitment. Точные параметры согласуем по тормозной системе, подвеске и желаемой посадке.
           </p>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import { BackToTopButton } from "@/components/back-to-top-button";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import "./globals.css";
@@ -23,10 +24,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body className={`${inter.className} premium-gradient`}>
+      <body className={`${inter.className} premium-gradient antialiased`}>
         <Navbar />
         <main>{children}</main>
         <Footer />
+        <BackToTopButton />
       </body>
     </html>
   );

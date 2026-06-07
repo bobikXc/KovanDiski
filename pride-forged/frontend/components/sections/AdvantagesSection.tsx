@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/reveal";
 const advantages = [
   ["Собственное производство", "Контроль геометрии, сроков и качества на каждом этапе: от 3D-модели до финального покрытия."],
   ["Инженерный fitment", "Параметры под конкретный кузов, тормозную систему, клиренс и желаемую посадку автомобиля."],
-  ["Премиальная отделка", "Сатин, gloss, brushed, diamond cut и индивидуальные оттенки в новой светлой эстетике PRIDE."],
+  ["Премиальная отделка", "Сатин, gloss, brushed, diamond cut и индивидуальные оттенки в темной polished-metal эстетике PRIDE."],
   ["Легкая ковка", "Моноблочная конструкция снижает неподрессоренную массу без компромисса по прочности."],
   ["Персональный сервис", "Сопровождение клиента от первой консультации до установки и рекомендаций по уходу."],
   ["Гарантия результата", "Прозрачные сроки, контроль качества и документация на каждый изготовленный комплект."]
@@ -44,11 +44,11 @@ export function AdvantagesSection() {
           {advantages.map(([title, text], index) => (
             <motion.div key={title} variants={item} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
               <LiquidCard interactive className="group h-full p-7">
-                <div className="mb-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-white/50 text-sm font-black text-accent shadow-liquid">
+                <div className="mb-10 flex h-12 w-12 items-center justify-center rounded-full border border-primary/15 bg-surface/65 text-sm font-black text-accent shadow-liquid">
                   {String(index + 1).padStart(2, "0")}
                 </div>
                 <h3 className="text-2xl font-bold tracking-tight text-primary">{title}</h3>
-                <p className="mt-4 leading-7 text-graphite/70">{text}</p>
+                <p className="mt-4 leading-7 text-graphite">{text}</p>
               </LiquidCard>
             </motion.div>
           ))}

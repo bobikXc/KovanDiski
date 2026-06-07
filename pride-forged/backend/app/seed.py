@@ -14,6 +14,153 @@ BRANDS = {
     "Tesla": ["Model 3", "Model S", "Model X"],
 }
 
+WHEEL_SPECS = [
+    {
+        "name": "PRIDE Apex",
+        "slug": "pride-apex",
+        "description": "Флагманская модель с напряженной Y-образной геометрией, созданная для мощных купе и седанов с акцентом на точную посадку и визуальную легкость.",
+        "diameter": 22,
+        "width": "9.5",
+        "et": 30,
+        "pcd": "5x108",
+        "dia": "63.4",
+        "weight": "15.60",
+        "image_url": "/images/wheels/apex.png",
+    },
+    {
+        "name": "PRIDE Vector",
+        "slug": "pride-vector",
+        "description": "Чистый направленный дизайн с широкой полкой и спокойной графикой для автомобилей, где важны статус, баланс и уверенная линия профиля.",
+        "diameter": 20,
+        "width": "9.0",
+        "et": 32,
+        "pcd": "5x112",
+        "dia": "66.6",
+        "weight": "10.20",
+        "image_url": "/images/wheels/vector.png",
+    },
+    {
+        "name": "PRIDE Storm",
+        "slug": "pride-storm",
+        "description": "Агрессивная многоспицевая ковка для performance-сценариев: выразительная глубина, высокая жесткость и точная работа с большими тормозами.",
+        "diameter": 21,
+        "width": "10.0",
+        "et": 28,
+        "pcd": "5x120",
+        "dia": "72.6",
+        "weight": "11.40",
+        "image_url": "/images/wheels/storm.png",
+    },
+    {
+        "name": "PRIDE Blade",
+        "slug": "pride-blade",
+        "description": "Острые грани и вытянутые лучи создают эффект движения даже на статичном автомобиле, сохраняя премиальную сдержанность формы.",
+        "diameter": 20,
+        "width": "8.5",
+        "et": 35,
+        "pcd": "5x112",
+        "dia": "66.6",
+        "weight": "9.80",
+        "image_url": "/images/wheels/blade.png",
+    },
+    {
+        "name": "PRIDE Mono",
+        "slug": "pride-mono",
+        "description": "Монолитная архитектура с плотной центральной частью для автомобилей представительского класса и проектов с лаконичным визуальным кодом.",
+        "diameter": 19,
+        "width": "8.5",
+        "et": 33,
+        "pcd": "5x114.3",
+        "dia": "67.1",
+        "weight": "9.30",
+        "image_url": "/images/wheels/mono.png",
+    },
+    {
+        "name": "PRIDE R-Line",
+        "slug": "pride-r-line",
+        "description": "Спортивная модель с точным ритмом спиц, разработанная для плотной посадки, выразительного stance и повседневной надежности.",
+        "diameter": 21,
+        "width": "9.5",
+        "et": 31,
+        "pcd": "5x112",
+        "dia": "66.6",
+        "weight": "10.90",
+        "image_url": "/images/wheels/vector.png",
+    },
+    {
+        "name": "PRIDE GT",
+        "slug": "pride-gt",
+        "description": "Gran Turismo характер: длинные чистые лучи, визуальная ширина и инженерная геометрия для быстрых автомобилей дальнего хода.",
+        "diameter": 22,
+        "width": "10.5",
+        "et": 27,
+        "pcd": "5x130",
+        "dia": "71.6",
+        "weight": "12.10",
+        "image_url": "/images/wheels/storm.png",
+    },
+    {
+        "name": "PRIDE Evo",
+        "slug": "pride-evo",
+        "description": "Современная эволюция классической кованой формы: сниженная масса, точная нагрузочная схема и спокойная премиальная пластика.",
+        "diameter": 20,
+        "width": "9.0",
+        "et": 29,
+        "pcd": "5x120",
+        "dia": "72.6",
+        "weight": "9.90",
+        "image_url": "/images/wheels/blade.png",
+    },
+    {
+        "name": "PRIDE RS",
+        "slug": "pride-rs",
+        "description": "Собранная RS-геометрия для мощных седанов и универсалов: строгая лицевая плоскость, глубокие проемы и уверенный спортивный акцент.",
+        "diameter": 21,
+        "width": "10.0",
+        "et": 26,
+        "pcd": "5x112",
+        "dia": "66.6",
+        "weight": "10.70",
+        "image_url": "/images/wheels/apex.png",
+    },
+    {
+        "name": "PRIDE Vortex",
+        "slug": "pride-vortex",
+        "description": "Динамичная закрученная графика с эффектом глубины для проектов, где диск должен добавлять автомобилю энергии без визуального шума.",
+        "diameter": 22,
+        "width": "10.0",
+        "et": 24,
+        "pcd": "5x112",
+        "dia": "66.6",
+        "weight": "11.80",
+        "image_url": "/images/wheels/titan.png",
+    },
+    {
+        "name": "PRIDE Titan",
+        "slug": "pride-titan",
+        "description": "Усиленная премиальная модель для SUV и тяжелых performance-платформ с акцентом на надежность, масштаб и чистую геометрию.",
+        "diameter": 23,
+        "width": "10.5",
+        "et": 34,
+        "pcd": "5x130",
+        "dia": "71.6",
+        "weight": "13.20",
+        "image_url": "/images/wheels/titan.png",
+    },
+    {
+        "name": "PRIDE Nero",
+        "slug": "pride-nero",
+        "description": "Темная, собранная и минималистичная модель для конфигураций с глубоким контрастом, крупными тормозами и акцентом на силуэт.",
+        "diameter": 20,
+        "width": "9.5",
+        "et": 30,
+        "pcd": "5x120",
+        "dia": "72.6",
+        "weight": "10.40",
+        "image_url": "/images/wheels/mono.png",
+    },
+]
+
 
 def slugify(value: str) -> str:
     return (
@@ -60,34 +207,41 @@ def seed_brands_and_models(db: Session) -> list[VehicleModel]:
 
 def seed_wheels(db: Session) -> list[Wheel]:
     wheels: list[Wheel] = []
-    for number in range(1, 13):
-        name = f"PRIDE P{number:02d}"
-        slug = f"pride-p{number:02d}"
+    for legacy_wheel in db.scalars(select(Wheel).where(Wheel.slug.like("pride-p%"))).all():
+        db.delete(legacy_wheel)
+    db.flush()
+
+    for spec in WHEEL_SPECS:
+        slug = spec["slug"]
         wheel = db.scalar(select(Wheel).where(Wheel.slug == slug))
         if wheel is None:
             wheel = Wheel(
-                name=name,
+                name=spec["name"],
                 slug=slug,
-                description=(
-                    f"{name} — премиальная кованая модель с выразительной геометрией, "
-                    "низкой массой и усиленной конструкцией для мощных автомобилей."
-                ),
-                price=Decimal("145000.00") + Decimal(number * 7000),
-                diameter=19 + (number % 4),
-                width=Decimal("8.5") + Decimal(number % 4) / Decimal("2"),
-                et=25 + number,
-                pcd="5x112" if number % 2 else "5x120",
-                dia=Decimal("66.6") if number % 2 else Decimal("72.6"),
-                weight=Decimal("8.80") + Decimal(number) / Decimal("10"),
+                description=spec["description"],
+                price=Decimal("0.00"),
+                diameter=spec["diameter"],
+                width=Decimal(spec["width"]),
+                et=spec["et"],
+                pcd=spec["pcd"],
+                dia=Decimal(spec["dia"]),
+                weight=Decimal(spec["weight"]),
             )
             db.add(wheel)
             db.flush()
-            db.add_all(
-                [
-                    WheelImage(wheel_id=wheel.id, image_url=f"/wheels/{slug}-studio.webp"),
-                    WheelImage(wheel_id=wheel.id, image_url=f"/wheels/{slug}-detail.webp"),
-                ]
-            )
+        else:
+            wheel.name = spec["name"]
+            wheel.description = spec["description"]
+            wheel.price = Decimal("0.00")
+            wheel.diameter = spec["diameter"]
+            wheel.width = Decimal(spec["width"])
+            wheel.et = spec["et"]
+            wheel.pcd = spec["pcd"]
+            wheel.dia = Decimal(spec["dia"])
+            wheel.weight = Decimal(spec["weight"])
+
+        wheel.images.clear()
+        db.add(WheelImage(wheel_id=wheel.id, image_url=spec["image_url"]))
         wheels.append(wheel)
     return wheels
 

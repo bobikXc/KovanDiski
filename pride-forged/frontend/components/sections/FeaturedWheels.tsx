@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, type Variants } from "framer-motion";
 
-import { getWheelImage } from "@/components/catalog/WheelCard";
+import { formatWheelPrice, getWheelImageOrFallback } from "@/components/catalog/WheelCard";
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { Reveal } from "@/components/ui/reveal";
 import type { Wheel } from "@/lib/api";
@@ -48,9 +48,9 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
               <Link href={`/catalog/${wheel.slug}`} className="block h-full">
                 <LiquidCard interactive className="group h-full overflow-hidden p-4 sm:p-6">
                   <div className="mesh-card relative flex aspect-[1.18] items-center justify-center overflow-hidden rounded-[1.7rem]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(255,255,255,0.95),transparent_38%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(244,247,251,0.15),transparent_38%)]" />
                     <Image
-                      src={getWheelImage(wheel, index)}
+                      src={getWheelImageOrFallback(wheel, index)}
                       alt={`Кованый диск ${wheel.name}`}
                       width={1100}
                       height={950}
@@ -60,18 +60,18 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
                   <div className="mt-6 flex items-start justify-between gap-5">
                     <div>
                       <h3 className="text-3xl font-black tracking-tight text-primary">{wheel.name}</h3>
-                      <p className="mt-3 text-sm text-graphite/60">
+                      <p className="mt-3 text-sm text-graphite/70">
                         {wheel.diameter}″ • {wheel.width}J • ET{wheel.et} • {wheel.pcd} • DIA {wheel.dia}
                       </p>
                     </div>
-                    <span className="rounded-full border border-white/60 bg-white/50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                    <span className="rounded-full border border-primary/10 bg-surface/55 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
                       forged
                     </span>
                   </div>
                   <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
-                    <div className="rounded-2xl bg-white/40 p-3"><span className="block text-graphite/50">Вес</span><b>{wheel.weight} кг</b></div>
-                    <div className="rounded-2xl bg-white/40 p-3"><span className="block text-graphite/50">PCD</span><b>{wheel.pcd}</b></div>
-                    <div className="rounded-2xl bg-white/40 p-3"><span className="block text-graphite/50">Цена</span><b>{Number(wheel.price).toLocaleString("ru-RU")} ₽</b></div>
+                    <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Вес</span><b>{wheel.weight} кг</b></div>
+                    <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">PCD</span><b>{wheel.pcd}</b></div>
+                    <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Цена</span><b>{formatWheelPrice(wheel.price)}</b></div>
                   </div>
                 </LiquidCard>
               </Link>

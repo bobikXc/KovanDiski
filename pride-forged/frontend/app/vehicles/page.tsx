@@ -27,7 +27,7 @@ export default async function VehiclesPage() {
       <section className="px-4 pb-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <h1 className="text-4xl font-black sm:text-6xl">Каталог автомобилей</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite/70">
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite">
             Марки загружаются из FastAPI backend. Внутри каждой марки доступны модели и проверенные связки Fitment.
           </p>
           {brands.length === 0 ? (

@@ -1,10 +1,12 @@
 import axios, { AxiosError } from "axios";
 
+const apiBaseURL =
+  typeof window === "undefined"
+    ? process.env.INTERNAL_API_URL ?? "http://backend:8000/api"
+    : process.env.NEXT_PUBLIC_API_URL ?? "/api";
+
 export const api = axios.create({
-  baseURL:
-    typeof window === "undefined"
-      ? process.env.INTERNAL_API_URL
-      : process.env.NEXT_PUBLIC_API_URL,
+  baseURL: apiBaseURL,
   timeout: 8000,
 });
 
@@ -65,6 +67,15 @@ function toApiError(error: unknown, resource: string): ApiRequestError {
   if (error instanceof AxiosError) {
     const status = error.response?.status;
     const detail = typeof error.response?.data?.detail === "string" ? error.response.data.detail : undefined;
+    const requestUrl = `${error.config?.baseURL ?? ""}${error.config?.url ?? ""}`;
+
+    console.error("API request failed", {
+      message: error.message,
+      code: error.code,
+      responseStatus: status,
+      requestUrl,
+    });
+
     return new ApiRequestError(detail ?? `Не удалось загрузить ${resource}`, status);
   }
 
