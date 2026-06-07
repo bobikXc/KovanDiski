@@ -25,7 +25,7 @@ WHEEL_SPECS = [
         "pcd": "5x108",
         "dia": "63.4",
         "weight": "15.60",
-        "image_url": "/images/wheels/apex.png",
+        "image_url": "/images/wheels/apex.jpg",
     },
     {
         "name": "PRIDE Vector",
@@ -37,7 +37,7 @@ WHEEL_SPECS = [
         "pcd": "5x112",
         "dia": "66.6",
         "weight": "10.20",
-        "image_url": "/images/wheels/vector.png",
+        "image_url": "/images/wheels/vector.jpg",
     },
     {
         "name": "PRIDE Storm",
@@ -49,7 +49,7 @@ WHEEL_SPECS = [
         "pcd": "5x120",
         "dia": "72.6",
         "weight": "11.40",
-        "image_url": "/images/wheels/storm.png",
+        "image_url": "/images/wheels/storm.jpg",
     },
     {
         "name": "PRIDE Blade",
@@ -61,7 +61,7 @@ WHEEL_SPECS = [
         "pcd": "5x112",
         "dia": "66.6",
         "weight": "9.80",
-        "image_url": "/images/wheels/blade.png",
+        "image_url": "/images/wheels/blade.jpg",
     },
     {
         "name": "PRIDE Mono",
@@ -73,7 +73,7 @@ WHEEL_SPECS = [
         "pcd": "5x114.3",
         "dia": "67.1",
         "weight": "9.30",
-        "image_url": "/images/wheels/mono.png",
+        "image_url": "/images/wheels/mono.jpg",
     },
     {
         "name": "PRIDE R-Line",
@@ -85,7 +85,7 @@ WHEEL_SPECS = [
         "pcd": "5x112",
         "dia": "66.6",
         "weight": "10.90",
-        "image_url": "/images/wheels/vector.png",
+        "image_url": "/images/wheels/vector.jpg",
     },
     {
         "name": "PRIDE GT",
@@ -97,7 +97,7 @@ WHEEL_SPECS = [
         "pcd": "5x130",
         "dia": "71.6",
         "weight": "12.10",
-        "image_url": "/images/wheels/storm.png",
+        "image_url": "/images/wheels/storm.jpg",
     },
     {
         "name": "PRIDE Evo",
@@ -109,7 +109,7 @@ WHEEL_SPECS = [
         "pcd": "5x120",
         "dia": "72.6",
         "weight": "9.90",
-        "image_url": "/images/wheels/blade.png",
+        "image_url": "/images/wheels/blade.jpg",
     },
     {
         "name": "PRIDE RS",
@@ -121,7 +121,7 @@ WHEEL_SPECS = [
         "pcd": "5x112",
         "dia": "66.6",
         "weight": "10.70",
-        "image_url": "/images/wheels/apex.png",
+        "image_url": "/images/wheels/apex.jpg",
     },
     {
         "name": "PRIDE Vortex",
@@ -133,7 +133,7 @@ WHEEL_SPECS = [
         "pcd": "5x112",
         "dia": "66.6",
         "weight": "11.80",
-        "image_url": "/images/wheels/titan.png",
+        "image_url": "/images/wheels/titan.jpg",
     },
     {
         "name": "PRIDE Titan",
@@ -145,7 +145,7 @@ WHEEL_SPECS = [
         "pcd": "5x130",
         "dia": "71.6",
         "weight": "13.20",
-        "image_url": "/images/wheels/titan.png",
+        "image_url": "/images/wheels/titan.jpg",
     },
     {
         "name": "PRIDE Nero",
@@ -157,7 +157,7 @@ WHEEL_SPECS = [
         "pcd": "5x120",
         "dia": "72.6",
         "weight": "10.40",
-        "image_url": "/images/wheels/mono.png",
+        "image_url": "/images/wheels/mono.jpg",
     },
 ]
 
