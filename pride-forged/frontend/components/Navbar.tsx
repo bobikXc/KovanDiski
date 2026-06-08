@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { BrandLogo } from "@/components/BrandLogo";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +49,7 @@ export function Navbar() {
   }, [isOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-primary/[0.08] bg-[#07111F]/78 shadow-[0_16px_50px_rgba(0,0,0,0.28)] backdrop-blur-2xl">
+    <header className="sticky top-0 z-50 border-b border-primary/[0.08] bg-background/78 shadow-[0_16px_50px_rgba(0,0,0,0.14)] backdrop-blur-2xl">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-8">
         <BrandLogo priority imageClassName="h-8 sm:h-9" className="shrink-0" />
         <nav className="hidden items-center gap-7 lg:flex">
@@ -65,9 +66,12 @@ export function Navbar() {
             </Link>
           ))}
         </nav>
-        <Button asChild size="default" className="hidden lg:inline-flex">
-          <Link href="/contact">Заказать звонок</Link>
-        </Button>
+        <div className="hidden items-center gap-3 lg:flex">
+          <ThemeSwitcher />
+          <Button asChild size="default">
+            <Link href="/contact">Заказать звонок</Link>
+          </Button>
+        </div>
         <button
           type="button"
           aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
@@ -128,6 +132,7 @@ export function Navbar() {
                   {label}
                 </Link>
               ))}
+              <ThemeSwitcher className="mt-2" />
               <Button asChild size="lg" className="mt-2 w-full">
                 <Link href="/contact" onClick={() => setIsOpen(false)}>
                   Заказать звонок

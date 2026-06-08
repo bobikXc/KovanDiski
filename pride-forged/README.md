@@ -22,20 +22,43 @@ pride-forged/
 └── README.md
 ```
 
-## Быстрый запуск
+## Локальный запуск через Docker Compose
 
 ```bash
 cd pride-forged
-cp .env.example .env
-docker compose up -d
+cp .env.local.example .env
+docker compose down
+docker compose up --build -d
 ```
 
 После запуска:
 
 - Сайт: <http://localhost>
-- Backend healthcheck: <http://localhost/health> через контейнер backend или <http://localhost/api/brands> через Nginx
+- Backend healthcheck: <http://localhost/health>
+- API brands: <http://localhost/api/brands>
+- API wheels: <http://localhost/api/wheels>
 - OpenAPI UI: <http://localhost/docs>
 - OpenAPI JSON: <http://localhost/openapi.json>
+
+Локальные значения API:
+
+```text
+NEXT_PUBLIC_API_URL=/api
+INTERNAL_API_URL=http://backend:8000/api
+DATABASE_URL=postgresql+psycopg://pride:pride_password@postgres:5432/pride_forged
+```
+
+Удобные команды:
+
+```bash
+make local-env
+make up
+make ps
+make logs
+make down
+make restart
+make clean
+```
 
 ## Локальная разработка без Docker
 
@@ -50,6 +73,8 @@ alembic upgrade head
 python -m app.seed
 uvicorn app.main:app --reload
 ```
+
+Для запуска backend без Docker нужен PostgreSQL и локальные переменные из `backend/.env.local.example`, адаптированные под вашу базу.
 
 ### Frontend
 
@@ -121,8 +146,50 @@ docker compose down -v
 docker compose up -d
 ```
 
+## Production deploy
+
+Один и тот же код работает в production через переменные окружения. Реальные секреты храните только в Render/Vercel dashboards, не в Git.
+
+### Render backend
+
+- Root Directory: `pride-forged/backend`
+- Build Command: `pip install .`
+- Start Command: `sh start.sh`
+- Env:
+
+```text
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:PORT/DB
+BACKEND_CORS_ORIGINS=https://your-frontend-domain.vercel.app,https://your-frontend.onrender.com
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+```
+
+### Frontend Vercel/Render
+
+- Root Directory: `pride-forged/frontend`
+- Build Command: `npm run build`
+- Start Command для Render frontend: `npm run start`
+- Env:
+
+```text
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com/api
+INTERNAL_API_URL=https://your-backend.onrender.com/api
+```
+
+Разница local/prod:
+
+```text
+Local:
+NEXT_PUBLIC_API_URL=/api
+INTERNAL_API_URL=http://backend:8000/api
+
+Production:
+NEXT_PUBLIC_API_URL=https://backend-domain/api
+INTERNAL_API_URL=https://backend-domain/api
+```
+
 ## Production notes
 
-- Замените значения `.env` на безопасные секреты.
+- Не коммитьте `.env`, `.env.local`, `.env.production`, `frontend/.env.local`, `frontend/.env.production`, `backend/.env.local`, `backend/.env.production`.
 - Добавьте домен и TLS termination перед Nginx или в отдельном reverse proxy.
 - Подключите реальные изображения дисков в `frontend/public` или CDN.

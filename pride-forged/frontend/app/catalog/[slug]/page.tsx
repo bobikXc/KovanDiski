@@ -57,8 +57,8 @@ export default async function WheelPage({ params }: WheelPageProps) {
 
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <LiquidCard className="mesh-card relative flex min-h-[440px] items-center justify-center overflow-hidden rounded-[2rem] p-4 sm:min-h-[560px]">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgba(244,247,251,0.16),transparent_42%)]" />
-            <div className="absolute inset-x-16 bottom-16 h-12 rounded-full bg-black/45 blur-3xl" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_28%,rgb(var(--text-primary-rgb)/0.12),transparent_42%)]" />
+            <div className="absolute inset-x-16 bottom-16 h-12 rounded-full bg-primary/25 blur-3xl" />
             <div className="relative aspect-square w-full max-w-[620px] overflow-hidden rounded-full">
               <Image
                 src={getWheelImageOrFallback(wheel)}

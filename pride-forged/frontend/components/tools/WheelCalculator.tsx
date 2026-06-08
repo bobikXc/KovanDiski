@@ -141,7 +141,7 @@ function SelectorPanel({
           animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -8, scale: 0.98, filter: "blur(8px)" }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-[60] mt-3 max-h-[280px] overflow-y-auto rounded-[1.6rem] border border-primary/12 bg-surface/95 p-5 shadow-[0_24px_64px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(244,247,251,0.10)] backdrop-blur-2xl"
+          className="relative z-[60] mt-3 max-h-[280px] overflow-y-auto rounded-[1.6rem] border border-primary/12 bg-surface/95 p-5 shadow-[0_24px_64px_rgba(0,0,0,0.18),inset_0_1px_0_rgb(var(--text-primary-rgb)/0.10)] backdrop-blur-2xl"
         >
           <div className="mb-5 h-px w-full bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
           {children}
@@ -167,7 +167,7 @@ function SelectorCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex min-h-24 w-full items-center justify-between rounded-[1.7rem] border border-primary/10 bg-surface/80 px-6 text-left shadow-[inset_0_1px_0_rgba(244,247,251,0.08)] transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:bg-surface hover:shadow-[0_20px_60px_rgba(62,110,168,0.16)]",
+        "group flex min-h-24 w-full items-center justify-between rounded-[1.7rem] border border-primary/10 bg-surface/80 px-6 text-left shadow-[inset_0_1px_0_rgb(var(--text-primary-rgb)/0.08)] transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:bg-surface hover:shadow-[0_20px_60px_rgba(62,110,168,0.16)]",
         open && "border-accent/50 bg-surface shadow-[0_24px_70px_rgba(62,110,168,0.18)]"
       )}
     >
@@ -224,7 +224,7 @@ function PriceFrame({
           </div>
           <Link
             href="/contact"
-            className="metal-sheen inline-flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-sm font-black text-white shadow-[0_16px_44px_rgba(62,110,168,0.28)] hover:-translate-y-0.5 hover:bg-[#4F82BD] sm:w-auto"
+            className="metal-sheen inline-flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-sm font-black text-white shadow-[0_16px_44px_rgba(62,110,168,0.28)] hover:-translate-y-0.5 hover:bg-accent/90 sm:w-auto"
           >
             Заказать
           </Link>

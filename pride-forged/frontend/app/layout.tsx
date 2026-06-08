@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 
 import { BackToTopButton } from "@/components/back-to-top-button";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
@@ -23,12 +25,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ru">
+    <html lang="ru" data-theme="dark" suppressHydrationWarning>
       <body className={`${inter.className} premium-gradient antialiased`}>
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
-        <BackToTopButton />
+        <Suspense>
+          <ThemeProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <BackToTopButton />
+          </ThemeProvider>
+        </Suspense>
       </body>
     </html>
   );

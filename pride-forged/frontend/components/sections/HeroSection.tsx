@@ -34,7 +34,7 @@ export function HeroSection() {
       <div className="absolute right-[-22rem] top-[-12rem] h-[54rem] w-[54rem] rounded-full bg-accent/10 blur-3xl" />
       <div className="absolute bottom-[-18rem] left-1/2 h-[36rem] w-[70rem] -translate-x-1/2 rounded-[100%] bg-primary/[0.035] blur-3xl" />
       <div className="absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-background to-transparent" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(244,247,251,0.08),transparent_42%,rgba(62,110,168,0.08)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgb(var(--text-primary-rgb)/0.08),transparent_42%,rgb(var(--accent-rgb)/0.08)_100%)]" />
       <motion.div
         aria-hidden="true"
         animate={{ opacity: [0.18, 0.42, 0.18], scaleX: [0.72, 1, 0.72] }}
@@ -51,7 +51,7 @@ export function HeroSection() {
         aria-hidden="true"
         animate={{ x: ["-35%", "35%", "-35%"], opacity: [0.18, 0.34, 0.18] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-0 h-full w-1/3 rotate-12 bg-[linear-gradient(90deg,transparent,rgba(244,247,251,0.09),transparent)] blur-xl"
+        className="absolute top-0 h-full w-1/3 rotate-12 bg-[linear-gradient(90deg,transparent,rgb(var(--text-primary-rgb)/0.09),transparent)] blur-xl"
       />
 
       <div className="mx-auto grid w-full max-w-7xl items-center gap-8 py-14 sm:py-16 md:py-18 lg:grid-cols-[0.98fr_1.02fr] lg:py-10 xl:py-8">

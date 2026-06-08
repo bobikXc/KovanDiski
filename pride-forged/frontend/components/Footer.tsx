@@ -12,7 +12,7 @@ const footerLinks = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-primary/10 bg-[#07111F]/80 backdrop-blur-2xl">
+    <footer className="border-t border-primary/10 bg-background/80 backdrop-blur-2xl">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.2fr_0.8fr_1fr] lg:px-8">
         <div>
           <BrandLogo imageClassName="h-12" />

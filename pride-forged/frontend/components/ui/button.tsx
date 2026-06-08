@@ -15,8 +15,8 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variants: Record<ButtonVariant, string> = {
-  default: "metal-sheen !border-accent/45 !bg-accent/90 text-white shadow-[0_18px_48px_rgba(62,110,168,0.30)] hover:-translate-y-0.5 hover:!bg-[#4F82BD] hover:shadow-[0_22px_62px_rgba(62,110,168,0.42)]",
-  secondary: "metal-sheen !border-primary/20 !bg-primary/95 text-secondary shadow-[0_18px_48px_rgba(244,247,251,0.10)] hover:-translate-y-0.5 hover:!bg-white",
+  default: "metal-sheen !border-accent/45 !bg-accent/90 text-white shadow-[0_18px_48px_rgba(62,110,168,0.30)] hover:-translate-y-0.5 hover:!bg-accent hover:shadow-[0_22px_62px_rgba(62,110,168,0.42)]",
+  secondary: "metal-sheen !border-primary/20 !bg-primary/95 text-secondary shadow-[0_18px_48px_rgb(var(--text-primary-rgb)/0.10)] hover:-translate-y-0.5 hover:!bg-white",
   outline: "liquid-glass !border-primary/16 !bg-surface/35 text-primary hover:-translate-y-0.5 hover:!border-accent/45 hover:!bg-surface/55",
   ghost: "!border-transparent !bg-transparent text-primary shadow-none hover:-translate-y-0.5 hover:!bg-surface/45"
 };

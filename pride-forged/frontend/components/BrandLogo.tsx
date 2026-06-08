@@ -19,7 +19,7 @@ export function BrandLogo({ className, imageClassName, priority = false, showTex
         width={160}
         height={160}
         priority={priority}
-        className={cn("h-9 w-auto object-contain brightness-0 invert", imageClassName)}
+        className={cn("brand-logo-image h-9 w-auto object-contain", imageClassName)}
       />
       {showText && (
         <span className="leading-none">

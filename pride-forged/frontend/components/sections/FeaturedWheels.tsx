@@ -48,7 +48,7 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
               <Link href={`/catalog/${wheel.slug}`} className="block h-full">
                 <LiquidCard interactive className="group h-full overflow-hidden p-4 sm:p-6">
                   <div className="mesh-card relative flex aspect-[1.18] items-center justify-center overflow-hidden rounded-[1.7rem]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(244,247,251,0.15),transparent_38%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
                     <Image
                       src={getWheelImageOrFallback(wheel, index)}
                       alt={`Кованый диск ${wheel.name}`}

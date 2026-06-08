@@ -151,7 +151,7 @@ function Field({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full min-w-0 rounded-2xl border border-primary/10 bg-surface/70 px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgba(244,247,251,0.08),0_18px_45px_rgba(0,0,0,0.16)] outline-none backdrop-blur-xl transition duration-300 hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:bg-surface/35 disabled:text-graphite/35"
+        className="h-12 w-full min-w-0 rounded-2xl border border-primary/10 bg-surface/70 px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgb(var(--text-primary-rgb)/0.08),0_18px_45px_rgba(0,0,0,0.12)] outline-none backdrop-blur-xl transition duration-300 hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:bg-surface/35 disabled:text-graphite/35"
       >
         {children}
       </select>

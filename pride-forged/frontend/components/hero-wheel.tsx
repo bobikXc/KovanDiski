@@ -17,8 +17,8 @@ export function HeroWheel() {
     >
       <div className="absolute inset-[8%] rounded-full bg-accent/28 blur-3xl" />
       <div className="absolute inset-[20%] rounded-full bg-primary/10 blur-2xl" />
-      <div className="absolute left-1/2 top-1/2 h-[74%] w-[74%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15 bg-surface/20 shadow-[inset_0_0_90px_rgba(244,247,251,0.10)]" />
-      <div className="absolute bottom-[4%] left-1/2 h-12 w-[58%] -translate-x-1/2 rounded-full bg-black/50 blur-2xl" />
+      <div className="absolute left-1/2 top-1/2 h-[74%] w-[74%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/15 bg-surface/20 shadow-[inset_0_0_90px_rgb(var(--text-primary-rgb)/0.10)]" />
+      <div className="absolute bottom-[4%] left-1/2 h-12 w-[58%] -translate-x-1/2 rounded-full bg-primary/30 blur-2xl" />
       <motion.div
         initial={{ x: "72vw", opacity: 0, rotate: -210, scale: 0.82 }}
         animate={{ x: 0, opacity: 1, rotate: 0, scale: 1 }}
@@ -34,7 +34,7 @@ export function HeroWheel() {
             aria-hidden="true"
             animate={{ rotate: 360 }}
             transition={{ delay: 1.7, duration: 7.5, ease: "linear", repeat: Infinity }}
-            className="absolute inset-[-6%] rounded-full bg-[conic-gradient(from_0deg,transparent,rgba(244,247,251,0.28),transparent_18%,transparent_100%)] blur-sm"
+            className="absolute inset-[-6%] rounded-full bg-[conic-gradient(from_0deg,transparent,rgb(var(--text-primary-rgb)/0.28),transparent_18%,transparent_100%)] blur-sm"
           />
           <Image
             src={heroWheelImage}

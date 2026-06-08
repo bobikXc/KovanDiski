@@ -24,3 +24,8 @@ app.include_router(router)
 @app.get("/health", tags=["system"])
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.head("/health", tags=["system"])
+def health_head() -> None:
+    return None

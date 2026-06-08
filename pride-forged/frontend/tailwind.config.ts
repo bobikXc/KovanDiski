@@ -6,22 +6,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#F4F7FB",
-        secondary: "#0D1B2A",
-        accent: "#3E6EA8",
-        graphite: "#A9B7C9",
-        surface: "#132238",
-        metal: "#2A3442",
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))"
+        primary: "rgb(var(--text-primary-rgb) / <alpha-value>)",
+        secondary: "rgb(var(--bg-secondary-rgb) / <alpha-value>)",
+        accent: "rgb(var(--accent-rgb) / <alpha-value>)",
+        graphite: "rgb(var(--text-secondary-rgb) / <alpha-value>)",
+        surface: "rgb(var(--surface-rgb) / <alpha-value>)",
+        metal: "rgb(var(--graphite-rgb) / <alpha-value>)",
+        border: "var(--border)",
+        input: "rgb(var(--surface-2-rgb) / <alpha-value>)",
+        ring: "rgb(var(--accent-rgb) / <alpha-value>)",
+        background: "rgb(var(--bg-rgb) / <alpha-value>)",
+        foreground: "rgb(var(--text-primary-rgb) / <alpha-value>)"
       },
       boxShadow: {
-        premium: "0 30px 90px rgba(0, 0, 0, 0.34)",
-        liquid: "0 28px 90px rgba(0, 0, 0, 0.28)",
-        liquidHover: "0 34px 110px rgba(62, 110, 168, 0.22)"
+        premium: "var(--shadow-premium)",
+        liquid: "var(--shadow-liquid)",
+        liquidHover: "var(--shadow-liquid-hover)"
       }
     }
   },

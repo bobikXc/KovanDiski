@@ -25,8 +25,8 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
     <LiquidCard interactive className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] p-3 transition duration-300 hover:border-accent/50 hover:shadow-[0_32px_90px_rgba(62,110,168,0.20)] sm:p-4">
       <Link href={`/catalog/${wheel.slug}`} className="block">
         <div className="mesh-card relative mb-5 flex aspect-[1.08] items-center justify-center overflow-hidden rounded-[1.4rem]">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_24%,rgba(244,247,251,0.16),transparent_38%)]" />
-          <div className="absolute inset-x-8 bottom-8 h-8 rounded-full bg-black/45 blur-2xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_24%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
+          <div className="absolute inset-x-8 bottom-8 h-8 rounded-full bg-primary/25 blur-2xl" />
           <Image
             src={imageSrc}
             alt={`Кованый диск ${wheel.name}`}

@@ -12,6 +12,8 @@ RUN pip install --upgrade pip && pip install .
 COPY alembic.ini ./
 COPY alembic ./alembic
 COPY app ./app
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
 
 EXPOSE 8000
-CMD ["sh", "-c", "alembic upgrade head && python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "./start.sh"]

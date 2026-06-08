@@ -12,14 +12,14 @@ function WheelSketch() {
     <svg className="h-48 w-full max-w-sm sm:h-56" viewBox="0 0 360 260" role="img" aria-label="Схема параметров диска">
       <defs>
         <linearGradient id="wheel-cta-rim" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stopColor="#2A3442" />
-          <stop offset="52%" stopColor="#132238" />
-          <stop offset="100%" stopColor="#3E6EA8" />
+          <stop offset="0%" stopColor="var(--graphite)" />
+          <stop offset="52%" stopColor="var(--surface-2)" />
+          <stop offset="100%" stopColor="var(--accent)" />
         </linearGradient>
       </defs>
-      <circle cx="180" cy="130" r="86" fill="url(#wheel-cta-rim)" stroke="#F4F7FB" strokeOpacity="0.16" strokeWidth="2" />
-      <circle cx="180" cy="130" r="56" fill="#07111F" stroke="#3E6EA8" strokeOpacity="0.45" strokeWidth="2" />
-      <circle cx="180" cy="130" r="18" fill="#F4F7FB" fillOpacity="0.12" />
+      <circle cx="180" cy="130" r="86" fill="url(#wheel-cta-rim)" stroke="var(--text-primary)" strokeOpacity="0.16" strokeWidth="2" />
+      <circle cx="180" cy="130" r="56" fill="var(--bg)" stroke="var(--accent)" strokeOpacity="0.45" strokeWidth="2" />
+      <circle cx="180" cy="130" r="18" fill="var(--text-primary)" fillOpacity="0.12" />
       {[0, 60, 120, 180, 240, 300].map((angle) => (
         <rect
           key={angle}
@@ -28,14 +28,14 @@ function WheelSketch() {
           width="10"
           height="52"
           rx="5"
-          fill="#A9B7C9"
+          fill="var(--text-secondary)"
           fillOpacity="0.16"
           transform={`rotate(${angle} 180 130)`}
         />
       ))}
-      <path d="M66 72h70m-70 0 18-18m-18 18 18 18" stroke="#3E6EA8" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
-      <path d="M294 188h-70m70 0-18-18m18 18-18 18" stroke="#F4F7FB" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.75" strokeWidth="3" />
-      <line x1="180" x2="180" y1="28" y2="232" stroke="#F4F7FB" strokeDasharray="6 8" strokeOpacity="0.18" strokeWidth="2" />
+      <path d="M66 72h70m-70 0 18-18m-18 18 18 18" stroke="var(--accent)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" />
+      <path d="M294 188h-70m70 0-18-18m18 18-18 18" stroke="var(--text-primary)" strokeLinecap="round" strokeLinejoin="round" strokeOpacity="0.75" strokeWidth="3" />
+      <line x1="180" x2="180" y1="28" y2="232" stroke="var(--text-primary)" strokeDasharray="6 8" strokeOpacity="0.18" strokeWidth="2" />
     </svg>
   );
 }

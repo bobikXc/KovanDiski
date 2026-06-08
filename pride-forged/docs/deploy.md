@@ -14,11 +14,12 @@ Use the external/internal connection string provided by Render. Do not copy the 
 ## Render Backend
 
 - Service type: Web Service
-- Runtime: Docker
+- Runtime: Native Python or Docker
 - Repository: `https://github.com/bobikXc/KovanDiski`
 - Branch: `main`
 - Root directory: `pride-forged/backend`
-- Dockerfile: `./Dockerfile`
+- Build command: `pip install .`
+- Start command: `sh start.sh`
 - Public URL: `https://pride-forged-backend.onrender.com`
 - Health check: `https://pride-forged-backend.onrender.com/health`
 
@@ -36,11 +37,12 @@ TELEGRAM_CHAT_ID=
 ## Render Frontend
 
 - Service type: Web Service
-- Runtime: Docker
+- Runtime: Node or Docker
 - Repository: `https://github.com/bobikXc/KovanDiski`
 - Branch: `main`
 - Root directory: `pride-forged/frontend`
-- Dockerfile: `./Dockerfile`
+- Build command: `npm run build`
+- Start command: `npm run start`
 - Public URL: `https://pride-forged-frontend.onrender.com`
 - Exposed container port: `3000`
 
@@ -52,6 +54,7 @@ INTERNAL_API_URL=https://pride-forged-backend.onrender.com/api
 ```
 
 `NEXT_PUBLIC_API_URL` is used in the browser bundle and must be available at frontend build time. `INTERNAL_API_URL` is used for server-side rendering.
+When deploying the frontend with Docker, pass the same values as Docker build args as well as runtime environment variables.
 
 ## Vercel Frontend
 
@@ -87,7 +90,7 @@ Run:
 
 ```bash
 cd pride-forged
-cp .env.example .env
+cp .env.local.example .env
 docker compose up --build -d
 ```
 
@@ -96,6 +99,24 @@ Stop:
 ```bash
 cd pride-forged
 docker compose down
+```
+
+Local environment:
+
+```text
+NEXT_PUBLIC_API_URL=/api
+INTERNAL_API_URL=http://backend:8000/api
+DATABASE_URL=postgresql+psycopg://pride:pride_password@postgres:5432/pride_forged
+BACKEND_CORS_ORIGINS=http://localhost,http://localhost:3000
+```
+
+Production environment:
+
+```text
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com/api
+INTERNAL_API_URL=https://your-backend.onrender.com/api
+DATABASE_URL=postgresql+psycopg://USER:PASSWORD@HOST:PORT/DB
+BACKEND_CORS_ORIGINS=https://your-frontend-domain.vercel.app,https://your-frontend.onrender.com
 ```
 
 ## Production Checks
