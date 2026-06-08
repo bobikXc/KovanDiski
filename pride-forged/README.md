@@ -83,7 +83,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api npm run dev
 - Audi: RS6, RS7, RSQ8
 - Porsche: 911, Panamera, Cayenne Coupe
 - Tesla: Model 3, Model S, Model X
-- 12 моделей дисков: PRIDE P01 — PRIDE P12
+- 12 моделей дисков: PRIDE Apex, Vector, Storm, Blade, Mono, R-Line, GT, Evo, RS, Vortex, Titan, Nero
 
 ## Возможные ошибки и исправления
 

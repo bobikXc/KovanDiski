@@ -2,16 +2,17 @@
 .env
 .env.*
 !.env.example
-*.log
 node_modules/
 .next/
-.vercel/
 .venv/
 __pycache__/
 *.py[cod]
-postgres_data
+*.log
+dist/
+build/
+coverage/
 
-# Keep only optimized/public-ready assets in Git.
+# Local/generated assets that should not be committed without optimization.
 raw/
 source/
 sources/
