@@ -145,13 +145,13 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <label className="block">
+    <label className="block min-w-0">
       <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-graphite/70">{label}</span>
       <select
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full rounded-2xl border border-primary/10 bg-surface/70 px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgba(244,247,251,0.08),0_18px_45px_rgba(0,0,0,0.16)] outline-none backdrop-blur-xl transition duration-300 hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:bg-surface/35 disabled:text-graphite/35"
+        className="h-12 w-full min-w-0 rounded-2xl border border-primary/10 bg-surface/70 px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgba(244,247,251,0.08),0_18px_45px_rgba(0,0,0,0.16)] outline-none backdrop-blur-xl transition duration-300 hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:bg-surface/35 disabled:text-graphite/35"
       >
         {children}
       </select>
@@ -192,31 +192,73 @@ export function FitmentConfigurator() {
   const [wheelStyle, setWheelStyle] = useState<FitmentStyle | "">("");
   const [isLoadingBrands, setIsLoadingBrands] = useState(true);
   const [isLoadingModels, setIsLoadingModels] = useState(false);
+  const [isLoadingWheels, setIsLoadingWheels] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let mounted = true;
 
-    Promise.all([getBrands(), getWheels(), getFitments()])
-      .then(([brandData, wheelData, fitmentData]) => {
+    async function loadBrands() {
+      setIsLoadingBrands(true);
+      setError("");
+
+      try {
+        const brandData = await getBrands();
         if (!mounted) {
           return;
         }
+
         setError("");
         setBrands(brandData);
-        setWheels(wheelData);
-        setFitments(fitmentData);
-      })
-      .catch(() => {
+      } catch (loadError) {
+        console.error("Failed to load brands", loadError);
         if (mounted) {
-          setError("Не удалось загрузить данные для подбора. Проверьте подключение к API.");
+          setError("Не удалось загрузить марки автомобилей. Попробуйте обновить страницу.");
         }
-      })
-      .finally(() => {
+      } finally {
         if (mounted) {
           setIsLoadingBrands(false);
         }
-      });
+      }
+    }
+
+    async function loadWheels() {
+      setIsLoadingWheels(true);
+
+      try {
+        const wheelData = await getWheels();
+        if (mounted) {
+          setWheels(wheelData);
+        }
+      } catch (wheelError) {
+        console.error("Failed to load wheels", wheelError);
+        if (mounted) {
+          setWheels([]);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoadingWheels(false);
+        }
+      }
+    }
+
+    async function loadFitmentsInBackground() {
+      try {
+        const fitmentData = await getFitments();
+        if (mounted) {
+          setFitments(fitmentData);
+        }
+      } catch (fitmentError) {
+        console.error("Failed to load fitment compatibility data", fitmentError);
+        if (mounted) {
+          setFitments([]);
+        }
+      }
+    }
+
+    loadBrands();
+    loadWheels();
+    loadFitmentsInBackground();
 
     return () => {
       mounted = false;
@@ -243,7 +285,8 @@ export function FitmentConfigurator() {
           setModels(modelData);
         }
       })
-      .catch(() => {
+      .catch((modelError) => {
+        console.error("Failed to load models", modelError);
         if (mounted) {
           setError("Не удалось загрузить модели выбранной марки.");
         }
@@ -310,13 +353,13 @@ export function FitmentConfigurator() {
   }
 
   return (
-    <section className="relative overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8">
+    <section className="relative overflow-x-hidden px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
       <div className="absolute -right-52 top-20 -z-10 h-[34rem] w-[34rem] rounded-full bg-accent/14 blur-3xl" />
       <div className="absolute -left-52 top-[34rem] -z-10 h-[38rem] w-[38rem] rounded-full bg-accent/10 blur-3xl" />
 
       <div className="mx-auto max-w-7xl">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
-          <LiquidCard className="relative overflow-hidden rounded-[2rem] p-7 sm:p-10 lg:p-12">
+          <LiquidCard className="relative overflow-hidden rounded-[1.5rem] p-5 sm:rounded-[2rem] sm:p-10 lg:p-12">
             <div className="absolute inset-0">
               <Image
                 src={carsLineupImage}
@@ -330,13 +373,13 @@ export function FitmentConfigurator() {
               <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
             </div>
             <div className="absolute right-[-7rem] top-[-9rem] h-80 w-80 rounded-full bg-accent/18 blur-3xl" />
-            <div className="relative grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-end">
+            <div className="relative grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">PRIDE Selection</p>
-                <h1 className="mt-4 max-w-4xl text-4xl font-black leading-none text-primary sm:text-6xl lg:text-7xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent sm:text-sm sm:tracking-[0.35em]">PRIDE Selection</p>
+                <h1 className="mt-4 max-w-4xl text-4xl font-black leading-[0.95] text-primary sm:text-6xl lg:text-7xl">
                   Подбор дисков
                 </h1>
-                <p className="mt-5 max-w-3xl text-lg leading-8 text-graphite">
+                <p className="mt-5 max-w-3xl text-base leading-7 text-graphite sm:text-lg sm:leading-8">
                   Выберите сценарий: начните с автомобиля или с понравившейся модели диска. Конфигуратор покажет предварительные параметры, совместимость и следующий шаг.
                 </p>
               </div>
@@ -348,7 +391,7 @@ export function FitmentConfigurator() {
           </LiquidCard>
         </motion.div>
 
-        <div className="mt-6 grid gap-3 rounded-[1.5rem] border border-primary/10 bg-surface/40 p-2 sm:inline-grid sm:grid-cols-2">
+        <div className="mt-6 grid min-w-0 gap-2 rounded-[1.35rem] border border-primary/10 bg-surface/40 p-2 sm:inline-grid sm:grid-cols-2 sm:gap-3 sm:rounded-[1.5rem]">
           {[
             ["car", "Подбор по автомобилю"],
             ["wheel", "Подбор по модели диска"]
@@ -358,7 +401,7 @@ export function FitmentConfigurator() {
               type="button"
               onClick={() => setActiveMode(mode as SelectionMode)}
               className={cn(
-                "rounded-[1.15rem] px-5 py-3 text-sm font-semibold transition duration-300",
+                "min-w-0 rounded-[1.05rem] px-4 py-3 text-sm font-semibold transition duration-300 sm:rounded-[1.15rem] sm:px-5",
                 activeMode === mode
                   ? "bg-accent text-white shadow-[0_16px_42px_rgba(62,110,168,0.28)]"
                   : "text-graphite hover:bg-surface/80 hover:text-primary"
@@ -370,9 +413,9 @@ export function FitmentConfigurator() {
         </div>
 
         {activeMode === "car" ? (
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-8">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}>
-            <LiquidCard className="rounded-[2rem] p-5 sm:p-7">
+            <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
               <div className="grid gap-5">
                 <Field label="1. Марка автомобиля" value={brandSlug} disabled={isLoadingBrands} onChange={handleBrandChange}>
                   <option value="">{isLoadingBrands ? "Загрузка марок..." : "Выберите марку"}</option>
@@ -427,7 +470,7 @@ export function FitmentConfigurator() {
             </LiquidCard>
           </motion.div>
 
-          <div className="min-h-[34rem]">
+          <div className="min-h-[28rem] min-w-0 lg:min-h-[34rem]">
             <AnimatePresence mode="wait">
               {!isComplete ? (
                 <motion.div
@@ -437,13 +480,13 @@ export function FitmentConfigurator() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.35 }}
                 >
-                  <LiquidCard className="flex min-h-[34rem] items-center rounded-[2rem] p-6 sm:p-8">
+                  <LiquidCard className="flex min-h-[28rem] items-center rounded-[1.5rem] p-5 sm:min-h-[34rem] sm:rounded-[2rem] sm:p-8">
                     {error ? (
                       <EmptyState title="Данные недоступны" description={error} />
                     ) : (
                       <div>
                         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Результат</p>
-                        <h2 className="mt-4 text-3xl font-black text-primary sm:text-4xl">Заполните параметры подбора</h2>
+                        <h2 className="mt-4 text-2xl font-black text-primary sm:text-4xl">Заполните параметры подбора</h2>
                         <p className="mt-4 max-w-xl text-base leading-7 text-graphite/65">
                           После выбора марки, модели, года, диаметра и стиля здесь появятся рекомендуемые размеры и модели кованых дисков PRIDE.
                         </p>
@@ -459,12 +502,12 @@ export function FitmentConfigurator() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <LiquidCard className="rounded-[2rem] p-5 sm:p-7">
+                  <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
                     <div className="grid gap-6">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Рекомендация</p>
-                          <h2 className="mt-3 text-3xl font-black text-primary">
+                          <h2 className="mt-3 text-2xl font-black text-primary sm:text-3xl">
                             {selectedBrand?.name} {selectedModel?.name}
                           </h2>
                           <p className="mt-2 text-sm text-graphite/60">
@@ -508,12 +551,12 @@ export function FitmentConfigurator() {
                               <Link
                                 key={wheel.slug}
                                 href={`/catalog/${wheel.slug}`}
-                                className="group flex items-center gap-4 rounded-2xl border border-primary/10 bg-surface/60 p-3 transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:bg-surface"
+                                className="group flex min-w-0 items-center gap-3 rounded-2xl border border-primary/10 bg-surface/60 p-3 transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:bg-surface sm:gap-4"
                               >
                                 <div className="mesh-card flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl">
                                   <img src={getWheelImageOrFallback(wheel, index)} alt={wheel.name} className="h-full w-full object-contain transition duration-500 group-hover:scale-110" />
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                   <p className="font-black text-primary">{wheel.name}</p>
                                   <p className="mt-1 text-xs text-graphite/55">
                                     {wheel.diameter}″ • {wheel.width}J • ET{wheel.et}
@@ -532,12 +575,12 @@ export function FitmentConfigurator() {
           </div>
         </div>
         ) : (
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-8">
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
-              <LiquidCard className="rounded-[2rem] p-5 sm:p-7">
+              <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
                 <div className="grid gap-5">
-                  <Field label="1. Модель диска" value={wheelSlug} disabled={isLoadingBrands || wheels.length === 0} onChange={handleWheelChange}>
-                    <option value="">{isLoadingBrands ? "Загрузка моделей..." : "Выберите диск"}</option>
+                  <Field label="1. Модель диска" value={wheelSlug} disabled={isLoadingWheels || wheels.length === 0} onChange={handleWheelChange}>
+                    <option value="">{isLoadingWheels ? "Загрузка моделей..." : "Выберите диск"}</option>
                     {wheels.map((wheel) => (
                       <option key={wheel.slug} value={wheel.slug}>{wheel.name}</option>
                     ))}
@@ -576,12 +619,12 @@ export function FitmentConfigurator() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}>
-              <LiquidCard className="min-h-[34rem] rounded-[2rem] p-5 sm:p-7">
+              <LiquidCard className="min-h-[28rem] rounded-[1.5rem] p-4 sm:min-h-[34rem] sm:rounded-[2rem] sm:p-7">
                 {!wheelModeComplete ? (
-                  <div className="flex min-h-[30rem] items-center">
+                  <div className="flex min-h-[24rem] items-center sm:min-h-[30rem]">
                     <div>
                       <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Совместимость</p>
-                      <h2 className="mt-4 text-3xl font-black text-primary sm:text-4xl">Выберите модель диска</h2>
+                      <h2 className="mt-4 text-2xl font-black text-primary sm:text-4xl">Выберите модель диска</h2>
                       <p className="mt-4 max-w-xl text-base leading-7 text-graphite/65">
                         После выбора модели, диаметра и стиля здесь появится список совместимых автомобилей и быстрый переход к карточке диска.
                       </p>
@@ -589,8 +632,8 @@ export function FitmentConfigurator() {
                   </div>
                 ) : (
                   <div className="grid gap-6">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                      <div className="mesh-card relative aspect-square w-full max-w-[220px] overflow-hidden rounded-[1.5rem]">
+                    <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start">
+                      <div className="mesh-card relative aspect-square w-full max-w-[180px] overflow-hidden rounded-[1.5rem] sm:max-w-[220px]">
                         {selectedWheel ? (
                           <img
                             src={getWheelImageOrFallback(selectedWheel)}
@@ -601,7 +644,7 @@ export function FitmentConfigurator() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Wheel selection</p>
-                        <h2 className="mt-3 text-3xl font-black text-primary">{selectedWheel?.name}</h2>
+                        <h2 className="mt-3 text-2xl font-black text-primary sm:text-3xl">{selectedWheel?.name}</h2>
                         <p className="mt-2 text-sm text-graphite/60">
                           {wheelDiameter}″ • стиль: {wheelStyle}
                         </p>

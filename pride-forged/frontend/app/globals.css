@@ -24,16 +24,22 @@ button {
 html {
   scroll-behavior: smooth;
   background: #07111F;
+  overflow-x: hidden;
 }
 
 body {
   min-height: 100vh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 14% 9%, rgba(62, 110, 168, 0.28), transparent 28rem),
     radial-gradient(circle at 82% 3%, rgba(89, 134, 189, 0.16), transparent 34rem),
     linear-gradient(180deg, #07111F 0%, #0D1B2A 46%, #07111F 100%);
   color: #F4F7FB;
   text-rendering: geometricPrecision;
+}
+
+main {
+  min-width: 0;
 }
 
 ::selection {
