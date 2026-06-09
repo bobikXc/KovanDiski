@@ -8,9 +8,18 @@ type BrandLogoProps = {
   imageClassName?: string;
   priority?: boolean;
   showText?: boolean;
+  textClassName?: string;
+  subTextClassName?: string;
 };
 
-export function BrandLogo({ className, imageClassName, priority = false, showText = true }: BrandLogoProps) {
+export function BrandLogo({
+  className,
+  imageClassName,
+  priority = false,
+  showText = true,
+  textClassName,
+  subTextClassName
+}: BrandLogoProps) {
   return (
     <Link href="/" className={cn("inline-flex items-center gap-3", className)} aria-label="PRIDE Forged">
       <Image
@@ -23,8 +32,8 @@ export function BrandLogo({ className, imageClassName, priority = false, showTex
       />
       {showText && (
         <span className="leading-none">
-          <span className="block text-lg font-black uppercase tracking-[0.16em] text-primary">PRIDE</span>
-          <span className="mt-1 block text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-accent">Forged</span>
+          <span className={cn("block text-lg font-black uppercase tracking-[0.16em] text-primary", textClassName)}>PRIDE</span>
+          <span className={cn("mt-1 block text-[0.62rem] font-semibold uppercase tracking-[0.28em] text-accent", subTextClassName)}>Forged</span>
         </span>
       )}
     </Link>

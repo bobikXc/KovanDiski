@@ -106,20 +106,20 @@ function PickerRail({
 
 function TypePicker({ value, onChange }: { value: WheelType; onChange: (value: WheelType) => void }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid w-full max-w-full grid-cols-1 gap-3 rounded-[28px] border border-primary/10 bg-background/55 p-3 sm:grid-cols-2">
       {wheelTypes.map((type) => (
         <button
           key={type}
           type="button"
           onClick={() => onChange(type)}
           className={cn(
-            "rounded-2xl border px-5 py-5 text-left text-xl font-black transition duration-300 hover:-translate-y-0.5",
+            "box-border flex min-h-14 w-full min-w-0 max-w-full items-center justify-center overflow-hidden rounded-2xl border px-4 py-3 text-center text-base font-black leading-tight transition duration-300 hover:-translate-y-0.5 sm:text-lg lg:min-h-16 lg:px-5 lg:py-4 lg:text-xl",
             value === type
               ? "border-accent/55 bg-accent text-white shadow-[0_18px_48px_rgba(62,110,168,0.32)]"
               : "border-primary/10 bg-background/55 text-graphite hover:border-primary/25 hover:bg-background/85 hover:text-primary"
           )}
         >
-          {type}
+          <span className="min-w-0 max-w-full break-words">{type}</span>
         </button>
       ))}
     </div>
@@ -141,7 +141,7 @@ function SelectorPanel({
           animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -8, scale: 0.98, filter: "blur(8px)" }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-[60] mt-3 max-h-[280px] overflow-y-auto rounded-[1.6rem] border border-primary/12 bg-surface/95 p-5 shadow-[0_24px_64px_rgba(0,0,0,0.18),inset_0_1px_0_rgb(var(--text-primary-rgb)/0.10)] backdrop-blur-2xl"
+          className="relative z-[60] mt-3 max-h-[280px] overflow-y-auto rounded-[24px] border border-primary/12 bg-surface/95 p-5 shadow-[0_24px_64px_rgba(0,0,0,0.18),inset_0_1px_0_rgb(var(--text-primary-rgb)/0.10)] backdrop-blur-2xl"
         >
           <div className="mb-5 h-px w-full bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
           {children}
@@ -167,38 +167,32 @@ function SelectorCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "group flex min-h-24 w-full items-center justify-between rounded-[1.7rem] border border-primary/10 bg-surface/80 px-6 text-left shadow-[inset_0_1px_0_rgb(var(--text-primary-rgb)/0.08)] transition duration-300 hover:-translate-y-1 hover:border-accent/45 hover:bg-surface hover:shadow-[0_20px_60px_rgba(62,110,168,0.16)]",
+        "group flex min-h-24 w-full items-center justify-between gap-5 rounded-[24px] border border-primary/10 bg-surface/80 px-6 py-[22px] text-left shadow-[inset_0_1px_0_rgb(var(--text-primary-rgb)/0.08)] transition duration-300 hover:-translate-y-0.5 hover:border-accent/45 hover:bg-surface hover:shadow-[0_20px_60px_rgba(62,110,168,0.16)] lg:min-h-28",
         open && "border-accent/50 bg-surface shadow-[0_24px_70px_rgba(62,110,168,0.18)]"
       )}
     >
-      <span>
-        <span className="block text-sm font-black uppercase tracking-[0.08em] text-graphite/70">{title}</span>
-        <span className="mt-2 block text-xl font-black text-primary">{value}</span>
+      <span className="min-w-0">
+        <span className="block text-xs font-bold uppercase tracking-[0.14em] text-graphite/70">{title}</span>
+        <span className="mt-2 block truncate text-xl font-black text-primary lg:text-2xl">{value}</span>
       </span>
-      <span className={cn("text-4xl leading-none transition duration-300", open ? "rotate-180" : "group-hover:translate-y-0.5")}>⌄</span>
+      <span className={cn("shrink-0 text-3xl leading-none text-accent transition duration-300", open ? "rotate-180" : "group-hover:translate-y-0.5")}>⌄</span>
     </button>
   );
 }
 
 function PriceFrame({
   summary,
-  price,
-  calculations
+  price
 }: {
   summary: string;
   price: number;
-  calculations: {
-    outerChange: number;
-    innerChange: number;
-    trackChange: number;
-  };
 }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -24, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-[1.75rem] border border-primary/15 bg-surface/80 p-6 shadow-[0_24px_72px_rgba(0,0,0,0.24)] backdrop-blur-2xl sm:p-7"
+      className="relative overflow-hidden rounded-[28px] border border-primary/15 bg-surface/80 p-6 shadow-[0_24px_72px_rgba(0,0,0,0.18)] backdrop-blur-2xl sm:p-7"
     >
       <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent" />
       <motion.div
@@ -209,7 +203,7 @@ function PriceFrame({
       />
 
       <div className="relative grid gap-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Итоговая конфигурация</p>
             <motion.p
@@ -217,7 +211,7 @@ function PriceFrame({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.24 }}
-              className="mt-3 inline-flex rounded-full border border-primary/10 bg-background/60 px-5 py-3 text-sm font-bold text-primary"
+              className="mt-3 inline-flex max-w-full rounded-full border border-primary/10 bg-background/60 px-5 py-3 text-sm font-bold text-primary"
             >
               {summary}
             </motion.p>
@@ -236,17 +230,11 @@ function PriceFrame({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.32 }}
         >
-          <p className="text-[clamp(3rem,6vw,4.5rem)] font-black leading-none tracking-[-0.06em] text-primary">
+          <p className="text-[clamp(2.25rem,5vw,4rem)] font-black leading-none tracking-[-0.04em] text-primary">
             {formatRub(price)}
           </p>
-          <p className="mt-4 text-xl font-black text-primary/90">{formatRub(price / 4)} за один диск</p>
+          <p className="mt-3 text-lg font-black text-primary/90 sm:text-xl">{formatRub(price / 4)} за один диск</p>
         </motion.div>
-
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Metric label="Наружу" value={`${calculations.outerChange > 0 ? "+" : ""}${calculations.outerChange.toFixed(1)} мм`} />
-          <Metric label="Внутрь" value={`${calculations.innerChange > 0 ? "+" : ""}${calculations.innerChange.toFixed(1)} мм`} />
-          <Metric label="Колея" value={`${calculations.trackChange > 0 ? "+" : ""}${calculations.trackChange.toFixed(1)} мм`} />
-        </div>
       </div>
     </motion.div>
   );
@@ -254,9 +242,9 @@ function PriceFrame({
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/12 bg-white/[0.06] p-5 text-center backdrop-blur-xl">
+    <div className="flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-[24px] border border-primary/10 bg-surface/75 p-6 text-center shadow-[0_18px_54px_rgba(0,0,0,0.10)] backdrop-blur-xl">
       <p className="text-xs font-black uppercase tracking-[0.16em] text-graphite">{label}</p>
-      <p className="mt-2 text-2xl font-black text-primary">{value}</p>
+      <p className="text-[clamp(1.875rem,4vw,2.75rem)] font-black leading-none tracking-[-0.03em] text-primary">{value}</p>
     </div>
   );
 }
@@ -297,8 +285,8 @@ export function WheelCalculator() {
   const summary = `${wheelType}   ${diameter}R   ${formatWidth(width)} ET${et}`;
 
   return (
-    <section className="bg-background text-primary">
-      <section className="relative isolate border-b border-primary/10 bg-background px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+    <main className="bg-background text-primary">
+      <section className="calculator-hero relative isolate border-b border-primary/10 bg-background px-5 pb-12 pt-24 sm:px-6 lg:px-8 lg:pb-[72px] lg:pt-[120px]">
         <Image
           src={carsLineupImage}
           alt="Автомобиль для примерки дисков PRIDE"
@@ -316,41 +304,39 @@ export function WheelCalculator() {
           className="absolute right-[8%] top-24 h-px w-[36rem] bg-gradient-to-r from-transparent via-primary/30 to-transparent"
         />
 
-        <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+        <div className="relative mx-auto max-w-[1440px]">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
-            className="pt-2"
+            className="max-w-[720px]"
           >
             <p className="text-sm font-black uppercase tracking-[0.16em] text-accent">PRIDE calculator</p>
-            <h1 className="mt-4 max-w-xl text-[clamp(2.625rem,6vw,5.25rem)] font-black leading-[0.96] tracking-[-0.04em]">
+            <h1 className="mt-4 text-[clamp(2.625rem,6vw,5.5rem)] font-black leading-[0.98] tracking-[-0.04em]">
               Калькулятор параметров
             </h1>
-            <p className="mt-5 max-w-md text-base font-semibold leading-7 text-graphite sm:text-lg">
+            <p className="mt-5 max-w-[620px] text-base font-semibold leading-[1.5] text-graphite sm:text-lg lg:text-xl">
               Настройте тип, диаметр, ширину и вылет в формате конфигуратора. Стоимость и посадка обновятся сразу.
             </p>
           </motion.div>
-
-          <PriceFrame summary={summary} price={price} calculations={calculations} />
         </div>
       </section>
 
-      <section className="bg-secondary/55 px-4 py-10 sm:px-6 lg:px-8 lg:py-12">
-        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-3 lg:items-start">
-          <div>
+      <section className="calculator-controls bg-background px-5 py-10 sm:px-6 lg:px-8 lg:py-16">
+        <div className="mx-auto grid max-w-[1440px] gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6 lg:items-start">
+          <div className="min-w-0">
             <SelectorCard title="Тип дисков" value={wheelType} open={activePicker === "type"} onClick={() => setActivePicker(activePicker === "type" ? null : "type")} />
             <SelectorPanel active={activePicker === "type"}>
               <TypePicker value={wheelType} onChange={setWheelType} />
             </SelectorPanel>
           </div>
-          <div>
+          <div className="min-w-0">
             <SelectorCard title="Диаметр" value={`${diameter}"`} open={activePicker === "diameter"} onClick={() => setActivePicker(activePicker === "diameter" ? null : "diameter")} />
             <SelectorPanel active={activePicker === "diameter"}>
               <PickerRail label="Диаметр дисков" value={diameter} options={diameterOptions} format={(value) => `${value}`} onChange={setDiameter} />
             </SelectorPanel>
           </div>
-          <div>
+          <div className="min-w-0 md:col-span-2 lg:col-span-1">
             <SelectorCard title="Ширина и вылет" value={`${formatWidth(width)} ET${et}`} open={activePicker === "fitment"} onClick={() => setActivePicker(activePicker === "fitment" ? null : "fitment")} />
             <SelectorPanel active={activePicker === "fitment"}>
               <div className="grid gap-8">
@@ -362,15 +348,26 @@ export function WheelCalculator() {
         </div>
       </section>
 
-      <section className="bg-background px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          <Metric label="Выступ наружу" value={`${calculations.outerChange > 0 ? "+" : ""}${calculations.outerChange.toFixed(1)} мм`} />
-          <Metric label="Уход внутрь" value={`${calculations.innerChange > 0 ? "+" : ""}${calculations.innerChange.toFixed(1)} мм`} />
-          <Metric label="Изменение колеи" value={`${calculations.trackChange > 0 ? "+" : ""}${calculations.trackChange.toFixed(1)} мм`} />
-          <Metric label="Ширина" value={`${calculations.widthDifference > 0 ? "+" : ""}${calculations.widthDifference.toFixed(1)} мм`} />
-          <Metric label="Диаметр" value={`${calculations.diameterDifference > 0 ? "+" : ""}${calculations.diameterDifference.toFixed(1)}"`} />
+      <section className="calculator-results bg-background px-5 py-10 sm:px-6 lg:px-8 lg:py-16">
+        <div className="mx-auto grid max-w-[1440px] gap-6 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+          <PriceFrame summary={summary} price={price} />
+
+          <div className="grid gap-4 lg:gap-5">
+            <div className="grid gap-4 md:grid-cols-3 lg:gap-5">
+              <Metric label="Выступ наружу" value={`${calculations.outerChange > 0 ? "+" : ""}${calculations.outerChange.toFixed(1)} мм`} />
+              <Metric label="Уход внутрь" value={`${calculations.innerChange > 0 ? "+" : ""}${calculations.innerChange.toFixed(1)} мм`} />
+              <Metric label="Колея" value={`${calculations.trackChange > 0 ? "+" : ""}${calculations.trackChange.toFixed(1)} мм`} />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:gap-5">
+              <Metric label="Разница ширины" value={`${calculations.widthDifference > 0 ? "+" : ""}${calculations.widthDifference.toFixed(1)} мм`} />
+              <Metric label="Разница диаметра" value={`${calculations.diameterDifference > 0 ? "+" : ""}${calculations.diameterDifference.toFixed(1)}"`} />
+            </div>
+          </div>
         </div>
-        <div className="mx-auto mt-8 flex max-w-7xl flex-col gap-4 rounded-[1.7rem] border border-primary/10 bg-surface/70 p-6 text-graphite backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+      </section>
+
+      <section className="calculator-cta bg-background px-5 pb-14 pt-2 sm:px-6 lg:px-8 lg:pb-20">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-4 rounded-[28px] border border-primary/10 bg-surface/70 p-6 text-graphite backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between lg:p-8">
           <p className="max-w-2xl leading-7">
             Расчет предварительный. Финальные параметры зависят от тормозной системы, подвески и желаемой посадки.
           </p>
@@ -379,6 +376,6 @@ export function WheelCalculator() {
           </Button>
         </div>
       </section>
-    </section>
+    </main>
   );
 }
