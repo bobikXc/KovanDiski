@@ -3,14 +3,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { carsLineupImage } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 type WheelType = "Моноблоки" | "Двухсоставные";
-type ActivePicker = "type" | "diameter" | "fitment" | null;
+type OpenPanel = "type" | "diameter" | "widthEt" | null;
 
 const MM_PER_INCH = 25.4;
 
@@ -104,22 +104,106 @@ function PickerRail({
   );
 }
 
+function FitmentSelectorPanel({
+  active,
+  children
+}: {
+  active: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <AnimatePresence>
+      {active ? (
+        <motion.div
+          initial={{ opacity: 0, y: -10, scale: 0.98, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -8, scale: 0.98, filter: "blur(8px)" }}
+          transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-[60] mt-4 box-border w-full max-w-full overflow-visible rounded-[28px] border border-primary/12 bg-surface p-6 shadow-[0_24px_64px_rgba(0,0,0,0.18),inset_0_1px_0_rgb(var(--text-primary-rgb)/0.10)] backdrop-blur-2xl"
+        >
+          <div className="mb-6 h-px w-full bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+          {children}
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
+}
+
+function FitmentGridPicker({
+  label,
+  value,
+  options,
+  format,
+  onChange,
+  variant
+}: {
+  label: string;
+  value: number;
+  options: number[];
+  format: (value: number) => string;
+  onChange: (value: number) => void;
+  variant: "width" | "et";
+}) {
+  return (
+    <div className="box-border w-full max-w-full min-w-0">
+      <p className="mb-4 text-xs font-black uppercase tracking-[0.14em] text-graphite sm:text-[13px]">
+        {label}
+      </p>
+      <div
+        className={cn(
+          "grid w-full min-w-0 gap-3",
+          variant === "width" ? "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4" : "grid-cols-3 sm:grid-cols-4 xl:grid-cols-5"
+        )}
+      >
+        {options.map((option) => {
+          const active = option === value;
+          return (
+            <button
+              key={option}
+              type="button"
+              onClick={() => onChange(option)}
+              className={cn(
+                "flex h-12 w-full min-w-0 items-center justify-center rounded-2xl border px-2 text-center text-base font-extrabold leading-none whitespace-nowrap transition duration-200 hover:-translate-y-0.5 hover:border-accent/50 hover:text-primary sm:text-lg",
+                active
+                  ? "border-accent bg-accent text-white shadow-[0_16px_42px_rgba(62,110,168,0.28)] hover:text-white"
+                  : "border-primary/10 bg-background/60 text-graphite hover:bg-background/85"
+              )}
+              aria-pressed={active}
+            >
+              {format(option)}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function TypePicker({ value, onChange }: { value: WheelType; onChange: (value: WheelType) => void }) {
   return (
-    <div className="grid w-full max-w-full grid-cols-1 gap-3 rounded-[28px] border border-primary/10 bg-background/55 p-3 sm:grid-cols-2">
+    <div className="grid w-full max-w-full min-w-0 grid-cols-1 gap-3 rounded-[28px] border border-primary/10 bg-background/55 p-3 xl:grid-cols-2">
       {wheelTypes.map((type) => (
         <button
           key={type}
           type="button"
           onClick={() => onChange(type)}
           className={cn(
-            "box-border flex min-h-14 w-full min-w-0 max-w-full items-center justify-center overflow-hidden rounded-2xl border px-4 py-3 text-center text-base font-black leading-tight transition duration-300 hover:-translate-y-0.5 sm:text-lg lg:min-h-16 lg:px-5 lg:py-4 lg:text-xl",
+            "box-border flex h-14 w-full min-w-0 max-w-full items-center justify-center overflow-hidden rounded-2xl border px-4 text-center text-base font-bold leading-tight whitespace-normal break-words transition duration-300 hover:-translate-y-0.5 sm:text-lg xl:h-16 xl:text-xl",
             value === type
               ? "border-accent/55 bg-accent text-white shadow-[0_18px_48px_rgba(62,110,168,0.32)]"
               : "border-primary/10 bg-background/55 text-graphite hover:border-primary/25 hover:bg-background/85 hover:text-primary"
           )}
         >
-          <span className="min-w-0 max-w-full break-words">{type}</span>
+          <span className="min-w-0 max-w-full whitespace-normal break-words">
+            {type === "Двухсоставные" ? (
+              <>
+                <span className="sm:hidden">2-составные</span>
+                <span className="hidden sm:inline">Двухсоставные</span>
+              </>
+            ) : (
+              type
+            )}
+          </span>
         </button>
       ))}
     </div>
@@ -254,7 +338,10 @@ export function WheelCalculator() {
   const [diameter, setDiameter] = useState(20);
   const [width, setWidth] = useState(11.0);
   const [et, setEt] = useState(20);
-  const [activePicker, setActivePicker] = useState<ActivePicker>(null);
+  const [openPanel, setOpenPanel] = useState<OpenPanel>(null);
+  const typeRef = useRef<HTMLDivElement | null>(null);
+  const diameterRef = useRef<HTMLDivElement | null>(null);
+  const widthEtRef = useRef<HTMLDivElement | null>(null);
 
   const oldWheel = { diameter: 19, width: 9.5, et: 35 };
 
@@ -283,6 +370,43 @@ export function WheelCalculator() {
   }, [diameter, et, wheelType, width]);
 
   const summary = `${wheelType}   ${diameter}R   ${formatWidth(width)} ET${et}`;
+
+  useEffect(() => {
+    function handlePointerOutside(event: PointerEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+
+      const clickedInsideType = typeRef.current?.contains(target);
+      const clickedInsideDiameter = diameterRef.current?.contains(target);
+      const clickedInsideWidthEt = widthEtRef.current?.contains(target);
+
+      if (!clickedInsideType && !clickedInsideDiameter && !clickedInsideWidthEt) {
+        setOpenPanel(null);
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpenPanel(null);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  function selectWheelType(value: WheelType) {
+    setWheelType(value);
+  }
+
+  function selectDiameter(value: number) {
+    setDiameter(value);
+  }
 
   return (
     <main className="bg-background text-primary">
@@ -324,26 +448,26 @@ export function WheelCalculator() {
 
       <section className="calculator-controls bg-background px-5 py-10 sm:px-6 lg:px-8 lg:py-16">
         <div className="mx-auto grid max-w-[1440px] gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-6 lg:items-start">
-          <div className="min-w-0">
-            <SelectorCard title="Тип дисков" value={wheelType} open={activePicker === "type"} onClick={() => setActivePicker(activePicker === "type" ? null : "type")} />
-            <SelectorPanel active={activePicker === "type"}>
-              <TypePicker value={wheelType} onChange={setWheelType} />
+          <div ref={typeRef} className="box-border w-full max-w-full min-w-0">
+            <SelectorCard title="Тип дисков" value={wheelType} open={openPanel === "type"} onClick={() => setOpenPanel(openPanel === "type" ? null : "type")} />
+            <SelectorPanel active={openPanel === "type"}>
+              <TypePicker value={wheelType} onChange={selectWheelType} />
             </SelectorPanel>
           </div>
-          <div className="min-w-0">
-            <SelectorCard title="Диаметр" value={`${diameter}"`} open={activePicker === "diameter"} onClick={() => setActivePicker(activePicker === "diameter" ? null : "diameter")} />
-            <SelectorPanel active={activePicker === "diameter"}>
-              <PickerRail label="Диаметр дисков" value={diameter} options={diameterOptions} format={(value) => `${value}`} onChange={setDiameter} />
+          <div ref={diameterRef} className="min-w-0">
+            <SelectorCard title="Диаметр" value={`${diameter}"`} open={openPanel === "diameter"} onClick={() => setOpenPanel(openPanel === "diameter" ? null : "diameter")} />
+            <SelectorPanel active={openPanel === "diameter"}>
+              <PickerRail label="Диаметр дисков" value={diameter} options={diameterOptions} format={(value) => `${value}`} onChange={selectDiameter} />
             </SelectorPanel>
           </div>
-          <div className="min-w-0 md:col-span-2 lg:col-span-1">
-            <SelectorCard title="Ширина и вылет" value={`${formatWidth(width)} ET${et}`} open={activePicker === "fitment"} onClick={() => setActivePicker(activePicker === "fitment" ? null : "fitment")} />
-            <SelectorPanel active={activePicker === "fitment"}>
-              <div className="grid gap-8">
-                <PickerRail label="Ширина дисков" value={width} options={widthOptions} format={(value) => value.toFixed(1)} onChange={setWidth} />
-                <PickerRail label="Вылет дисков (ET)" value={et} options={etOptions} format={(value) => `${value}`} onChange={setEt} />
+          <div ref={widthEtRef} className="min-w-0 md:col-span-2 lg:col-span-1">
+            <SelectorCard title="Ширина и вылет" value={`${formatWidth(width)} ET${et}`} open={openPanel === "widthEt"} onClick={() => setOpenPanel(openPanel === "widthEt" ? null : "widthEt")} />
+            <FitmentSelectorPanel active={openPanel === "widthEt"}>
+              <div className="flex w-full max-w-full flex-col gap-7 overflow-visible">
+                <FitmentGridPicker label="Ширина дисков" value={width} options={widthOptions} format={(value) => value.toFixed(1)} onChange={setWidth} variant="width" />
+                <FitmentGridPicker label="Вылет дисков (ET)" value={et} options={etOptions} format={(value) => `${value}`} onChange={setEt} variant="et" />
               </div>
-            </SelectorPanel>
+            </FitmentSelectorPanel>
           </div>
         </div>
       </section>
