@@ -53,7 +53,7 @@ export function VehicleSelector({ brands }: { brands: Brand[] }) {
                 </Button>
               </motion.div>
               <div className="mt-8 inline-flex w-fit rounded-full border border-primary/10 bg-surface/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-graphite backdrop-blur-xl">
-                {brands.length} марок в базе fitment
+                {brands.length > 0 ? `${brands.length} марок в базе fitment` : "Марки автомобилей временно недоступны."}
               </div>
             </div>
           </div>

@@ -72,8 +72,10 @@ function toApiError(error: unknown, resource: string): ApiRequestError {
   if (error instanceof AxiosError) {
     const status = error.response?.status;
     const detail = typeof error.response?.data?.detail === "string" ? error.response.data.detail : undefined;
+    const message = status === 429 ? "Сервис временно перегружен. Попробуйте позже." : detail ?? `Не удалось загрузить ${resource}`;
 
-    console.error("API request failed", {
+    const log = status === 429 ? console.warn : console.error;
+    log("API request failed", {
       message: error.message,
       code: error.code,
       responseStatus: status,
@@ -81,7 +83,7 @@ function toApiError(error: unknown, resource: string): ApiRequestError {
       path: error.config?.url,
     });
 
-    return new ApiRequestError(detail ?? `Не удалось загрузить ${resource}`, status);
+    return new ApiRequestError(message, status);
   }
 
   return new ApiRequestError(`Не удалось загрузить ${resource}`);
@@ -105,8 +107,11 @@ export function getBrand(slug: string): Promise<Brand> {
 }
 
 export async function getBrandsWithModels(): Promise<Brand[]> {
-  const brands = await getBrands();
-  return Promise.all(brands.map((brand) => getBrand(brand.slug)));
+  const [brands, models] = await Promise.all([getBrands(), getModels()]);
+  return brands.map((brand) => ({
+    ...brand,
+    models: models.filter((model) => model.brand_id === brand.id)
+  }));
 }
 
 export function getModels(brandSlug?: string): Promise<VehicleModel[]> {

@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { ModelCard } from "@/components/vehicles/ModelCard";
-import { ApiRequestError, getBrand } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api";
+import { getBrandCached, safeGetBrand } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
   const { brand: brandSlug } = await params;
 
   try {
-    const brand = await getBrand(brandSlug);
+    const brand = await getBrandCached(brandSlug);
     return {
       title: `Диски для ${brand.name} — PRIDE Forged`,
       description: `Каталог моделей ${brand.name} для подбора кованых дисков PRIDE Forged по fitment.`,
@@ -36,7 +37,20 @@ export default async function BrandPage({ params }: BrandPageProps) {
   const { brand: brandSlug } = await params;
 
   try {
-    const brand = await getBrand(brandSlug);
+    const brand = await safeGetBrand(brandSlug);
+
+    if (!brand) {
+      return (
+        <section className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <Link href="/vehicles" className="text-sm text-accent">← Все марки</Link>
+            <div className="mt-12">
+              <EmptyState title="Марки автомобилей временно недоступны" description="Попробуйте обновить страницу или откройте раздел позже." />
+            </div>
+          </div>
+        </section>
+      );
+    }
 
     return (
       <section className="px-4 py-16 sm:px-6 lg:px-8">

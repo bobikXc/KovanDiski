@@ -4,9 +4,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { WheelCard, formatWheelPrice, getWheelImageOrFallback } from "@/components/catalog/WheelCard";
+import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
 import { LiquidCard } from "@/components/ui/liquid-card";
-import { ApiRequestError, getFitments, getWheel, getWheels } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api";
+import { getWheelCached, safeGetFitments, safeGetWheel, safeGetWheels } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +18,7 @@ export async function generateMetadata({ params }: WheelPageProps): Promise<Meta
   const { slug } = await params;
 
   try {
-    const wheel = await getWheel(slug);
+    const wheel = await getWheelCached(slug);
     return {
       title: `${wheel.name} — каталог PRIDE Forged`,
       description: `${wheel.name}: ${wheel.diameter}″, ${wheel.width}J, ET${wheel.et}, PCD ${wheel.pcd}. ${wheel.description}`,
@@ -39,7 +41,22 @@ export default async function WheelPage({ params }: WheelPageProps) {
   const { slug } = await params;
 
   try {
-    const [wheel, fitments, wheels] = await Promise.all([getWheel(slug), getFitments({ wheelSlug: slug }), getWheels()]);
+    const wheel = await safeGetWheel(slug);
+
+    if (!wheel) {
+      return (
+        <section className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <Link href="/catalog" className="text-sm font-semibold text-accent transition hover:text-primary">Назад в каталог</Link>
+            <div className="mt-12">
+              <EmptyState title="Карточка диска временно недоступна" description="Сервис временно перегружен. Попробуйте обновить страницу или откройте каталог позже." />
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    const [fitments, wheels] = await Promise.all([safeGetFitments({ wheelSlug: slug }), safeGetWheels()]);
     const related = wheels.filter((item) => item.slug !== wheel.slug).slice(0, 3);
     const specs = [
       ["Диаметр", `${wheel.diameter}″`],

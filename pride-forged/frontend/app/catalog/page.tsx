@@ -5,7 +5,7 @@ import { WheelCard } from "@/components/catalog/WheelCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
 import { LiquidCard } from "@/components/ui/liquid-card";
-import { getWheels } from "@/lib/api";
+import { safeGetWheels } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogPage() {
-  const wheels = await getWheels();
+  const wheels = await safeGetWheels();
 
   return (
     <section className="relative overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
@@ -48,7 +48,7 @@ export default async function CatalogPage() {
 
         {wheels.length === 0 ? (
           <div className="mt-12">
-            <EmptyState title="Каталог пока пуст" description="FastAPI backend вернул пустой список дисков. Добавьте модели в базу данных или выполните seed." />
+            <EmptyState title="Каталог временно недоступен" description="Попробуйте обновить страницу или откройте каталог позже." />
           </div>
         ) : (
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

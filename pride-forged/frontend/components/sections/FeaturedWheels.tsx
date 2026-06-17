@@ -183,61 +183,68 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
             </div>
           </div>
         </Reveal>
-        <motion.div
-          ref={scrollRef}
-          data-featured-wheels-scroll
-          tabIndex={0}
-          aria-label="Флагманские модели дисков PRIDE"
-          variants={carousel}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          onMouseDown={handleDragStart}
-          onMouseMove={handleDragMove}
-          onMouseUp={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-          onKeyDown={handleSliderKeyDown}
-          className={cn(
-            "no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain scroll-smooth pb-4 outline-none focus-visible:ring-2 focus-visible:ring-accent",
-            isDragging ? "cursor-grabbing select-none" : "cursor-grab"
-          )}
-        >
-          {featured.map((wheel, index) => (
-            <motion.div key={wheel.slug} data-featured-wheel-card variants={card} transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }} className="w-[calc(100vw-2rem)] flex-none snap-start sm:w-[380px] md:w-[420px] lg:w-[520px]">
-              <Link href={`/catalog/${wheel.slug}`} draggable={false} onClick={handleCardClick} className="block h-full">
-                <LiquidCard interactive className="group h-full overflow-hidden p-4 transition duration-300 hover:-translate-y-1 sm:p-6">
-                  <div className="mesh-card relative flex aspect-[1.18] items-center justify-center overflow-hidden rounded-[1.7rem]">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
-                    <Image
-                      src={getWheelImageOrFallback(wheel, index)}
-                      alt={`Кованый диск ${wheel.name}`}
-                      width={1100}
-                      height={950}
-                      draggable={false}
-                      className="relative h-[86%] w-[86%] object-contain drop-shadow-[0_30px_55px_rgba(13,27,42,0.22)] transition duration-700 group-hover:scale-110 group-hover:rotate-12"
-                    />
-                  </div>
-                  <div className="mt-6 flex items-start justify-between gap-5">
-                    <div>
-                      <h3 className="text-3xl font-black tracking-tight text-primary">{wheel.name}</h3>
-                      <p className="mt-3 text-sm text-graphite/70">
-                        {wheel.diameter}″ • {wheel.width}J • ET{wheel.et} • {wheel.pcd} • DIA {wheel.dia}
-                      </p>
+        {featured.length === 0 ? (
+          <LiquidCard className="rounded-2xl p-8 text-center">
+            <p className="text-2xl font-black text-primary">Каталог временно недоступен</p>
+            <p className="mt-3 text-graphite">Попробуйте обновить страницу или откройте каталог позже.</p>
+          </LiquidCard>
+        ) : (
+          <motion.div
+            ref={scrollRef}
+            data-featured-wheels-scroll
+            tabIndex={0}
+            aria-label="Флагманские модели дисков PRIDE"
+            variants={carousel}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+            onMouseDown={handleDragStart}
+            onMouseMove={handleDragMove}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={handleDragEnd}
+            onKeyDown={handleSliderKeyDown}
+            className={cn(
+              "no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain scroll-smooth pb-4 outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+            )}
+          >
+            {featured.map((wheel, index) => (
+              <motion.div key={wheel.slug} data-featured-wheel-card variants={card} transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }} className="w-[calc(100vw-2rem)] flex-none snap-start sm:w-[380px] md:w-[420px] lg:w-[520px]">
+                <Link href={`/catalog/${wheel.slug}`} draggable={false} onClick={handleCardClick} className="block h-full">
+                  <LiquidCard interactive className="group h-full overflow-hidden p-4 transition duration-300 hover:-translate-y-1 sm:p-6">
+                    <div className="mesh-card relative flex aspect-[1.18] items-center justify-center overflow-hidden rounded-[1.7rem]">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
+                      <Image
+                        src={getWheelImageOrFallback(wheel, index)}
+                        alt={`Кованый диск ${wheel.name}`}
+                        width={1100}
+                        height={950}
+                        draggable={false}
+                        className="relative h-[86%] w-[86%] object-contain drop-shadow-[0_30px_55px_rgba(13,27,42,0.22)] transition duration-700 group-hover:scale-110 group-hover:rotate-12"
+                      />
                     </div>
-                    <span className="rounded-full border border-primary/10 bg-surface/55 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
-                      forged
-                    </span>
-                  </div>
-                  <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
-                    <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Вес</span><b>{wheel.weight} кг</b></div>
-                    <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">PCD</span><b>{wheel.pcd}</b></div>
-                    <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Цена</span><b>{formatWheelPrice(wheel.price)}</b></div>
-                  </div>
-                </LiquidCard>
-              </Link>
-            </motion.div>
-          ))}
-        </motion.div>
+                    <div className="mt-6 flex items-start justify-between gap-5">
+                      <div>
+                        <h3 className="text-3xl font-black tracking-tight text-primary">{wheel.name}</h3>
+                        <p className="mt-3 text-sm text-graphite/70">
+                          {wheel.diameter}″ • {wheel.width}J • ET{wheel.et} • {wheel.pcd} • DIA {wheel.dia}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-primary/10 bg-surface/55 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                        forged
+                      </span>
+                    </div>
+                    <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
+                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Вес</span><b>{wheel.weight} кг</b></div>
+                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">PCD</span><b>{wheel.pcd}</b></div>
+                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Цена</span><b>{formatWheelPrice(wheel.price)}</b></div>
+                    </div>
+                  </LiquidCard>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
       </div>
     </section>
   );

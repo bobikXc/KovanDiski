@@ -4,17 +4,25 @@ import { notFound } from "next/navigation";
 
 import { WheelCard } from "@/components/catalog/WheelCard";
 import { EmptyState } from "@/components/common/EmptyState";
-import { ApiRequestError, getBrand, getFitments } from "@/lib/api";
+import { ApiRequestError } from "@/lib/api";
+import { getBrandCached, safeGetFitments, safeGetBrand } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
 type ModelPageProps = { params: Promise<{ brand: string; model: string }> };
 
 async function getModelContext(brandSlug: string, modelSlug: string) {
-  const brand = await getBrand(brandSlug);
+  const brand = await getBrandCached(brandSlug);
   const model = brand.models?.find((item) => item.slug === modelSlug);
   if (!model) notFound();
   return { brand, model };
+}
+
+async function safeGetModelContext(brandSlug: string, modelSlug: string) {
+  const brand = await safeGetBrand(brandSlug);
+  const model = brand?.models?.find((item) => item.slug === modelSlug);
+  if (brand && !model) notFound();
+  return brand && model ? { brand, model } : null;
 }
 
 export async function generateMetadata({ params }: ModelPageProps): Promise<Metadata> {
@@ -43,10 +51,23 @@ export default async function ModelPage({ params }: ModelPageProps) {
   const { brand: brandSlug, model: modelSlug } = await params;
 
   try {
-    const [{ brand, model }, fitments] = await Promise.all([
-      getModelContext(brandSlug, modelSlug),
-      getFitments({ brandSlug, modelSlug })
-    ]);
+    const context = await safeGetModelContext(brandSlug, modelSlug);
+
+    if (!context) {
+      return (
+        <section className="px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <Link href="/vehicles" className="text-sm text-accent">← Все марки</Link>
+            <div className="mt-12">
+              <EmptyState title="Подбор временно недоступен" description="Сервис временно перегружен. Попробуйте обновить страницу или откройте раздел позже." />
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    const { brand, model } = context;
+    const fitments = await safeGetFitments({ brandSlug, modelSlug });
 
     return (
       <section className="px-4 py-16 sm:px-6 lg:px-8">

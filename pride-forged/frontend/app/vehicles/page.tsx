@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/common/EmptyState";
 import { VehicleSelector } from "@/components/sections/VehicleSelector";
 import { BrandCard } from "@/components/vehicles/BrandCard";
-import { getBrandsWithModels } from "@/lib/api";
+import { safeGetBrandsWithModels } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function VehiclesPage() {
-  const brands = await getBrandsWithModels();
+  const brands = await safeGetBrandsWithModels();
 
   return (
     <>
@@ -32,7 +32,7 @@ export default async function VehiclesPage() {
           </p>
           {brands.length === 0 ? (
             <div className="mt-12">
-              <EmptyState title="Марки не найдены" description="Backend вернул пустой каталог автомобилей. Добавьте марки и модели в базу данных." />
+              <EmptyState title="Марки автомобилей временно недоступны" description="Попробуйте обновить страницу или откройте раздел позже." />
             </div>
           ) : (
             <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
