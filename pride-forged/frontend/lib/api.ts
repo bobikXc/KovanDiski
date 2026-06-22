@@ -32,7 +32,8 @@ export type Wheel = {
   pcd: string;
   dia: string | number;
   weight: string | number;
-  images: WheelImage[];
+  images?: Array<WheelImage | string>;
+  image_url?: string | null;
 };
 
 export type VehicleModel = {
@@ -132,4 +133,12 @@ export function getFitments(filters: { brandSlug?: string; modelSlug?: string; w
     model_slug: filters.modelSlug,
     wheel_slug: filters.wheelSlug
   });
+}
+
+export async function submitContact(formData: FormData): Promise<void> {
+  try {
+    await api.post("/contact", formData, { timeout: 60000 });
+  } catch (error) {
+    throw toApiError(error, "заявку");
+  }
 }

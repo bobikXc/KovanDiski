@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, type Variants } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 
 import { formatWheelPrice, getWheelImageOrFallback } from "@/components/catalog/WheelCard";
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { Reveal } from "@/components/ui/reveal";
 import type { Wheel } from "@/lib/api";
+import { sortWheelsByCatalogOrder } from "@/lib/assets";
 import { cn } from "@/lib/utils";
 
 const carousel: Variants = {
@@ -22,7 +23,8 @@ const card: Variants = {
 };
 
 export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
-  const featured = wheels.slice(0, 6);
+  const shouldReduceMotion = useReducedMotion();
+  const featured = sortWheelsByCatalogOrder(wheels).slice(0, 6);
   const scrollRef = useRef<HTMLDivElement>(null);
   const startXRef = useRef(0);
   const scrollStartRef = useRef(0);
@@ -195,7 +197,7 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
             tabIndex={0}
             aria-label="Флагманские модели дисков PRIDE"
             variants={carousel}
-            initial="hidden"
+            initial={shouldReduceMotion ? false : "hidden"}
             whileInView="visible"
             viewport={{ once: true, amount: 0.15 }}
             onMouseDown={handleDragStart}
@@ -204,23 +206,23 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
             onMouseLeave={handleDragEnd}
             onKeyDown={handleSliderKeyDown}
             className={cn(
-              "no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain scroll-smooth pb-4 outline-none focus-visible:ring-2 focus-visible:ring-accent",
+              "no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth pb-4 outline-none focus-visible:ring-2 focus-visible:ring-accent",
               isDragging ? "cursor-grabbing select-none" : "cursor-grab"
             )}
           >
             {featured.map((wheel, index) => (
-              <motion.div key={wheel.slug} data-featured-wheel-card variants={card} transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }} className="w-[calc(100vw-2rem)] flex-none snap-start sm:w-[380px] md:w-[420px] lg:w-[520px]">
+              <motion.div key={wheel.slug} data-featured-wheel-card variants={card} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.62, ease: [0.22, 1, 0.36, 1] }} className="w-[calc(100vw-2rem)] flex-none snap-start sm:w-[380px] md:w-[420px] lg:w-[520px]">
                 <Link href={`/catalog/${wheel.slug}`} draggable={false} onClick={handleCardClick} className="block h-full">
-                  <LiquidCard interactive className="group h-full overflow-hidden p-4 transition duration-300 hover:-translate-y-1 sm:p-6">
+                  <LiquidCard interactive className="wheel-card group h-full overflow-hidden p-4 transition duration-500 ease-out hover:border-accent/40 hover:shadow-[0_28px_82px_rgb(var(--accent-rgb)/0.18)] sm:p-6">
                     <div className="mesh-card relative flex aspect-[1.18] items-center justify-center overflow-hidden rounded-[1.7rem]">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
                       <Image
-                        src={getWheelImageOrFallback(wheel, index)}
+                        src={getWheelImageOrFallback(wheel)}
                         alt={`Кованый диск ${wheel.name}`}
                         width={1100}
                         height={950}
                         draggable={false}
-                        className="relative h-[86%] w-[86%] object-contain drop-shadow-[0_30px_55px_rgba(13,27,42,0.22)] transition duration-700 group-hover:scale-110 group-hover:rotate-12"
+                        className="wheel-card-image relative h-[86%] w-[86%] object-contain drop-shadow-[0_30px_55px_rgba(13,27,42,0.22)] transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                       />
                     </div>
                     <div className="mt-6 flex items-start justify-between gap-5">

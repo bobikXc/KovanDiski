@@ -3,707 +3,408 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { useEffect, useMemo, useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
+import { useRef, useState } from "react";
 
-import { getWheelImageOrFallback, WheelCard } from "@/components/catalog/WheelCard";
-import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
+import { ContactMethodPicker, type PreferredContactMethod } from "@/components/contact-method-picker";
 import { LiquidCard } from "@/components/ui/liquid-card";
-import { carsLineupImage } from "@/lib/assets";
 import { cn } from "@/lib/utils";
-import { type Brand, type Fitment, type VehicleModel, type Wheel, getBrands, getFitments, getModels, getWheels } from "@/lib/api";
+import { submitContact } from "@/lib/api";
 
-const diameters = ["19", "20", "21", "22", "23"];
+const MAX_FILES = 5;
+const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const SUBMIT_ERROR = "Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.";
 
-const styles = [
-  "Спортивный",
-  "Премиальный",
-  "Минималистичный",
-  "Агрессивный",
-  "Индивидуальный"
-] as const;
-
-type FitmentStyle = (typeof styles)[number];
-type SelectionMode = "car" | "wheel";
-
-const styleWheelNames: Record<FitmentStyle, string[]> = {
-  "Спортивный": ["PRIDE GT", "PRIDE RS", "PRIDE Evo"],
-  "Премиальный": ["PRIDE Apex", "PRIDE Titan", "PRIDE Nero"],
-  "Минималистичный": ["PRIDE Mono", "PRIDE Vector"],
-  "Агрессивный": ["PRIDE Storm", "PRIDE Blade", "PRIDE Vortex"],
-  "Индивидуальный": []
-};
-
-const fallbackSpecs = ["Индивидуальная ширина", "ET под тормозную систему", "PCD и DIA по автомобилю"];
-
-function normalize(value?: string) {
-  return value?.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "") ?? "";
-}
-
-function getRecommendedSpecs(brand?: Brand, model?: VehicleModel, diameter?: string) {
-  const brandName = normalize(brand?.name);
-  const modelName = normalize(model?.name);
-
-  if (brandName.includes("bmw") && (modelName.includes("m3") || modelName.includes("m4"))) {
-    return ["20x10 ET20", "20x11 ET35"];
-  }
-  if (brandName.includes("bmw") && modelName.includes("m5")) {
-    return ["21x10.5 ET20", "22x11.5 ET18"];
-  }
-  if (brandName.includes("bmw") && (modelName.includes("x5m") || modelName.includes("x6m"))) {
-    return ["22x10.5 ET25", "23x11.5 ET30"];
-  }
-  if (brandName.includes("mercedes") && (modelName.includes("c63") || modelName.includes("e63"))) {
-    return ["20x9.5 ET25", "20x10.5 ET35"];
-  }
-  if (brandName.includes("mercedes") && modelName.includes("g63")) {
-    return ["22x10 ET35", "23x10.5 ET30"];
-  }
-  if (brandName.includes("audi") && (modelName.includes("rs6") || modelName.includes("rs7"))) {
-    return ["21x10.5 ET22", "22x10.5 ET20"];
-  }
-  if (brandName.includes("audi") && modelName.includes("rsq8")) {
-    return ["22x10.5 ET20", "23x11 ET25"];
-  }
-  if (brandName.includes("porsche") && modelName.includes("911")) {
-    return ["20x9 ET45", "21x11.5 ET55"];
-  }
-  if (brandName.includes("porsche") && modelName.includes("panamera")) {
-    return ["21x10 ET35", "21x11 ET45"];
-  }
-  if (brandName.includes("porsche") && modelName.includes("cayenne")) {
-    return ["22x10.5 ET28", "23x11 ET30"];
-  }
-  if (brandName.includes("tesla") && modelName.includes("model3")) {
-    return ["19x9 ET35", "20x9.5 ET35"];
-  }
-  if (brandName.includes("tesla") && modelName.includes("models")) {
-    return ["21x9.5 ET35", "21x10.5 ET40"];
-  }
-  if (brandName.includes("tesla") && modelName.includes("modelx")) {
-    return ["22x10 ET35", "22x10.5 ET40"];
-  }
-
-  return diameter ? [`${diameter}x9 ET35`, `${diameter}x10 ET40`] : fallbackSpecs;
-}
-
-function getYearOptions(model?: VehicleModel) {
-  if (!model?.year_from) {
-    return [];
-  }
-
-  const currentYear = 2026;
-  const yearTo = model.year_to ?? currentYear;
-  return Array.from({ length: yearTo - model.year_from + 1 }, (_, index) => String(yearTo - index));
-}
-
-function getYearLabel(model?: VehicleModel) {
-  if (!model?.year_from) {
-    return "Годы выпуска уточняются";
-  }
-
-  return model.year_to ? `${model.year_from}-${model.year_to}` : `${model.year_from}-н.в.`;
-}
-
-function pickWheels(wheels: Wheel[], style?: FitmentStyle) {
-  if (wheels.length === 0) {
-    return [];
-  }
-
-  if (!style || style === "Индивидуальный") {
-    return wheels.slice(0, 6);
-  }
-
-  const preferredNames = styleWheelNames[style].map(normalize);
-  const preferred = wheels.filter((wheel) => preferredNames.includes(normalize(wheel.name)));
-
-  if (preferred.length === 0) {
-    return wheels.slice(0, 6);
-  }
-
-  const preferredSlugs = new Set(preferred.map((wheel) => wheel.slug));
-  const filled = [
-    ...preferred,
-    ...wheels.filter((wheel) => !preferredSlugs.has(wheel.slug))
-  ];
-
-  return filled.slice(0, 6);
-}
-
-function Field({
+function ManualField({
   label,
   value,
+  placeholder,
+  maxLength,
+  required = false,
+  multiline = false,
+  error,
   onChange,
-  disabled,
-  children
+  onBlur
 }: {
   label: string;
   value: string;
-  disabled?: boolean;
+  placeholder: string;
+  maxLength: number;
+  required?: boolean;
+  multiline?: boolean;
+  error?: string;
   onChange: (value: string) => void;
-  children: ReactNode;
+  onBlur: () => void;
 }) {
+  const className = cn(
+    "fitment-manual-control w-full min-w-0 rounded-2xl border bg-[var(--surface-2)] px-4 text-sm font-semibold text-[var(--text-primary)] outline-none backdrop-blur-xl transition duration-300 placeholder:font-normal placeholder:text-[var(--text-secondary)]/60 focus:border-[var(--accent)] focus:ring-4 focus:ring-accent/15",
+    multiline ? "h-28 resize-none py-3.5 leading-6" : "h-12",
+    error ? "border-red-400/70" : "border-[var(--border)]"
+  );
+
   return (
     <label className="block min-w-0">
-      <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.22em] text-graphite/70">{label}</span>
-      <select
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full min-w-0 rounded-2xl border border-primary/10 bg-surface/70 px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgb(var(--text-primary-rgb)/0.08),0_18px_45px_rgba(0,0,0,0.12)] outline-none backdrop-blur-xl transition duration-300 hover:border-accent/45 focus:border-accent focus:ring-4 focus:ring-accent/15 disabled:cursor-not-allowed disabled:bg-surface/35 disabled:text-graphite/35"
-      >
-        {children}
-      </select>
+      <span className="mb-2 flex items-center justify-between gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-[var(--text-secondary)]">
+        <span>{label}{required ? " *" : ""}</span>
+        <span className="text-[0.65rem] font-medium normal-case tracking-normal opacity-60">{value.length}/{maxLength}</span>
+      </span>
+      {multiline ? (
+        <textarea
+          value={value}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          required={required}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
+          aria-invalid={Boolean(error)}
+          className={className}
+        />
+      ) : (
+        <input
+          type="text"
+          value={value}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          required={required}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
+          aria-invalid={Boolean(error)}
+          className={className}
+        />
+      )}
+      {error ? <span className="mt-2 block text-xs font-medium text-red-400">{error}</span> : null}
     </label>
   );
 }
 
-function StepBadge({ index, title, active }: { index: number; title: string; active: boolean }) {
-  return (
-    <div className={cn(
-      "flex items-center gap-3 rounded-2xl border px-4 py-3 transition duration-300",
-      active ? "border-accent/35 bg-surface/80 text-primary shadow-[0_18px_44px_rgba(0,0,0,0.18)]" : "border-primary/10 bg-surface/35 text-graphite/60"
-    )}>
-      <span className={cn(
-        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-black",
-        active ? "bg-accent text-white" : "bg-surface/80 text-graphite/60"
-      )}>
-        {index}
-      </span>
-      <span className="text-sm font-semibold">{title}</span>
-    </div>
-  );
-}
-
 export function FitmentConfigurator() {
-  const [activeMode, setActiveMode] = useState<SelectionMode>("car");
-  const [brands, setBrands] = useState<Brand[]>([]);
-  const [models, setModels] = useState<VehicleModel[]>([]);
-  const [wheels, setWheels] = useState<Wheel[]>([]);
-  const [fitments, setFitments] = useState<Fitment[]>([]);
-  const [brandSlug, setBrandSlug] = useState("");
-  const [modelSlug, setModelSlug] = useState("");
-  const [year, setYear] = useState("");
-  const [diameter, setDiameter] = useState("");
-  const [style, setStyle] = useState<FitmentStyle | "">("");
-  const [wheelSlug, setWheelSlug] = useState("");
-  const [wheelDiameter, setWheelDiameter] = useState("");
-  const [wheelStyle, setWheelStyle] = useState<FitmentStyle | "">("");
-  const [isLoadingBrands, setIsLoadingBrands] = useState(true);
-  const [isLoadingModels, setIsLoadingModels] = useState(false);
-  const [isLoadingWheels, setIsLoadingWheels] = useState(true);
-  const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [vehicle, setVehicle] = useState("");
+  const [yearGeneration, setYearGeneration] = useState("");
+  const [currentWheelSpecs, setCurrentWheelSpecs] = useState("");
+  const [preferences, setPreferences] = useState("");
+  const [touched, setTouched] = useState({ vehicle: false, yearGeneration: false, currentWheelSpecs: false });
+  const [requestName, setRequestName] = useState("");
+  const [requestPhone, setRequestPhone] = useState("");
+  const [requestComment, setRequestComment] = useState("");
+  const [preferredContactMethod, setPreferredContactMethod] = useState<PreferredContactMethod>("call");
+  const [requestFiles, setRequestFiles] = useState<File[]>([]);
+  const [requestConsent, setRequestConsent] = useState(false);
+  const [requestConsentTouched, setRequestConsentTouched] = useState(false);
+  const [fileError, setFileError] = useState("");
+  const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const normalizedVehicle = vehicle.trim();
+  const normalizedYearGeneration = yearGeneration.trim();
+  const normalizedWheelSpecs = currentWheelSpecs.trim();
+  const normalizedPreferences = preferences.trim();
+  const isComplete = Boolean(normalizedVehicle && normalizedYearGeneration && normalizedWheelSpecs);
 
-  useEffect(() => {
-    let mounted = true;
+  function handleVehicleChange(value: string) {
+    setVehicle(value.replace(/[^\p{L}\p{N}\s./-]/gu, ""));
+  }
 
-    async function loadBrands() {
-      setIsLoadingBrands(true);
-      setError("");
+  function markTouched(field: keyof typeof touched) {
+    setTouched((current) => ({ ...current, [field]: true }));
+  }
 
-      try {
-        const brandData = await getBrands();
-        if (!mounted) {
-          return;
-        }
+  function clearRequestFiles() {
+    setRequestFiles([]);
+    setFileError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
 
-        setError("");
-        setBrands(brandData);
-      } catch (loadError) {
-        console.error("Failed to load brands", loadError);
-        if (mounted) {
-          setError("Не удалось загрузить марки автомобилей. Попробуйте обновить страницу.");
-        }
-      } finally {
-        if (mounted) {
-          setIsLoadingBrands(false);
-        }
-      }
-    }
+  function handleRequestFiles(event: ChangeEvent<HTMLInputElement>) {
+    const selected = Array.from(event.target.files ?? []);
+    setSubmitStatus("idle");
 
-    async function loadWheels() {
-      setIsLoadingWheels(true);
-
-      try {
-        const wheelData = await getWheels();
-        if (mounted) {
-          setWheels(wheelData);
-        }
-      } catch (wheelError) {
-        console.error("Failed to load wheels", wheelError);
-        if (mounted) {
-          setWheels([]);
-        }
-      } finally {
-        if (mounted) {
-          setIsLoadingWheels(false);
-        }
-      }
-    }
-
-    async function loadFitmentsInBackground() {
-      try {
-        const fitmentData = await getFitments();
-        if (mounted) {
-          setFitments(fitmentData);
-        }
-      } catch (fitmentError) {
-        console.error("Failed to load fitment compatibility data", fitmentError);
-        if (mounted) {
-          setFitments([]);
-        }
-      }
-    }
-
-    loadBrands();
-    loadWheels();
-    loadFitmentsInBackground();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!brandSlug) {
-      setModels([]);
-      setModelSlug("");
-      setYear("");
+    if (selected.length > MAX_FILES) {
+      setFileError(`Можно прикрепить не более ${MAX_FILES} фотографий.`);
+      event.target.value = "";
       return;
     }
 
-    let mounted = true;
-    setIsLoadingModels(true);
-    setModelSlug("");
-    setYear("");
+    const oversized = selected.find((file) => file.size > MAX_FILE_SIZE);
+    if (oversized) {
+      setFileError(`Файл «${oversized.name}» превышает максимальный размер 8 МБ.`);
+      event.target.value = "";
+      return;
+    }
 
-    getModels(brandSlug)
-      .then((modelData) => {
-        if (mounted) {
-          setError("");
-          setModels(modelData);
-        }
-      })
-      .catch((modelError) => {
-        console.error("Failed to load models", modelError);
-        if (mounted) {
-          setError("Не удалось загрузить модели выбранной марки.");
-        }
-      })
-      .finally(() => {
-        if (mounted) {
-          setIsLoadingModels(false);
-        }
-      });
+    const unsupported = selected.find((file) => !ALLOWED_FILE_TYPES.has(file.type));
+    if (unsupported) {
+      setFileError(`Файл «${unsupported.name}» имеет неподдерживаемый формат.`);
+      event.target.value = "";
+      return;
+    }
 
-    return () => {
-      mounted = false;
-    };
-  }, [brandSlug]);
-
-  const selectedBrand = useMemo(() => brands.find((brand) => brand.slug === brandSlug), [brands, brandSlug]);
-  const selectedModel = useMemo(() => models.find((model) => model.slug === modelSlug), [models, modelSlug]);
-  const yearOptions = useMemo(() => getYearOptions(selectedModel), [selectedModel]);
-  const specs = useMemo(() => getRecommendedSpecs(selectedBrand, selectedModel, diameter), [selectedBrand, selectedModel, diameter]);
-  const recommendedWheels = useMemo(() => pickWheels(wheels, style || undefined), [wheels, style]);
-  const isComplete = Boolean(selectedBrand && selectedModel && year && diameter && style);
-  const selectedWheel = useMemo(() => wheels.find((wheel) => wheel.slug === wheelSlug), [wheelSlug, wheels]);
-  const wheelModeDiameters = useMemo(
-    () => Array.from(new Set(wheels.map((wheel) => String(wheel.diameter)))).sort((a, b) => Number(a) - Number(b)),
-    [wheels]
-  );
-  const compatibleFitments = useMemo(
-    () => fitments.filter((fitment) => fitment.wheel.slug === wheelSlug),
-    [fitments, wheelSlug]
-  );
-  const wheelModeComplete = Boolean(selectedWheel && wheelDiameter && wheelStyle);
-
-  function handleBrandChange(value: string) {
-    setBrandSlug(value);
-    setModelSlug("");
-    setYear("");
-    setDiameter("");
-    setStyle("");
+    setRequestFiles(selected);
+    setFileError("");
   }
 
-  function handleModelChange(value: string) {
-    setModelSlug(value);
-    setYear("");
-    setDiameter("");
-    setStyle("");
-  }
+  async function handleRequestSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSubmitStatus("idle");
 
-  function handleYearChange(value: string) {
-    setYear(value);
-    setDiameter("");
-    setStyle("");
-  }
+    const name = requestName.trim();
+    const phone = requestPhone.trim();
+    if (!name || !phone || !requestConsent || fileError) {
+      if (!requestConsent) setRequestConsentTouched(true);
+      return;
+    }
 
-  function handleDiameterChange(value: string) {
-    setDiameter(value);
-    setStyle("");
-  }
+    const formData = new FormData();
+    formData.append("source", "home-fitment-form");
+    formData.append("fitment_car", normalizedVehicle);
+    formData.append("fitment_year_generation", normalizedYearGeneration);
+    formData.append("fitment_current_wheels", normalizedWheelSpecs);
+    formData.append("fitment_wishes", normalizedPreferences || "не указано");
+    formData.append("name", name);
+    formData.append("phone", phone);
+    formData.append("comment", requestComment.trim());
+    formData.append("personal_data_consent", "true");
+    formData.append("preferred_contact_method", preferredContactMethod);
+    requestFiles.forEach((file) => formData.append("files", file));
 
-  function handleWheelChange(value: string) {
-    setWheelSlug(value);
-    const wheel = wheels.find((item) => item.slug === value);
-    setWheelDiameter(wheel ? String(wheel.diameter) : "");
-    setWheelStyle("");
+    setSubmitStatus("submitting");
+    try {
+      await submitContact(formData);
+      setRequestName("");
+      setRequestPhone("");
+      setRequestComment("");
+      setRequestConsent(false);
+      setPreferredContactMethod("call");
+      setRequestConsentTouched(false);
+      clearRequestFiles();
+      setSubmitStatus("success");
+    } catch {
+      setSubmitStatus("error");
+    }
   }
 
   return (
-    <section className="relative overflow-x-hidden px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
+    <section className="fitment-page relative overflow-x-clip overflow-y-visible px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
       <div className="absolute -right-52 top-20 -z-10 h-[34rem] w-[34rem] rounded-full bg-accent/14 blur-3xl" />
       <div className="absolute -left-52 top-[34rem] -z-10 h-[38rem] w-[38rem] rounded-full bg-accent/10 blur-3xl" />
 
       <div className="mx-auto max-w-7xl">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
-          <LiquidCard className="relative overflow-hidden rounded-[1.5rem] p-5 sm:rounded-[2rem] sm:p-10 lg:p-12">
+          <LiquidCard className="selection-intro relative min-h-[21rem] overflow-hidden rounded-[1.5rem] p-7 sm:min-h-[24rem] sm:rounded-[2rem] sm:p-12 lg:p-16">
             <div className="absolute inset-0">
               <Image
-                src={carsLineupImage}
-                alt="Линейка автомобилей для подбора дисков PRIDE"
+                src="/images/fitment/diski-pod-podbor.png"
+                alt="Кованые диски PRIDE перед подбором параметров"
                 fill
                 priority
                 sizes="1180px"
-                className="object-cover opacity-35"
+                className="selection-intro-image object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/82 to-background/35" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
+              <div className="selection-intro-overlay absolute inset-0" />
             </div>
-            <div className="absolute right-[-7rem] top-[-9rem] h-80 w-80 rounded-full bg-accent/18 blur-3xl" />
-            <div className="relative grid min-w-0 gap-6 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
-              <div>
+            <div className="selection-intro-glow absolute -right-20 -top-32 h-96 w-96 rounded-full bg-accent/20 blur-3xl" />
+            <div className="relative flex min-h-[17rem] min-w-0 items-end sm:min-h-[18rem]">
+              <div className="max-w-[48rem]">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-accent sm:text-sm sm:tracking-[0.35em]">PRIDE Selection</p>
                 <h1 className="mt-4 max-w-4xl text-4xl font-black leading-[0.95] text-primary sm:text-6xl lg:text-7xl">
                   Подбор дисков
                 </h1>
-                <p className="mt-5 max-w-3xl text-base leading-7 text-graphite sm:text-lg sm:leading-8">
-                  Выберите сценарий: начните с автомобиля или с понравившейся модели диска. Конфигуратор покажет предварительные параметры, совместимость и следующий шаг.
+                <p className="mt-5 max-w-[45rem] text-base leading-7 text-[var(--text-secondary)] sm:text-lg sm:leading-8">
+                  Укажите параметры автомобиля и желаемую посадку — мы проверим совместимость, подберём оптимальные размеры и подготовим персональное предложение.
                 </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                <StepBadge index={1} title="Автомобиль" active={Boolean(selectedBrand || selectedModel)} />
-                <StepBadge index={2} title="Параметры" active={Boolean(year || diameter || style)} />
               </div>
             </div>
           </LiquidCard>
         </motion.div>
 
-        <div className="mt-6 grid min-w-0 gap-2 rounded-[1.35rem] border border-primary/10 bg-surface/40 p-2 sm:inline-grid sm:grid-cols-2 sm:gap-3 sm:rounded-[1.5rem]">
-          {[
-            ["car", "Подбор по автомобилю"],
-            ["wheel", "Подбор по модели диска"]
-          ].map(([mode, label]) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => setActiveMode(mode as SelectionMode)}
-              className={cn(
-                "min-w-0 rounded-[1.05rem] px-4 py-3 text-sm font-semibold transition duration-300 sm:rounded-[1.15rem] sm:px-5",
-                activeMode === mode
-                  ? "bg-accent text-white shadow-[0_16px_42px_rgba(62,110,168,0.28)]"
-                  : "text-graphite hover:bg-surface/80 hover:text-primary"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {activeMode === "car" ? (
         <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-8">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}>
-            <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
-              <div className="grid gap-5">
-                <Field label="1. Марка автомобиля" value={brandSlug} disabled={isLoadingBrands} onChange={handleBrandChange}>
-                  <option value="">{isLoadingBrands ? "Загрузка марок..." : "Выберите марку"}</option>
-                  {brands.map((brand) => (
-                    <option key={brand.slug} value={brand.slug}>{brand.name}</option>
-                  ))}
-                </Field>
-
-                <Field label="2. Модель" value={modelSlug} disabled={!brandSlug || isLoadingModels} onChange={handleModelChange}>
-                  <option value="">{isLoadingModels ? "Загрузка моделей..." : "Выберите модель"}</option>
-                  {models.map((model) => (
-                    <option key={model.slug} value={model.slug}>{model.name}</option>
-                  ))}
-                </Field>
-
-                <Field label="3. Год / поколение" value={year} disabled={!selectedModel} onChange={handleYearChange}>
-                  <option value="">{selectedModel ? getYearLabel(selectedModel) : "Сначала выберите модель"}</option>
-                  {yearOptions.map((option) => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                </Field>
-
-                <Field label="4. Желаемый диаметр" value={diameter} disabled={!year} onChange={handleDiameterChange}>
-                  <option value="">Выберите диаметр</option>
-                  {diameters.map((option) => (
-                    <option key={option} value={option}>{option} дюймов</option>
-                  ))}
-                </Field>
-
-                <div>
-                  <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.22em] text-graphite/70">5. Стиль</span>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {styles.map((option) => (
-                      <button
-                        key={option}
-                        type="button"
-                        disabled={!diameter}
-                        onClick={() => setStyle(option)}
-                        className={cn(
-                          "min-h-12 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-45",
-                          style === option
-                            ? "border-accent/45 bg-accent text-white shadow-[0_18px_44px_rgba(62,110,168,0.28)]"
-                            : "border-primary/10 bg-surface/60 text-primary hover:-translate-y-0.5 hover:border-accent/45 hover:bg-surface"
-                        )}
-                      >
-                        {option}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </LiquidCard>
-          </motion.div>
-
-          <div className="min-h-[28rem] min-w-0 lg:min-h-[34rem]">
-            <AnimatePresence mode="wait">
-              {!isComplete ? (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.35 }}
-                >
-                  <LiquidCard className="flex min-h-[28rem] items-center rounded-[1.5rem] p-5 sm:min-h-[34rem] sm:rounded-[2rem] sm:p-8">
-                    {error ? (
-                      <EmptyState title="Данные недоступны" description={error} />
-                    ) : (
-                      <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Результат</p>
-                        <h2 className="mt-4 text-2xl font-black text-primary sm:text-4xl">Заполните параметры подбора</h2>
-                        <p className="mt-4 max-w-xl text-base leading-7 text-graphite/65">
-                          После выбора марки, модели, года, диаметра и стиля здесь появятся рекомендуемые размеры и модели кованых дисков PRIDE.
-                        </p>
-                      </div>
-                    )}
-                  </LiquidCard>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="result"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.4 }}
-                >
-                  <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
-                    <div className="grid gap-6">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Рекомендация</p>
-                          <h2 className="mt-3 text-2xl font-black text-primary sm:text-3xl">
-                            {selectedBrand?.name} {selectedModel?.name}
-                          </h2>
-                          <p className="mt-2 text-sm text-graphite/60">
-                            {year} год • {diameter}″ • стиль: {style}
-                          </p>
-                        </div>
-                        <Button asChild size="lg" className="w-full sm:w-auto">
-                          <Link href="/contact">Получить консультацию</Link>
-                        </Button>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {specs.map((spec) => (
-                          <div key={spec} className="rounded-2xl border border-primary/10 bg-surface/55 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-graphite/45">Параметр</p>
-                            <p className="mt-2 text-2xl font-black text-primary">{spec}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="rounded-2xl border border-accent/20 bg-accent/[0.07] p-4 text-sm leading-6 text-graphite/70">
-                        Результаты подбора являются предварительными. Финальные параметры зависят от комплектации автомобиля, тормозной системы, подвески и желаемой посадки.
-                      </div>
-
-                      <div>
-                        <div className="mb-4 flex items-end justify-between gap-4">
-                          <div>
-                            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-accent">Модели PRIDE</p>
-                            <h3 className="mt-2 text-2xl font-black text-primary">Подходящие диски</h3>
-                          </div>
-                          <span className="hidden rounded-full border border-primary/10 bg-surface/55 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-graphite/70 sm:inline-flex">
-                            {recommendedWheels.length} моделей
-                          </span>
-                        </div>
-
-                        {recommendedWheels.length === 0 ? (
-                          <EmptyState title="Каталог пока пуст" description="API вернул пустой список дисков. После наполнения каталога здесь появятся рекомендации." />
-                        ) : (
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            {recommendedWheels.slice(0, 4).map((wheel, index) => (
-                              <Link
-                                key={wheel.slug}
-                                href={`/catalog/${wheel.slug}`}
-                                className="group flex min-w-0 items-center gap-3 rounded-2xl border border-primary/10 bg-surface/60 p-3 transition duration-300 hover:-translate-y-1 hover:border-accent/40 hover:bg-surface sm:gap-4"
-                              >
-                                <div className="mesh-card flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl">
-                                  <img src={getWheelImageOrFallback(wheel, index)} alt={wheel.name} className="h-full w-full object-contain transition duration-500 group-hover:scale-110" />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="font-black text-primary">{wheel.name}</p>
-                                  <p className="mt-1 text-xs text-graphite/55">
-                                    {wheel.diameter}″ • {wheel.width}J • ET{wheel.et}
-                                  </p>
-                                </div>
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </LiquidCard>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-        ) : (
-          <div className="mt-8 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-8">
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}>
               <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
                 <div className="grid gap-5">
-                  <Field label="1. Модель диска" value={wheelSlug} disabled={isLoadingWheels || wheels.length === 0} onChange={handleWheelChange}>
-                    <option value="">{isLoadingWheels ? "Загрузка моделей..." : "Выберите диск"}</option>
-                    {wheels.map((wheel) => (
-                      <option key={wheel.slug} value={wheel.slug}>{wheel.name}</option>
-                    ))}
-                  </Field>
-
-                  <Field label="2. Диаметр" value={wheelDiameter} disabled={!selectedWheel} onChange={setWheelDiameter}>
-                    <option value="">Выберите диаметр</option>
-                    {wheelModeDiameters.map((option) => (
-                      <option key={option} value={option}>{option} дюймов</option>
-                    ))}
-                  </Field>
-
-                  <div>
-                    <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.22em] text-graphite/55">3. Стиль</span>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {styles.map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          disabled={!wheelDiameter}
-                          onClick={() => setWheelStyle(option)}
-                          className={cn(
-                            "min-h-12 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/15 disabled:cursor-not-allowed disabled:opacity-45",
-                            wheelStyle === option
-                              ? "border-accent/45 bg-accent text-white shadow-[0_18px_44px_rgba(62,110,168,0.28)]"
-                              : "border-primary/10 bg-surface/60 text-primary hover:-translate-y-0.5 hover:border-accent/45 hover:bg-surface"
-                          )}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  <ManualField
+                    label="1. Автомобиль"
+                    value={vehicle}
+                    placeholder="Например: BMW 3 Series G20"
+                    maxLength={60}
+                    required
+                    onChange={handleVehicleChange}
+                    onBlur={() => markTouched("vehicle")}
+                    error={touched.vehicle && !normalizedVehicle ? "Укажите автомобиль" : undefined}
+                  />
+                  <ManualField
+                    label="2. Год / поколение"
+                    value={yearGeneration}
+                    placeholder="Например: 2021 или G20"
+                    maxLength={40}
+                    required
+                    onChange={setYearGeneration}
+                    onBlur={() => markTouched("yearGeneration")}
+                    error={touched.yearGeneration && !normalizedYearGeneration ? "Укажите год или поколение" : undefined}
+                  />
+                  <ManualField
+                    label="3. Параметры дисков"
+                    value={currentWheelSpecs}
+                    placeholder="Например: R19 8.5J ET35 5x112 DIA 66.6"
+                    maxLength={80}
+                    required
+                    onChange={setCurrentWheelSpecs}
+                    onBlur={() => markTouched("currentWheelSpecs")}
+                    error={touched.currentWheelSpecs && !normalizedWheelSpecs ? "Укажите текущие параметры дисков" : undefined}
+                  />
+                  <ManualField
+                    label="4. Пожелания"
+                    value={preferences}
+                    placeholder="Например: ниже посадка, шире колесо, агрессивнее вид"
+                    maxLength={160}
+                    multiline
+                    onChange={setPreferences}
+                    onBlur={() => undefined}
+                  />
                 </div>
               </LiquidCard>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.08 }}>
-              <LiquidCard className="min-h-[28rem] rounded-[1.5rem] p-4 sm:min-h-[34rem] sm:rounded-[2rem] sm:p-7">
-                {!wheelModeComplete ? (
-                  <div className="flex min-h-[24rem] items-center sm:min-h-[30rem]">
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Совместимость</p>
-                      <h2 className="mt-4 text-2xl font-black text-primary sm:text-4xl">Выберите модель диска</h2>
-                      <p className="mt-4 max-w-xl text-base leading-7 text-graphite/65">
-                        После выбора модели, диаметра и стиля здесь появится список совместимых автомобилей и быстрый переход к карточке диска.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="grid gap-6">
-                    <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-start">
-                      <div className="mesh-card relative aspect-square w-full max-w-[180px] overflow-hidden rounded-[1.5rem] sm:max-w-[220px]">
-                        {selectedWheel ? (
-                          <img
-                            src={getWheelImageOrFallback(selectedWheel)}
-                            alt={selectedWheel.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : null}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Wheel selection</p>
-                        <h2 className="mt-3 text-2xl font-black text-primary sm:text-3xl">{selectedWheel?.name}</h2>
-                        <p className="mt-2 text-sm text-graphite/60">
-                          {wheelDiameter}″ • стиль: {wheelStyle}
+            <div className="min-h-[28rem] min-w-0">
+              <AnimatePresence mode="wait">
+                {!isComplete ? (
+                  <motion.div key="manual-empty" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35 }}>
+                    <LiquidCard className="flex min-h-[28rem] items-center rounded-[1.5rem] p-5 sm:rounded-[2rem] sm:p-8">
+                      <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Результат</p>
+                        <h2 className="mt-4 text-2xl font-black text-primary sm:text-4xl">Расскажите о вашем автомобиле</h2>
+                        <p className="mt-4 max-w-xl text-base leading-7 text-graphite/70">
+                          Укажите модель, год и текущие параметры дисков — после этого мы подготовим форму заявки для обратной связи.
                         </p>
-                        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                          <Button asChild>
-                            <Link href={selectedWheel ? `/catalog/${selectedWheel.slug}` : "/catalog"}>Открыть карточку</Link>
-                          </Button>
-                          <Button asChild variant="outline">
-                            <Link href="/tools/wheel-calculator">Проверить параметры</Link>
-                          </Button>
-                        </div>
                       </div>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {selectedWheel ? [
-                        ["Диаметр", `${selectedWheel.diameter}″`],
-                        ["Ширина", `${selectedWheel.width}J`],
-                        ["ET", `ET${selectedWheel.et}`]
-                      ].map(([label, value]) => (
-                        <div key={label} className="rounded-2xl border border-primary/10 bg-surface/55 p-4">
-                          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-graphite/45">{label}</p>
-                          <p className="mt-2 text-xl font-black text-primary">{value}</p>
+                    </LiquidCard>
+                  </motion.div>
+                ) : (
+                  <motion.div key="manual-result" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.4 }}>
+                    <LiquidCard className="rounded-[1.5rem] p-4 sm:rounded-[2rem] sm:p-7">
+                      <div className="grid gap-6">
+                        <div>
+                          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-accent">Заявка</p>
+                          <h2 className="mt-3 text-2xl font-black text-primary sm:text-3xl">Получить обратную связь</h2>
+                          <p className="mt-3 max-w-xl text-sm leading-6 text-graphite/70">
+                            Мы проверим параметры, посадку и совместимость, а затем свяжемся с вами.
+                          </p>
                         </div>
-                      )) : null}
-                    </div>
 
-                    <div>
-                      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-accent">Compatible cars</p>
-                      <h3 className="mt-2 text-2xl font-black text-primary">Совместимые автомобили</h3>
-                      {compatibleFitments.length === 0 ? (
-                        <div className="mt-4 rounded-2xl border border-accent/20 bg-accent/[0.07] p-5 text-sm leading-6 text-graphite/70">
-                          В базе пока нет жестко привязанных автомобилей для этой модели. Специалист PRIDE проверит PCD, DIA, тормозную систему и посадку вручную.
-                        </div>
-                      ) : (
-                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                          {compatibleFitments.slice(0, 6).map((fitment) => (
-                            <div key={fitment.id} className="rounded-2xl border border-primary/10 bg-surface/55 p-4">
-                              <p className="font-black text-primary">{fitment.vehicle_model.name}</p>
-                              <p className="mt-1 text-sm text-graphite/60">Проверенный fitment</p>
+                        <div>
+                          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--text-secondary)]">Ваши параметры</p>
+                          <dl className="grid gap-3 sm:grid-cols-2">
+                          {[
+                            ["Автомобиль", normalizedVehicle],
+                            ["Год / поколение", normalizedYearGeneration],
+                            ["Текущие параметры", normalizedWheelSpecs],
+                            ["Пожелания", normalizedPreferences || "не указано"]
+                          ].map(([label, value]) => (
+                            <div key={label} className="min-w-0 rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] p-4">
+                              <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-secondary)]">{label}</dt>
+                              <dd className="mt-2 break-words text-sm font-bold leading-6 text-[var(--text-primary)]">{value}</dd>
                             </div>
                           ))}
+                          </dl>
                         </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </LiquidCard>
-            </motion.div>
-          </div>
-        )}
 
-        {activeMode === "car" && recommendedWheels.length > 4 && isComplete ? (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {recommendedWheels.slice(4, 6).map((wheel, index) => (
-              <WheelCard key={wheel.slug} wheel={wheel} index={index + 4} />
-            ))}
+                        <form className="fitment-request-form grid gap-4" onSubmit={handleRequestSubmit}>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <input
+                              name="name"
+                              value={requestName}
+                              onChange={(event) => setRequestName(event.target.value)}
+                              placeholder="Ваше имя"
+                              maxLength={60}
+                              required
+                              autoComplete="name"
+                              className="fitment-request-control"
+                            />
+                            <input
+                              name="phone"
+                              value={requestPhone}
+                              onChange={(event) => setRequestPhone(event.target.value)}
+                              placeholder="+7 999 000-00-00"
+                              maxLength={30}
+                              required
+                              inputMode="tel"
+                              autoComplete="tel"
+                              className="fitment-request-control"
+                            />
+                          </div>
+                          <textarea
+                            name="comment"
+                            value={requestComment}
+                            onChange={(event) => setRequestComment(event.target.value)}
+                            placeholder="Можно добавить детали проекта"
+                            maxLength={300}
+                            className="fitment-request-control fitment-request-comment"
+                          />
+
+                          <ContactMethodPicker value={preferredContactMethod} onChange={setPreferredContactMethod} />
+
+                          <div className="fitment-request-files">
+                            <input
+                              ref={fileInputRef}
+                              id="fitment-request-files"
+                              type="file"
+                              accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                              multiple
+                              onChange={handleRequestFiles}
+                              disabled={submitStatus === "submitting"}
+                              className="sr-only"
+                            />
+                            <div className="flex flex-wrap items-center gap-3">
+                              <label htmlFor="fitment-request-files" className="fitment-request-file-button">Прикрепить фото</label>
+                              {requestFiles.length > 0 ? (
+                                <button type="button" onClick={clearRequestFiles} className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent)]">Очистить</button>
+                              ) : null}
+                              <span className="text-xs text-[var(--text-secondary)]">До 5 фото, каждое до 8 МБ</span>
+                            </div>
+                            {requestFiles.length > 0 ? (
+                              <ul className="mt-2 grid gap-1 text-xs text-[var(--text-secondary)]">
+                                {requestFiles.map((file) => <li key={`${file.name}-${file.size}`} className="truncate">{file.name}</li>)}
+                              </ul>
+                            ) : null}
+                            {fileError ? <p className="mt-2 text-xs font-medium text-red-400" role="alert">{fileError}</p> : null}
+                          </div>
+
+                          <div className="contact-consent-group">
+                            <label className="contact-consent">
+                              <input
+                                type="checkbox"
+                                checked={requestConsent}
+                                onChange={(event) => {
+                                  setRequestConsent(event.target.checked);
+                                  setRequestConsentTouched(true);
+                                }}
+                                onBlur={() => setRequestConsentTouched(true)}
+                                aria-invalid={requestConsentTouched && !requestConsent}
+                              />
+                              <span className="contact-consent-box" aria-hidden="true">
+                                <svg viewBox="0 0 16 16" focusable="false"><path d="m3.25 8.2 3.05 3.05 6.45-6.5" /></svg>
+                              </span>
+                              <span className="contact-consent-copy">
+                                Я согласен на обработку персональных данных и ознакомлен с <Link href="/privacy">политикой конфиденциальности</Link>.
+                              </span>
+                            </label>
+                            {requestConsentTouched && !requestConsent ? <p className="contact-consent-error" role="alert">Необходимо согласие на обработку персональных данных.</p> : null}
+                          </div>
+
+                          {submitStatus === "success" ? <p className="text-sm font-semibold text-emerald-400" role="status">Заявка отправлена. Мы свяжемся с вами в ближайшее время.</p> : null}
+                          {submitStatus === "error" ? <p className="text-sm font-semibold text-red-400" role="alert">{SUBMIT_ERROR}</p> : null}
+
+                          <Button type="submit" size="lg" className="w-full" disabled={submitStatus === "submitting" || Boolean(fileError)}>
+                            {submitStatus === "submitting" ? "Отправляем..." : "Отправить заявку"}
+                          </Button>
+                        </form>
+                      </div>
+                    </LiquidCard>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-        ) : null}
+
       </div>
     </section>
   );

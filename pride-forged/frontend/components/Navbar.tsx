@@ -1,31 +1,69 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { BrandLogo } from "@/components/BrandLogo";
+import { CallbackModal } from "@/components/modal-callback";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const links = [
-  ["Главная", "/"],
   ["Каталог", "/catalog"],
   ["Подбор", "/fitment"],
   ["О бренде", "/about"],
   ["Контакты", "/contact"]
 ];
 
+const mobileLinks = [["Главная", "/"], ...links];
+
 const menuItemVariants = {
   hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0 }
 };
 
+type HeaderLogoProps = {
+  className?: string;
+  onClick?: () => void;
+  priority?: boolean;
+};
+
+function HeaderLogo({ className, onClick, priority = false }: HeaderLogoProps) {
+  return (
+    <Link
+      href="/"
+      aria-label="PRIDE Forged — на главную"
+      className={cn("header-brand-logo block shrink-0", className)}
+      onClick={onClick}
+    >
+      <Image
+        src="/images/logo/pride-logo-light-theme.png"
+        alt=""
+        width={783}
+        height={185}
+        priority={priority}
+        className="header-brand-logo-image header-brand-logo-light"
+      />
+      <Image
+        src="/images/logo/pride-logo-dark-theme.png"
+        alt=""
+        width={783}
+        height={185}
+        priority={priority}
+        className="header-brand-logo-image header-brand-logo-dark"
+      />
+    </Link>
+  );
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isCallbackOpen, setIsCallbackOpen] = useState(false);
+  const closeCallbackModal = useCallback(() => setIsCallbackOpen(false), []);
 
   useEffect(() => {
     setIsOpen(false);
@@ -49,35 +87,28 @@ export function Navbar() {
   }, [isOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-primary/[0.08] bg-background/78 shadow-[0_16px_50px_rgba(0,0,0,0.14)] backdrop-blur-2xl">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-8">
-        <BrandLogo priority imageClassName="h-8 sm:h-9" className="shrink-0" />
-        <nav className="hidden items-center gap-7 lg:flex">
+    <header className="sticky top-0 z-50 border-b border-[var(--header-border)] bg-[var(--header-bg)] shadow-[0_16px_50px_rgba(0,0,0,0.14)] backdrop-blur-[18px]">
+      <div className="mx-auto grid h-[72px] w-full max-w-[1520px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-4 sm:px-6 lg:h-20 lg:px-12 2xl:px-14">
+        <nav className="hidden min-w-0 justify-self-start items-center gap-7 2xl:gap-8 lg:flex" aria-label="Основная навигация">
           {links.map(([label, href]) => (
             <Link
               key={href}
               href={href}
               className={cn(
-                "text-sm font-medium transition hover:text-primary",
-                pathname === href ? "text-primary" : "text-graphite"
+                "whitespace-nowrap text-sm font-semibold text-graphite underline-offset-8 transition hover:text-accent hover:underline xl:text-[15px]",
+                pathname === href && "text-accent"
               )}
             >
               {label}
             </Link>
           ))}
         </nav>
-        <div className="hidden items-center gap-3 lg:flex">
-          <ThemeSwitcher />
-          <Button asChild size="default">
-            <Link href="/contact">Заказать звонок</Link>
-          </Button>
-        </div>
         <button
           type="button"
           aria-label={isOpen ? "Закрыть меню" : "Открыть меню"}
           aria-expanded={isOpen}
           onClick={() => setIsOpen((value) => !value)}
-          className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/12 bg-surface/65 text-primary shadow-[0_16px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl transition hover:border-accent/45 hover:bg-surface lg:hidden"
+          className="relative z-10 flex h-11 w-11 shrink-0 items-center justify-center justify-self-start rounded-full border border-primary/12 bg-surface/65 text-primary shadow-[0_16px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl transition hover:border-accent/45 hover:bg-surface lg:hidden"
         >
           <span className="sr-only">{isOpen ? "Закрыть меню" : "Открыть меню"}</span>
           <span className="relative h-4 w-5">
@@ -101,6 +132,34 @@ export function Navbar() {
             />
           </span>
         </button>
+
+        <HeaderLogo
+          priority
+          className="w-[132px] min-w-0 justify-self-center sm:w-[150px] lg:w-[168px] xl:w-[180px]"
+        />
+
+        <div className="hidden min-w-0 justify-self-end items-center justify-end gap-3 lg:flex 2xl:gap-3.5">
+          <a
+            href="tel:+79257190338"
+            className="hidden h-10 shrink-0 items-center justify-center rounded-full border border-primary/12 bg-primary/[0.06] px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgb(var(--surface-rgb)/0.22)] backdrop-blur-xl transition hover:border-accent/45 hover:bg-accent/10 hover:text-accent xl:inline-flex"
+          >
+            +7 925 719-03-38
+          </a>
+          <Button type="button" size="default" className="h-10 px-4 xl:px-5" onClick={() => setIsCallbackOpen(true)}>
+            Заказать звонок
+          </Button>
+          <ThemeSwitcher variant="icon" />
+        </div>
+
+        <a
+          href="tel:+79257190338"
+          aria-label="Позвонить +7 925 719-03-38"
+          className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-primary/12 bg-surface/65 text-primary shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl transition hover:border-accent/45 hover:bg-surface hover:text-accent lg:hidden"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92Z" />
+          </svg>
+        </a>
       </div>
 
       <AnimatePresence>
@@ -125,14 +184,7 @@ export function Navbar() {
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex shrink-0 items-center justify-between gap-4">
-                <div onClick={() => setIsOpen(false)}>
-                  <BrandLogo
-                    imageClassName="h-8"
-                    className="min-w-0"
-                    textClassName="text-[var(--menu-text)]"
-                    subTextClassName="text-accent"
-                  />
-                </div>
+                <HeaderLogo className="w-[145px] min-w-0" onClick={() => setIsOpen(false)} />
                 <button
                   type="button"
                   aria-label="Закрыть меню"
@@ -163,7 +215,7 @@ export function Navbar() {
                   }
                 }}
               >
-                {links.map(([label, href]) => (
+                {mobileLinks.map(([label, href]) => (
                   <motion.div key={href} variants={menuItemVariants}>
                     <Link
                       href={href}
@@ -188,6 +240,7 @@ export function Navbar() {
           </motion.div>
         ) : null}
       </AnimatePresence>
+      <CallbackModal isOpen={isCallbackOpen} onClose={closeCallbackModal} />
     </header>
   );
 }

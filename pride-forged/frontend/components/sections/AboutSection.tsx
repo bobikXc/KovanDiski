@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { Reveal } from "@/components/ui/reveal";
@@ -14,13 +14,14 @@ const milestones = [
 ];
 
 export function AboutSection() {
+  const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const imageY = useTransform(scrollYProgress, [0.35, 0.75], [-34, 34]);
 
   return (
     <section className="relative overflow-hidden px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
       <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-        <motion.div style={{ y: imageY }} className="relative order-2 lg:order-1">
+        <motion.div style={{ y: shouldReduceMotion ? 0 : imageY }} className="relative order-2 lg:order-1">
           <LiquidCard className="relative overflow-hidden rounded-[2rem] p-3 sm:p-4">
             <div className="relative aspect-[1.35] overflow-hidden rounded-[1.5rem]">
               <Image

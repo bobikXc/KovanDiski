@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     project_name: str = "PRIDE Forged"
     database_url: str = "postgresql+psycopg://pride:pride_password@postgres:5432/pride_forged"
     backend_cors_origins: str = Field(default="http://localhost,http://localhost:3000")
+    telegram_bot_token: str | None = None
+    telegram_chat_id: str | None = None
 
     @property
     def cors_origins(self) -> list[str]:

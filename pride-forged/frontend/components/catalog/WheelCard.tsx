@@ -10,8 +10,8 @@ export function getWheelImage(wheel: Wheel, index = 0) {
   return getWheelAsset(wheel, index);
 }
 
-export function getWheelImageOrFallback(wheel: Wheel, index = 0) {
-  return getWheelAsset(wheel, index);
+export function getWheelImageOrFallback(wheel: Wheel, _index = 0) {
+  return getWheelAsset(wheel, 0);
 }
 
 export function formatWheelPrice(_price: Wheel["price"]) {
@@ -19,10 +19,10 @@ export function formatWheelPrice(_price: Wheel["price"]) {
 }
 
 export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }) {
-  const imageSrc = getWheelImageOrFallback(wheel, index);
+  const imageSrc = getWheelImageOrFallback(wheel);
 
   return (
-    <LiquidCard interactive className="group flex h-full flex-col overflow-hidden rounded-[1.75rem] p-3 transition duration-300 hover:border-accent/50 hover:shadow-[0_32px_90px_rgba(62,110,168,0.20)] sm:p-4">
+    <LiquidCard interactive className="wheel-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] p-3 transition duration-500 ease-out hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_28px_82px_rgb(var(--accent-rgb)/0.18)] sm:p-4">
       <Link href={`/catalog/${wheel.slug}`} className="block">
         <div className="mesh-card relative mb-5 flex aspect-[1.08] items-center justify-center overflow-hidden rounded-[1.4rem]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_24%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
@@ -32,7 +32,7 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
             alt={`Кованый диск ${wheel.name}`}
             width={1100}
             height={980}
-            className="relative h-[96%] w-[96%] object-contain object-center drop-shadow-[0_28px_48px_rgba(0,0,0,0.38)] transition duration-700 group-hover:scale-110 group-hover:rotate-6"
+            className="wheel-card-image relative h-[96%] w-[96%] object-contain object-center drop-shadow-[0_28px_48px_rgba(0,0,0,0.38)] transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         </div>
       </Link>

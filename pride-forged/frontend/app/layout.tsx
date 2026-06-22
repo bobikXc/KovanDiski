@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 
 import { BackToTopButton } from "@/components/back-to-top-button";
+import { CookieConsent } from "@/components/cookie-consent";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <main>{children}</main>
             <Footer />
             <BackToTopButton />
+            <CookieConsent />
           </ThemeProvider>
         </Suspense>
       </body>

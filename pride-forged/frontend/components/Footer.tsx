@@ -34,8 +34,14 @@ export function Footer() {
           <p>sales@pride-forged.ru</p>
         </div>
       </div>
-      <div className="border-t border-primary/10 px-4 py-5 text-center text-xs uppercase tracking-[0.24em] text-graphite/60">
-        © 2026 PRIDE Forged. Bespoke forged wheels.
+      <div className="border-t border-primary/10 px-4 py-5 text-xs text-graphite/60">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
+          <p className="uppercase tracking-[0.24em]">© 2026 PRIDE Forged. Bespoke forged wheels.</p>
+          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2" aria-label="Правовая информация">
+            <Link href="/privacy" className="transition hover:text-accent">Политика конфиденциальности</Link>
+            <Link href="/cookies" className="transition hover:text-accent">Политика cookie</Link>
+          </nav>
+        </div>
       </div>
     </footer>
   );
