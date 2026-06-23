@@ -1,6 +1,16 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -25,6 +35,7 @@ ALLOWED_CONTACT_FILE_TYPES = {
     "image/webp": {".webp"},
 }
 ALLOWED_CONTACT_METHODS = {"call", "telegram", "whatsapp", "max"}
+PUBLIC_READ_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=300"
 
 
 def _required_form_value(value: str, field_name: str) -> str:
@@ -34,6 +45,10 @@ def _required_form_value(value: str, field_name: str) -> str:
             status_code=422, detail=f"Поле «{field_name}» обязательно"
         )
     return normalized
+
+
+def _mark_public_read_response(response: Response) -> None:
+    response.headers["Cache-Control"] = PUBLIC_READ_CACHE_CONTROL
 
 
 async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]:
@@ -147,7 +162,8 @@ async def submit_contact(
 
 
 @router.get("/brands", response_model=list[BrandRead], tags=["brands"])
-def list_brands(db: Session = Depends(get_db)) -> list[Brand]:
+def list_brands(response: Response, db: Session = Depends(get_db)) -> list[Brand]:
+    _mark_public_read_response(response)
     return list(db.scalars(select(Brand).order_by(Brand.name)).all())
 
 
@@ -163,8 +179,11 @@ def get_brand(slug: str, db: Session = Depends(get_db)) -> Brand:
 
 @router.get("/models", response_model=list[VehicleModelRead], tags=["models"])
 def list_models(
-    brand_slug: str | None = Query(default=None), db: Session = Depends(get_db)
+    response: Response,
+    brand_slug: str | None = Query(default=None),
+    db: Session = Depends(get_db),
 ) -> list[VehicleModel]:
+    _mark_public_read_response(response)
     statement = select(VehicleModel).join(Brand).order_by(Brand.name, VehicleModel.name)
     if brand_slug:
         statement = statement.where(Brand.slug == brand_slug)
@@ -172,7 +191,8 @@ def list_models(
 
 
 @router.get("/wheels", response_model=list[WheelRead], tags=["wheels"])
-def list_wheels(db: Session = Depends(get_db)) -> list[Wheel]:
+def list_wheels(response: Response, db: Session = Depends(get_db)) -> list[Wheel]:
+    _mark_public_read_response(response)
     return list(db.scalars(select(Wheel).options(selectinload(Wheel.images)).order_by(Wheel.name)).all())
 
 

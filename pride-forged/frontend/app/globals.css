@@ -224,18 +224,26 @@ select option {
 
 @media (max-width: 768px) {
   .calculator-section::before {
-    background-position: 58% center;
-    opacity: 0.46;
+    background-position: 54% top;
+    opacity: 0.62;
+    filter: saturate(1.02) contrast(1.04) brightness(1);
   }
 
   .calculator-section::after {
     background:
-      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.92), rgb(var(--bg-rgb) / 0.54)),
-      linear-gradient(180deg, rgb(var(--bg-rgb) / 0.2), rgb(var(--bg-rgb) / 0.68));
+      linear-gradient(180deg, rgb(var(--bg-rgb) / 0.38) 0%, rgb(var(--bg-rgb) / 0.54) 48%, rgb(var(--bg-rgb) / 0.78) 100%),
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.52) 0%, rgb(var(--bg-rgb) / 0.34) 52%, rgb(var(--bg-rgb) / 0.18) 100%);
   }
 
   [data-theme="light"] .calculator-section::before {
-    opacity: 0.48;
+    opacity: 0.58;
+    filter: saturate(0.94) contrast(1) brightness(1.06);
+  }
+
+  [data-theme="light"] .calculator-section::after {
+    background:
+      linear-gradient(180deg, rgb(var(--bg-rgb) / 0.5) 0%, rgb(var(--bg-rgb) / 0.68) 52%, rgb(var(--bg-rgb) / 0.9) 100%),
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.56) 0%, rgb(var(--bg-rgb) / 0.34) 58%, rgb(var(--bg-rgb) / 0.18) 100%);
   }
 }
 
@@ -400,6 +408,41 @@ select option {
   color: rgb(var(--text-secondary-rgb) / 0.92);
 }
 
+@media (max-width: 768px) {
+  .advantages-section {
+    overflow: hidden;
+  }
+
+  .advantages-wheel-shell {
+    top: 32%;
+    right: -38%;
+    bottom: auto;
+    width: min(520px, 110vw);
+    height: min(520px, 110vw);
+    opacity: 0.32;
+    transform-origin: center;
+  }
+
+  [data-theme="dark"] .advantages-wheel-shell {
+    opacity: 0.38;
+  }
+
+  .advantages-wheel-overlay {
+    background:
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.12), transparent 38%, rgb(var(--bg-rgb) / 0.18) 100%),
+      linear-gradient(180deg, transparent 8%, rgb(var(--bg-rgb) / 0.18) 56%, transparent 100%);
+  }
+
+  .advantages-card {
+    border-radius: 1.625rem;
+  }
+
+  .advantages-card-description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
 [data-theme="dark"] .advantages-wheel-overlay {
   background: linear-gradient(90deg, transparent 40%, rgb(var(--bg-rgb) / 0.1) 68%, rgb(var(--bg-rgb) / 0.28) 100%);
 }
@@ -415,15 +458,26 @@ select option {
 
 @media (max-width: 639px) {
   .advantages-wheel-shell {
-    opacity: 0.12;
+    top: 34%;
+    right: -42%;
+    width: min(500px, 116vw);
+    height: min(500px, 116vw);
+    opacity: 0.3;
   }
 
   [data-theme="dark"] .advantages-wheel-shell {
-    opacity: 0.24;
+    opacity: 0.36;
+  }
+
+  [data-theme="dark"] .advantages-wheel-overlay {
+    background:
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.16), transparent 38%, rgb(var(--bg-rgb) / 0.2) 100%),
+      linear-gradient(180deg, transparent 8%, rgb(var(--bg-rgb) / 0.2) 56%, transparent 100%);
   }
 }
 
 .visualization-panel {
+  max-width: 100%;
   background-color: rgb(var(--surface-rgb) / 0.72);
   background:
     linear-gradient(132deg, rgb(var(--text-primary-rgb) / 0.055), transparent 34%),
@@ -472,6 +526,8 @@ select option {
 
 .visualizer-shell {
   position: relative;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
   border: 1px solid rgb(var(--text-primary-rgb) / 0.12);
   border-radius: 2rem;
@@ -488,6 +544,9 @@ select option {
 
 .visualizer-comparison {
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   aspect-ratio: 16 / 10;
   min-height: 300px;
   overflow: hidden;
@@ -669,22 +728,109 @@ select option {
     inset 0 1px 0 white;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 768px) {
+  .visualization-section {
+    width: 100%;
+    overflow: hidden;
+    padding-inline: 1.25rem;
+  }
+
+  .visualization-panel {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 1.65rem;
+    padding: 1.5rem;
+  }
+
+  .visualization-layout,
+  .visualization-copy {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .visualization-label {
+    gap: 0.65rem;
+  }
+
+  .visualization-label span {
+    width: 1.65rem;
+    flex: 0 0 auto;
+  }
+
+  .visualization-label p {
+    max-width: 100%;
+    font-size: 0.72rem;
+    line-height: 1.25;
+    letter-spacing: 0.16em;
+    overflow-wrap: anywhere;
+  }
+
+  .visualization-title {
+    max-width: 100%;
+    font-size: clamp(2.125rem, 10vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .visualization-description {
+    max-width: 100%;
+    font-size: 1rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .visualization-cta {
+    width: 100%;
+    max-width: 100%;
+    min-height: 3.375rem;
+    padding-inline: 1.125rem;
+    font-size: 1rem;
+    white-space: normal;
+    text-align: center;
+  }
+
   .visualizer-shell {
-    border-radius: 1.55rem;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 1.6rem;
     padding: 0.35rem;
   }
 
   .visualizer-comparison {
-    aspect-ratio: 16 / 10;
-    min-height: 290px;
-    border-radius: 1.28rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 1.35rem;
+  }
+
+  .visualizer-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 639px) {
+  .visualizer-shell {
+    border-radius: 1.45rem;
+  }
+
+  .visualizer-comparison {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+    border-radius: 1.18rem;
   }
 
   .visualizer-badge {
     top: 0.85rem;
-    padding: 0.42rem 0.58rem;
-    font-size: 0.6rem;
+    padding: 0.38rem 0.5rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
   }
 
   .visualizer-badge-before {
@@ -696,8 +842,13 @@ select option {
   }
 
   .visualizer-handle {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .visualizer-handle svg {
+    width: 1.75rem;
+    height: 0.95rem;
   }
 
 }
@@ -3421,6 +3572,7 @@ select option {
 @media (max-width: 1023px) {
   .about-page-hero {
     padding: 0 0 4rem;
+    overflow: hidden;
   }
 
   .about-page-hero-grid {
@@ -3431,6 +3583,23 @@ select option {
   .about-page-media {
     min-height: 0;
     aspect-ratio: 16 / 10;
+  }
+
+  .about-page-image {
+    object-position: center top;
+    filter: saturate(1.02) contrast(1.03) brightness(1.04);
+  }
+
+  .about-page-media-overlay {
+    background:
+      linear-gradient(180deg, rgb(5 12 24 / 0.22) 0%, rgb(5 12 24 / 0.36) 52%, rgb(5 12 24 / 0.5) 100%),
+      linear-gradient(90deg, rgb(5 12 24 / 0.08), rgb(5 12 24 / 0.2));
+  }
+
+  [data-theme="light"] .about-page-media-overlay {
+    background:
+      linear-gradient(180deg, rgb(247 250 255 / 0.22) 0%, rgb(247 250 255 / 0.38) 52%, rgb(247 250 255 / 0.64) 100%),
+      linear-gradient(90deg, rgb(247 250 255 / 0.08), rgb(247 250 255 / 0.2));
   }
 
   .about-page-content {

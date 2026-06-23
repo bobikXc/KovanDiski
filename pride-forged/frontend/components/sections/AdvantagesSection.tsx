@@ -18,7 +18,7 @@ const advantages = [
 
 export function AdvantagesSection() {
   return (
-    <section className="relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-16 xl:py-20">
+    <section className="advantages-section relative isolate overflow-hidden px-4 py-14 sm:px-6 sm:py-16 lg:px-8 lg:py-16 xl:py-20">
       <div aria-hidden="true" className="advantages-wheel-shell pointer-events-none absolute bottom-[-10%] right-[-46%] z-0 h-[28rem] w-[28rem] sm:bottom-[-16%] sm:right-[-28%] sm:h-[42rem] sm:w-[42rem] lg:bottom-auto lg:right-[-22%] lg:top-[8%] lg:h-[52rem] lg:w-[52rem] xl:h-[60rem] xl:w-[60rem] 2xl:h-[65rem] 2xl:w-[65rem]">
         <div className="absolute inset-[8%] rounded-full bg-accent/25 blur-3xl" />
         <div className="pride-slow-spin absolute inset-0 overflow-hidden rounded-full shadow-[0_0_90px_rgb(var(--accent-rgb)/0.18)]">
