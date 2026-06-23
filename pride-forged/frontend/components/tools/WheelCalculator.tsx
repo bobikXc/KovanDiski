@@ -16,6 +16,7 @@ const BASE_PRICES: Record<WheelType, number> = {
   monoblock: 135_000,
   forged_multi_piece: 190_000
 };
+const STAGGERED_MODIFIER = 15_000;
 const diameterModifiers: Record<number, number> = {
   17: 0,
   18: 5_000,
@@ -124,26 +125,68 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+type AxisPickerGroupProps = {
+  title?: string;
+  width: number;
+  et: number;
+  onWidthChange: (value: number) => void;
+  onEtChange: (value: number) => void;
+};
+
+function AxisPickerGroup({ title, width, et, onWidthChange, onEtChange }: AxisPickerGroupProps) {
+  return (
+    <div className={cn(
+      "grid gap-2.5",
+      title ? "rounded-[20px] border border-[var(--border)] bg-[var(--surface-2)] p-3.5 shadow-[inset_0_1px_0_rgb(var(--text-primary-rgb)/0.05)] sm:p-4" : "sm:grid-cols-2"
+    )}>
+      {title ? (
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-sm font-black uppercase tracking-[0.12em] text-primary">{title}</h3>
+          <span className="h-px flex-1 bg-[var(--border)]" aria-hidden="true" />
+        </div>
+      ) : null}
+      <WheelValuePicker label="Ширина дисков (J)" value={width} values={widthValues} onChange={onWidthChange} format={formatWidth} />
+      <WheelValuePicker label="Вылет дисков (ET)" value={et} values={etValues} onChange={onEtChange} />
+    </div>
+  );
+}
+
 export function WheelCalculator() {
   const [wheelType, setWheelType] = useState<WheelType>("monoblock");
   const [diameter, setDiameter] = useState(20);
   const [width, setWidth] = useState(9);
   const [et, setEt] = useState(25);
+  const [isStaggered, setIsStaggered] = useState(false);
+  const [frontWidth, setFrontWidth] = useState(9);
+  const [frontEt, setFrontEt] = useState(25);
+  const [rearWidth, setRearWidth] = useState(10);
+  const [rearEt, setRearEt] = useState(25);
 
   const typeLabel = wheelType === "monoblock" ? "Моноблок" : "Составные";
   const estimatedPrice = useMemo(() => {
-    const widthModifier = width >= 12.5 ? 30_000 : width >= 11.5 ? 20_000 : width >= 10.5 ? 10_000 : 0;
-    const etComplexityModifier = et < 20 || et > 40 ? 10_000 : 0;
+    const largestWidth = isStaggered ? Math.max(frontWidth, rearWidth) : width;
+    const hasComplexEt = isStaggered ? frontEt < 20 || frontEt > 40 || rearEt < 20 || rearEt > 40 : et < 20 || et > 40;
+    const widthModifier = largestWidth >= 12.5 ? 30_000 : largestWidth >= 11.5 ? 20_000 : largestWidth >= 10.5 ? 10_000 : 0;
+    const etComplexityModifier = hasComplexEt ? 10_000 : 0;
+    const staggeredModifier = isStaggered ? STAGGERED_MODIFIER : 0;
 
-    return BASE_PRICES[wheelType] + diameterModifiers[diameter] + widthModifier + etComplexityModifier;
-  }, [diameter, et, wheelType, width]);
+    return BASE_PRICES[wheelType] + diameterModifiers[diameter] + widthModifier + etComplexityModifier + staggeredModifier;
+  }, [diameter, et, frontEt, frontWidth, isStaggered, rearEt, rearWidth, wheelType, width]);
   const estimatedPriceLabel = `от ${formatRub(estimatedPrice)}`;
   const contactQuery = {
     source: "calculator",
     calculator_type: typeLabel,
-    calculator_diameter: String(diameter),
-    calculator_width: formatWidth(width),
-    calculator_et: String(et),
+    calculator_diameter: `${diameter}"`,
+    calculator_is_staggered: isStaggered ? "true" : "false",
+    ...(isStaggered ? {
+      calculator_front_width: formatWidth(frontWidth),
+      calculator_front_et: String(frontEt),
+      calculator_rear_width: formatWidth(rearWidth),
+      calculator_rear_et: String(rearEt)
+    } : {
+      calculator_width: formatWidth(width),
+      calculator_et: String(et)
+    }),
     calculator_estimated_price: estimatedPriceLabel
   };
 
@@ -208,11 +251,46 @@ export function WheelCalculator() {
             </div>
 
             <div className="liquid-card rounded-[22px] p-4 sm:p-5">
-              <h2 className="text-lg font-black sm:text-xl">Ширина и вылет</h2>
-              <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-                <WheelValuePicker label="Ширина дисков (J)" value={width} values={widthValues} onChange={setWidth} format={formatWidth} />
-                <WheelValuePicker label="Вылет дисков (ET)" value={et} values={etValues} onChange={setEt} />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-lg font-black sm:text-xl">Ширина и вылет</h2>
+                <button
+                  type="button"
+                  onClick={() => setIsStaggered((value) => !value)}
+                  aria-pressed={isStaggered}
+                  className={cn(
+                    "inline-flex w-full items-center justify-between gap-3 rounded-full border px-3 py-2 text-xs font-extrabold uppercase tracking-[0.1em] transition sm:w-auto",
+                    isStaggered
+                      ? "border-accent/55 bg-accent/15 text-primary shadow-[0_0_0_4px_rgb(var(--accent-rgb)/0.08)]"
+                      : "border-[var(--border)] bg-[var(--surface-2)] text-graphite hover:border-accent/45 hover:text-primary"
+                  )}
+                >
+                  <span>Разноширокие</span>
+                  <span
+                    className={cn(
+                      "relative h-6 w-11 rounded-full border transition",
+                      isStaggered ? "border-accent bg-accent" : "border-[var(--border)] bg-[var(--surface)]"
+                    )}
+                    aria-hidden="true"
+                  >
+                    <span
+                      className={cn(
+                        "absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-white shadow-[0_4px_12px_rgb(0_0_0/0.25)] transition",
+                        isStaggered ? "left-[22px]" : "left-1"
+                      )}
+                    />
+                  </span>
+                </button>
               </div>
+              {isStaggered ? (
+                <div className="mt-3 grid gap-3 xl:grid-cols-2">
+                  <AxisPickerGroup title="Передняя ось" width={frontWidth} et={frontEt} onWidthChange={setFrontWidth} onEtChange={setFrontEt} />
+                  <AxisPickerGroup title="Задняя ось" width={rearWidth} et={rearEt} onWidthChange={setRearWidth} onEtChange={setRearEt} />
+                </div>
+              ) : (
+                <div className="mt-3">
+                  <AxisPickerGroup width={width} et={et} onWidthChange={setWidth} onEtChange={setEt} />
+                </div>
+              )}
             </div>
           </div>
 
@@ -221,8 +299,18 @@ export function WheelCalculator() {
             <div className="mt-3 rounded-[18px] border border-[var(--border)] bg-[var(--surface-2)] px-3.5">
               <SummaryRow label="Тип" value={typeLabel} />
               <SummaryRow label="Диаметр" value={`${diameter}\"`} />
-              <SummaryRow label="Ширина" value={`${formatWidth(width)}J`} />
-              <SummaryRow label="Вылет" value={`ET${et}`} />
+              {isStaggered ? (
+                <>
+                  <SummaryRow label="Посадка" value="Разноширокая" />
+                  <SummaryRow label="Передняя ось" value={`${formatWidth(frontWidth)}J ET${frontEt}`} />
+                  <SummaryRow label="Задняя ось" value={`${formatWidth(rearWidth)}J ET${rearEt}`} />
+                </>
+              ) : (
+                <>
+                  <SummaryRow label="Ширина" value={`${formatWidth(width)}J`} />
+                  <SummaryRow label="Вылет" value={`ET${et}`} />
+                </>
+              )}
             </div>
 
             <div className="mt-3 rounded-[18px] border border-accent/30 bg-accent/10 p-4">

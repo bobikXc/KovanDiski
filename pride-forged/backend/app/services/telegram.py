@@ -38,6 +38,23 @@ def _display(value: str | None) -> str:
     return escape(normalized) if normalized else "не указано"
 
 
+def _has_value(value: str | None) -> bool:
+    return bool(value and value.strip())
+
+
+def _calculator_line(label: str, value: str | None) -> str:
+    return f"{label}: {_display(value)}\n" if _has_value(value) else ""
+
+
+def _axis_value(width: str | None, et: str | None) -> str | None:
+    parts: list[str] = []
+    if _has_value(width):
+        parts.append(f"{_display(width)}J")
+    if _has_value(et):
+        parts.append(f"ET{_display(et)}")
+    return " ".join(parts) if parts else None
+
+
 def _escaped_chunks(value: str, max_length: int) -> list[str]:
     chunks: list[str] = []
     current = ""
@@ -63,8 +80,13 @@ def format_contact_messages(
     preferred_time: str | None = None,
     calculator_type: str | None = None,
     calculator_diameter: str | None = None,
+    calculator_is_staggered: str | None = None,
     calculator_width: str | None = None,
     calculator_et: str | None = None,
+    calculator_front_width: str | None = None,
+    calculator_front_et: str | None = None,
+    calculator_rear_width: str | None = None,
+    calculator_rear_et: str | None = None,
     calculator_estimated_price: str | None = None,
     preferred_contact_method: str | None = None,
     fitment_car: str | None = None,
@@ -94,20 +116,36 @@ def format_contact_messages(
         for value in (
             calculator_type,
             calculator_diameter,
+            calculator_is_staggered,
             calculator_width,
             calculator_et,
+            calculator_front_width,
+            calculator_front_et,
+            calculator_rear_width,
+            calculator_rear_et,
             calculator_estimated_price,
         )
     )
+    is_staggered = (calculator_is_staggered or "").strip().lower() == "true"
+    calculator_lines = ""
+    if has_calculator:
+        calculator_lines += "<b>Параметры из калькулятора:</b>\n"
+        calculator_lines += _calculator_line("Тип дисков", calculator_type)
+        calculator_lines += _calculator_line("Диаметр", calculator_diameter)
+        if is_staggered:
+            calculator_lines += "Посадка: разноширокая\n"
+            calculator_lines += _calculator_line("Передняя ось", _axis_value(calculator_front_width, calculator_front_et))
+            calculator_lines += _calculator_line("Задняя ось", _axis_value(calculator_rear_width, calculator_rear_et))
+        else:
+            if _has_value(calculator_width):
+                calculator_lines += f"Ширина: {_display(calculator_width)}J\n"
+            if _has_value(calculator_et):
+                calculator_lines += f"Вылет: ET{_display(calculator_et)}\n"
+        calculator_lines += _calculator_line("Примерная стоимость", calculator_estimated_price)
+        calculator_lines += "\n"
+
     calculator_block = (
-        "<b>Параметры из калькулятора:</b>\n"
-        f"Тип дисков: {_display(calculator_type)}\n"
-        f"Диаметр: {_display(calculator_diameter)}\n"
-        f"Ширина: {_display(calculator_width)}\n"
-        f"Вылет: {_display(calculator_et)}\n"
-        f"Примерная стоимость: {_display(calculator_estimated_price)}\n\n"
-        if has_calculator
-        else ""
+        calculator_lines if has_calculator else ""
     )
 
     has_fitment = any(

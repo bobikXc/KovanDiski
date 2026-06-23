@@ -91,7 +91,18 @@ export default function ContactPage() {
     formData.append("personal_data_consent", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
     if (isCalculatorRequest) {
-      ["calculator_type", "calculator_diameter", "calculator_width", "calculator_et", "calculator_estimated_price"].forEach((field) => {
+      [
+        "calculator_type",
+        "calculator_diameter",
+        "calculator_is_staggered",
+        "calculator_width",
+        "calculator_et",
+        "calculator_front_width",
+        "calculator_front_et",
+        "calculator_rear_width",
+        "calculator_rear_et",
+        "calculator_estimated_price"
+      ].forEach((field) => {
         const value = searchParams.get(field);
         if (value) formData.append(field, value);
       });
