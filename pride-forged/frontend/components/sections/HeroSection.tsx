@@ -68,23 +68,16 @@ export function HeroSection() {
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-3xl text-4xl font-black leading-[0.98] text-primary sm:text-6xl lg:text-7xl"
+            className="max-w-[46rem] text-[clamp(2.45rem,8.8vw,4.85rem)] font-black leading-[0.97] tracking-[-0.055em] text-primary sm:text-[clamp(3.8rem,7vw,5.35rem)]"
           >
-            PRIDE <span className="text-accent">Forged</span>
+            Изготовление <span className="text-accent">кованых дисков</span> на любой авто
           </motion.h1>
           <motion.p
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-2xl text-2xl font-semibold leading-tight text-primary sm:text-4xl lg:text-[2.65rem]"
+            className="mt-5 max-w-2xl text-base font-semibold leading-7 text-graphite sm:text-xl sm:leading-9"
           >
-            Характер, выкованный в металле
-          </motion.p>
-          <motion.p
-            variants={fadeUp}
-            transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-xl whitespace-pre-line text-base leading-7 text-graphite sm:text-xl sm:leading-9"
-          >
-            {"Премиальные кованые диски,\nсозданные под ваш автомобиль."}
+            Подберем или разработаем уникальный дизайн и идеальные параметры под вашу марку из наличия или под заказ
           </motion.p>
           <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg"><Link href="/tools/wheel-calculator">Рассчитать стоимость</Link></Button>

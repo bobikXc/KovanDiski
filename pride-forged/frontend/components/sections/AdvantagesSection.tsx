@@ -8,12 +8,12 @@ import { Reveal } from "@/components/ui/reveal";
 const decorativeWheelImage = "/images/Фон.png";
 
 const advantages = [
-  ["Собственное производство", "Контроль геометрии, сроков и качества на каждом этапе: от 3D-модели до финального покрытия."],
-  ["Инженерный fitment", "Параметры под конкретный кузов, тормозную систему, клиренс и желаемую посадку автомобиля."],
-  ["Премиальная отделка", "Сатин, gloss, brushed, diamond cut и индивидуальные оттенки в темной polished-metal эстетике PRIDE."],
-  ["Легкая ковка", "Моноблочная конструкция снижает неподрессоренную массу без компромисса по прочности."],
-  ["Персональный сервис", "Сопровождение клиента от первой консультации до установки и рекомендаций по уходу."],
-  ["Гарантия результата", "Прозрачные сроки, контроль качества и документация на каждый изготовленный комплект."]
+  ["Гарантия 5 лет", "Гарантия на структуру диска и ЛКП фиксируется в договоре. В спорных случаях берём решение на себя: ремонт или замена за наш счёт."],
+  ["Динамика автомобиля", "Кованые диски легче штатных литых на 20–30%. Меньше неподрессоренная масса — выше отклик, ниже нагрузка на приводы и лучше разгон."],
+  ["Защита от микротрещин", "Используем авиационный алюминий A6061-T6 и ковку под высоким давлением. Плотная структура снижает риск микротрещин и повышает ресурс."],
+  ["Экстремальные нагрузки", "Индекс нагрузки кованых дисков выше, чем у большинства литых аналогов. Это даёт запас прочности для активной езды и тяжёлых условий."],
+  ["Защита от коррозии", "Порошковое покрытие с термообработкой защищает от реагентов, соли и перепадов температур от −30°C до +50°C."],
+  ["Строгие допуски", "Биение наших дисков не превышает 0,3 мм. Это более чем в два раза строже допуска 0,7 мм, применяемого в премиальном сегменте."]
 ];
 
 export function AdvantagesSection() {
@@ -35,8 +35,8 @@ export function AdvantagesSection() {
       <div className="relative z-[2] mx-auto max-w-[1440px]">
         <Reveal className="mb-8 max-w-5xl lg:mb-9">
           <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-accent sm:text-sm sm:tracking-[0.24em]">Почему PRIDE</p>
-          <h2 className="mt-3 text-3xl font-black leading-[1.02] tracking-normal text-primary sm:text-[2.75rem] lg:text-[3.5rem] xl:text-[4rem]">
-            Диски, которые работают на образ и динамику
+          <h2 className="mt-3 max-w-[920px] text-[clamp(2.125rem,9vw,2.875rem)] font-black leading-[1.02] tracking-[-0.045em] text-primary sm:text-[clamp(2.75rem,5vw,4.5rem)]">
+            Выбирая кованые диски, вы получаете безопасность, скорость и стиль вашего авто
           </h2>
         </Reveal>
         <div className="grid gap-4 md:grid-cols-2 lg:gap-5 xl:grid-cols-3">
@@ -52,6 +52,17 @@ export function AdvantagesSection() {
             </Reveal>
           ))}
         </div>
+        <Reveal className="mx-auto mt-7 max-w-[1100px] sm:mt-9" delay={0.14} amount={0.12}>
+          <LiquidCard className="relative z-[2] rounded-[28px] border border-accent/25 px-5 py-6 text-left shadow-[0_24px_68px_rgb(var(--accent-rgb)/0.12)] sm:rounded-[32px] sm:px-8 sm:py-8 lg:px-10 lg:py-9 lg:text-center">
+            <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-accent">Индивидуальный проект</p>
+            <h3 className="mt-3 text-[clamp(1.55rem,7vw,2.35rem)] font-black uppercase leading-[1.02] tracking-[-0.035em] text-primary">
+              Изготавливаем диски на любой автомобиль
+            </h3>
+            <p className="mx-auto mt-4 max-w-[860px] text-sm font-medium leading-[1.58] text-graphite sm:text-base sm:leading-[1.65]">
+              Вам нравятся диски другой марки? Не вопрос. Производим диски под точные параметры: ширина, вылет, разболтовка и центральное отверстие. Подберём решение для 1000+ моделей авто, включая редкие проекты — Aston Martin, Lotus, McLaren и другие.
+            </p>
+          </LiquidCard>
+        </Reveal>
       </div>
     </section>
   );
