@@ -63,19 +63,19 @@ export function HeroSection() {
           variants={content}
           initial={shouldReduceMotion ? false : "hidden"}
           animate="visible"
-          className="relative z-10 flex w-full flex-col justify-center pt-6 md:pt-0 lg:w-[48%] lg:self-center"
+          className="relative z-10 flex w-full flex-col justify-center pt-6 md:pt-0 lg:w-[46%] lg:max-w-[38.75rem] lg:self-center lg:pr-[clamp(1.25rem,4vw,4.5rem)] xl:w-[48%]"
         >
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-[46rem] text-[clamp(2.45rem,8.8vw,4.85rem)] font-black leading-[0.97] tracking-[-0.055em] text-primary sm:text-[clamp(3.8rem,7vw,5.35rem)]"
+            className="max-w-[37.5rem] text-[clamp(2.375rem,11vw,3.375rem)] font-black leading-[0.95] tracking-[-0.055em] text-primary md:text-[clamp(3rem,6.2vw,4rem)] lg:text-[clamp(3.125rem,5vw,4.875rem)]"
           >
-            Изготовление <span className="text-accent">кованых дисков</span> на любой авто
+            Изготовление кованых дисков на любой авто
           </motion.h1>
           <motion.p
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-2xl text-base font-semibold leading-7 text-graphite sm:text-xl sm:leading-9"
+            className="mt-5 max-w-[35rem] text-base font-semibold leading-[1.5] text-graphite sm:text-lg sm:leading-8 lg:text-[1.125rem]"
           >
             Подберем или разработаем уникальный дизайн и идеальные параметры под вашу марку из наличия или под заказ
           </motion.p>
