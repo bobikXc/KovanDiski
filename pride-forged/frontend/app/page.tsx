@@ -8,12 +8,12 @@ import { PaintSection } from "@/components/paint-section";
 import { ProductionSection } from "@/components/production-section";
 import { VehicleSelector } from "@/components/sections/VehicleSelector";
 import { VisualizationSection } from "@/components/visualization-section";
-import { safeGetBrandsWithModels, safeGetWheels } from "@/lib/server-api";
+import { getSiteData } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [brands, wheels] = await Promise.all([safeGetBrandsWithModels(), safeGetWheels()]);
+  const { brandsWithModels: brands, wheels } = await getSiteData();
 
   return (
     <>

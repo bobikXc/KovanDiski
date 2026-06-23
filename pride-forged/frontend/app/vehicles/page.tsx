@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { EmptyState } from "@/components/common/EmptyState";
 import { VehicleSelector } from "@/components/sections/VehicleSelector";
 import { BrandCard } from "@/components/vehicles/BrandCard";
-import { safeGetBrandsWithModels } from "@/lib/server-api";
+import { getSiteData } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 export default async function VehiclesPage() {
-  const brands = await safeGetBrandsWithModels();
+  const { brandsWithModels: brands } = await getSiteData();
 
   return (
     <>

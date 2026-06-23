@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CatalogWheelCard } from "@/components/catalog/CatalogWheelCard";
 import { EmptyState } from "@/components/common/EmptyState";
 import { sortWheelsByCatalogOrder } from "@/lib/assets";
-import { safeGetWheels } from "@/lib/server-api";
+import { getSiteData } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,8 @@ export const metadata: Metadata = {
 };
 
 export default async function CatalogPage() {
-  const wheels = sortWheelsByCatalogOrder(await safeGetWheels());
+  const { wheels: siteWheels } = await getSiteData();
+  const wheels = sortWheelsByCatalogOrder(siteWheels);
 
   return (
     <section className="catalog-page">

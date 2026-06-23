@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/common/EmptyState";
 import { Button } from "@/components/ui/button";
 import { ApiRequestError } from "@/lib/api";
 import { normalizeWheelImages } from "@/lib/assets";
-import { getWheelCached, safeGetWheel, safeGetWheels } from "@/lib/server-api";
+import { getSiteData, getWheelCached, safeGetWheel } from "@/lib/server-api";
 
 export const dynamic = "force-dynamic";
 
@@ -56,7 +56,7 @@ export default async function WheelPage({ params }: WheelPageProps) {
       );
     }
 
-    const wheels = await safeGetWheels();
+    const { wheels } = await getSiteData();
     const related = wheels.filter((item) => item.slug !== wheel.slug).slice(0, 3);
     const galleryImages = normalizeWheelImages(wheel);
     const description = wheel.description?.trim() || "Кованая модель PRIDE с выразительной геометрией и точной проработкой каждой детали. Дизайн и параметры адаптируются под конкретный автомобиль и характер проекта.";

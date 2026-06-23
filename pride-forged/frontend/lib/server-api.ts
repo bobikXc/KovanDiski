@@ -1,4 +1,4 @@
-import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import {
   ApiRequestError,
@@ -6,22 +6,132 @@ import {
   type Fitment,
   type VehicleModel,
   type Wheel,
-  getBrand,
-  getBrands,
-  getBrandsWithModels,
-  getFitments,
-  getModels,
-  getWheel,
-  getWheels
 } from "@/lib/api";
 
-export const getBrandsCached = cache(() => getBrands());
-export const getBrandsWithModelsCached = cache(() => getBrandsWithModels());
-export const getBrandCached = cache((slug: string) => getBrand(slug));
-export const getModelsCached = cache((brandSlug?: string) => getModels(brandSlug));
-export const getWheelsCached = cache(() => getWheels());
-export const getWheelCached = cache((slug: string) => getWheel(slug));
-export const getFitmentsCached = cache((brandSlug?: string, modelSlug?: string, wheelSlug?: string) => getFitments({ brandSlug, modelSlug, wheelSlug }));
+const REVALIDATE_SECONDS = 300;
+
+export type SiteData = {
+  brands: Brand[];
+  brandsWithModels: Brand[];
+  models: VehicleModel[];
+  wheels: Wheel[];
+};
+
+function getApiBaseURL() {
+  const baseUrl = process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL;
+
+  if (!baseUrl || baseUrl.startsWith("/")) {
+    return "http://backend:8000/api";
+  }
+
+  return baseUrl;
+}
+
+function buildApiUrl(path: string, params?: Record<string, string | undefined>) {
+  const baseUrl = getApiBaseURL();
+  const url = new URL(`${baseUrl.replace(/\/$/, "")}${path}`);
+
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  return url;
+}
+
+export async function apiGet<T>(
+  path: string,
+  fallback: T,
+  params?: Record<string, string | undefined>,
+): Promise<T> {
+  const url = buildApiUrl(path, params);
+
+  console.log("[API GET]", path, new Date().toISOString());
+
+  try {
+    const response = await fetch(url, {
+      next: { revalidate: REVALIDATE_SECONDS },
+    });
+
+    if (!response.ok) {
+      console.error("API request failed", {
+        path,
+        status: response.status,
+        url: url.toString(),
+      });
+
+      return fallback;
+    }
+
+    return await response.json() as T;
+  } catch (error) {
+    console.error("API request error", {
+      path,
+      error,
+    });
+
+    return fallback;
+  }
+}
+
+function attachModelsToBrands(brands: Brand[], models: VehicleModel[]): Brand[] {
+  return brands.map((brand) => ({
+    ...brand,
+    models: models.filter((model) => model.brand_id === brand.id),
+  }));
+}
+
+export const getSiteData = unstable_cache(
+  async (): Promise<SiteData> => {
+    const [brands, models, wheels] = await Promise.all([
+      apiGet<Brand[]>("/brands", []),
+      apiGet<VehicleModel[]>("/models", []),
+      apiGet<Wheel[]>("/wheels", []),
+    ]);
+
+    return {
+      brands,
+      brandsWithModels: attachModelsToBrands(brands, models),
+      models,
+      wheels,
+    };
+  },
+  ["site-data"],
+  { revalidate: REVALIDATE_SECONDS },
+);
+
+export const getFitmentsCached = unstable_cache(
+  async (brandSlug?: string, modelSlug?: string, wheelSlug?: string) => apiGet<Fitment[]>("/fitment", [], {
+    brand_slug: brandSlug,
+    model_slug: modelSlug,
+    wheel_slug: wheelSlug,
+  }),
+  ["fitments"],
+  { revalidate: REVALIDATE_SECONDS },
+);
+
+export async function getBrandCached(slug: string): Promise<Brand> {
+  const { brandsWithModels } = await getSiteData();
+  const brand = brandsWithModels.find((item) => item.slug === slug);
+
+  if (!brand) {
+    throw new ApiRequestError("Brand not found", 404);
+  }
+
+  return brand;
+}
+
+export async function getWheelCached(slug: string): Promise<Wheel> {
+  const { wheels } = await getSiteData();
+  const wheel = wheels.find((item) => item.slug === slug);
+
+  if (!wheel) {
+    throw new ApiRequestError("Wheel not found", 404);
+  }
+
+  return wheel;
+}
 
 function logSafeFailure(resource: string, error: unknown) {
   if (error instanceof ApiRequestError && error.status === 429) {
@@ -38,7 +148,8 @@ function shouldRethrow(error: unknown) {
 
 export async function safeGetBrands(): Promise<Brand[]> {
   try {
-    return await getBrandsCached();
+    const { brands } = await getSiteData();
+    return brands;
   } catch (error) {
     logSafeFailure("brands", error);
     return [];
@@ -47,7 +158,8 @@ export async function safeGetBrands(): Promise<Brand[]> {
 
 export async function safeGetBrandsWithModels(): Promise<Brand[]> {
   try {
-    return await getBrandsWithModelsCached();
+    const { brandsWithModels } = await getSiteData();
+    return brandsWithModels;
   } catch (error) {
     logSafeFailure("brands with models", error);
     return [];
@@ -56,7 +168,14 @@ export async function safeGetBrandsWithModels(): Promise<Brand[]> {
 
 export async function safeGetModels(brandSlug?: string): Promise<VehicleModel[]> {
   try {
-    return await getModelsCached(brandSlug);
+    const { brands, models } = await getSiteData();
+
+    if (!brandSlug) {
+      return models;
+    }
+
+    const brand = brands.find((item) => item.slug === brandSlug);
+    return brand ? models.filter((model) => model.brand_id === brand.id) : [];
   } catch (error) {
     logSafeFailure("models", error);
     return [];
@@ -65,7 +184,8 @@ export async function safeGetModels(brandSlug?: string): Promise<VehicleModel[]>
 
 export async function safeGetWheels(): Promise<Wheel[]> {
   try {
-    return await getWheelsCached();
+    const { wheels } = await getSiteData();
+    return wheels;
   } catch (error) {
     logSafeFailure("wheels", error);
     return [];
