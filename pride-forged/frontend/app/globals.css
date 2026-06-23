@@ -3612,17 +3612,44 @@ select option {
     padding: 0 0 3.5rem;
   }
 
+  .about-page-hero-grid {
+    position: relative;
+    width: 100vw;
+    max-width: 100vw;
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgb(var(--bg-rgb) / 0.78) 0%, rgb(var(--bg-rgb) / 0.84) 46%, rgb(var(--bg-rgb) / 0.94) 100%),
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.7) 0%, rgb(var(--bg-rgb) / 0.48) 58%, rgb(var(--bg-rgb) / 0.72) 100%),
+      url("/images/about/cnc-03.jpg") center top / cover no-repeat;
+  }
+
   .about-page-media {
+    display: none;
     aspect-ratio: 4 / 3;
   }
 
   .about-page-content {
     gap: 1.5rem;
+    width: 100vw;
+    max-width: 100vw;
+    min-width: 0;
     padding: 1.75rem 1.25rem 2.5rem;
   }
 
+  .about-page-heading,
+  .about-page-description,
+  .about-page-story p {
+    width: min(calc(100vw - 2.5rem), 21rem);
+    max-width: min(calc(100vw - 2.5rem), 21rem);
+    min-width: 0;
+  }
+
   .about-page-heading h1 {
-    font-size: clamp(2rem, 9.8vw, 2.6rem);
+    width: min(calc(100vw - 2.5rem), 20rem);
+    max-width: min(calc(100vw - 2.5rem), 20rem);
+    font-size: clamp(1.85rem, 8.2vw, 2.18rem);
+    overflow-wrap: break-word;
+    text-wrap: pretty;
   }
 
   .about-page-description {
@@ -3639,6 +3666,13 @@ select option {
     min-height: 0;
     padding: 1.4rem;
     border-radius: 24px;
+  }
+
+  [data-theme="light"] .about-page-hero-grid {
+    background:
+      linear-gradient(180deg, rgb(var(--bg-rgb) / 0.72) 0%, rgb(var(--bg-rgb) / 0.82) 48%, rgb(var(--bg-rgb) / 0.96) 100%),
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.78) 0%, rgb(var(--bg-rgb) / 0.54) 58%, rgb(var(--bg-rgb) / 0.78) 100%),
+      url("/images/about/cnc-03.jpg") center top / cover no-repeat;
   }
 }
 

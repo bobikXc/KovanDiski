@@ -8,6 +8,13 @@ from app.core.config import settings
 
 logger = logging.getLogger("pride_forged.rate_limit")
 
+RATE_LIMIT_EXCLUDED_PATHS = {
+    "/health",
+    "/api/brands",
+    "/api/models",
+    "/api/wheels",
+}
+
 app = FastAPI(
     title="PRIDE Forged API",
     description="Catalog, vehicle and forged wheel fitment API for PRIDE Forged.",
@@ -27,21 +34,48 @@ app.include_router(router)
 
 @app.middleware("http")
 async def log_rate_limited_responses(request: Request, call_next):
+    path = request.url.path
+    is_public_read = request.method in {"GET", "HEAD", "OPTIONS"} and path in RATE_LIMIT_EXCLUDED_PATHS
+
+    if is_public_read:
+        request.state.rate_limit_exempt = True
+        request.state.overload_protection_exempt = True
+
     response = await call_next(request)
+
+    if is_public_read:
+        response.headers["X-RateLimit-Bypass"] = "public-read"
+        response.headers["X-Overload-Protection-Bypass"] = "public-read"
 
     if response.status_code == 429:
         forwarded_for = request.headers.get("x-forwarded-for")
         client_ip = forwarded_for.split(",", 1)[0].strip() if forwarded_for else None
         client_ip = client_ip or (request.client.host if request.client else "unknown")
+        reason = response.headers.get("x-ratelimit-reason", "unknown")
+        limit = response.headers.get("x-ratelimit-limit", "unknown")
+        remaining = response.headers.get("x-ratelimit-remaining", "unknown")
+        print(
+            "RATE_LIMIT_429",
+            {
+                "path": path,
+                "method": request.method,
+                "client": client_ip,
+                "reason": reason,
+                "limit": limit,
+                "remaining": remaining,
+                "exempt": is_public_read,
+            },
+        )
         logger.warning(
             "429 response generated",
             extra={
-                "endpoint": request.url.path,
+                "endpoint": path,
                 "method": request.method,
                 "client_ip": client_ip,
-                "reason": response.headers.get("x-ratelimit-reason", "unknown"),
-                "limit": response.headers.get("x-ratelimit-limit", "unknown"),
-                "remaining": response.headers.get("x-ratelimit-remaining", "unknown"),
+                "reason": reason,
+                "limit": limit,
+                "remaining": remaining,
+                "exempt": is_public_read,
             },
         )
 
@@ -51,6 +85,8 @@ async def log_rate_limited_responses(request: Request, call_next):
 @app.get("/health", tags=["system"])
 def health(response: Response) -> dict[str, str]:
     response.headers["Cache-Control"] = "public, max-age=30"
+    response.headers["X-RateLimit-Bypass"] = "public-read"
+    response.headers["X-Overload-Protection-Bypass"] = "public-read"
     return {"status": "ok"}
 
 

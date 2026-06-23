@@ -49,6 +49,8 @@ def _required_form_value(value: str, field_name: str) -> str:
 
 def _mark_public_read_response(response: Response) -> None:
     response.headers["Cache-Control"] = PUBLIC_READ_CACHE_CONTROL
+    response.headers["X-RateLimit-Bypass"] = "public-read"
+    response.headers["X-Overload-Protection-Bypass"] = "public-read"
 
 
 async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]:
