@@ -71,9 +71,14 @@ export function HeroSection() {
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-[34rem] text-[clamp(1.82rem,7.8vw,2.32rem)] font-black leading-[0.98] tracking-[-0.055em] text-primary md:text-[clamp(2.35rem,4.8vw,3.25rem)] md:leading-[0.96] lg:text-[clamp(2.55rem,3.8vw,3.8rem)]"
+            className="max-w-[31rem] text-[clamp(1.82rem,7.8vw,2.32rem)] font-black leading-[0.98] tracking-[-0.055em] text-primary md:text-[clamp(2.15rem,4.2vw,2.95rem)] md:leading-[0.96] lg:text-[clamp(2.25rem,3.25vw,3.25rem)]"
           >
-            <span className="hidden md:inline">ИЗГОТОВЛЕНИЕ КОВАННЫХ ДИСКОВ НА ЛЮБОЙ АВТО</span>
+            <span className="hidden md:inline">
+              ИЗГОТОВЛЕНИЕ<br />
+              КОВАННЫХ<br />
+              ДИСКОВ НА<br />
+              ЛЮБОЙ АВТО
+            </span>
             <span className="md:hidden">
               ИЗГОТОВЛЕНИЕ<br />
               <span className="whitespace-nowrap">КОВАННЫХ ДИСКОВ</span><br />

@@ -296,7 +296,7 @@ select option {
 
 .hero-mobile-car-image {
   object-fit: contain;
-  object-position: right center;
+  object-position: right 48%;
 }
 
 .hero-mobile-car::after {
@@ -400,9 +400,9 @@ select option {
     position: relative;
     z-index: 1;
     display: block;
-    width: calc(100% + 2.5rem);
-    height: clamp(10.75rem, 46vw, 13.25rem);
-    margin: 0.6rem -1.25rem 1.35rem auto;
+    width: calc(100% + 7.5rem);
+    height: clamp(12.75rem, 55vw, 15.75rem);
+    margin: 0.35rem -5.25rem 1.15rem auto;
     pointer-events: none;
   }
 }

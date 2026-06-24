@@ -37,7 +37,8 @@ export function AdvantagesSection() {
           <p className="why-kicker text-xs font-extrabold uppercase tracking-[0.2em] text-accent sm:text-sm sm:tracking-[0.24em]">Почему PRIDE</p>
           <h2 className="why-title mt-3 max-w-[980px] text-primary">
             <span className="why-title-strong">
-              Выбирая кованые диски, вы получаете:
+              Выбирая кованые диски,<br />
+              вы получаете:
             </span>
             <span className="why-title-sub">
               БЕЗОПАСНОСТЬ, СКОРОСТЬ И СТИЛЬ ВАШЕГО АВТО

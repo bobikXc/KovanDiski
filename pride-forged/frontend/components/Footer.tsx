@@ -29,7 +29,7 @@ export function Footer() {
         </nav>
         <div className="text-sm leading-7 text-graphite">
           <p className="font-semibold text-primary">PRIDE contacts</p>
-          <p className="mt-2">Москва, премиальный шоурум PRIDE Forged</p>
+          <p className="mt-2">Россия, Москва, Рябиновая улица, 55с8</p>
           <p>+7 (999) 999-99-99</p>
           <p>sales@pride-forged.ru</p>
         </div>

@@ -23,7 +23,13 @@ export function VisualizationSection() {
                   <p className="text-xs font-bold uppercase tracking-[0.28em] text-accent sm:text-sm">Примерьте дизайн</p>
                 </div>
                 <h2 className="visualization-title mt-5 text-[2.45rem] font-black leading-[0.98] tracking-[-0.055em] text-primary sm:text-5xl lg:text-[3.25rem] xl:text-[3.7rem]">
-                  Как будут выглядеть диски на вашем авто
+                  <span className="hidden sm:inline">Как будут выглядеть диски на вашем авто</span>
+                  <span className="sm:hidden">
+                    Как будут<br />
+                    выглядеть<br />
+                    диски на<br />
+                    вашем авто
+                  </span>
                 </h2>
               </Reveal>
               <Reveal delay={0.1}>

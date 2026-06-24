@@ -19,7 +19,7 @@ const ERROR_MESSAGE = "Не удалось отправить заявку. По
 const CONSENT_ERROR_MESSAGE = "Для отправки заявки необходимо согласие на обработку персональных данных.";
 
 const contactItems = [
-  { label: "Адрес", value: "Москва, премиальный шоурум PRIDE Forged" },
+  { label: "Адрес", value: "Россия, Москва, Рябиновая улица, 55с8" },
   { label: "Телефон", value: "+7 (999) 999-99-99", href: "tel:+79999999999" },
   { label: "Email", value: "sales@pride-forged.ru", href: "mailto:sales@pride-forged.ru" }
 ];
