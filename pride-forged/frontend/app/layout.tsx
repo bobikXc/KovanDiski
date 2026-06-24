@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Raleway, Unbounded } from "next/font/google";
 import { Suspense } from "react";
 
 import { BackToTopButton } from "@/components/back-to-top-button";
@@ -10,6 +10,17 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
+const raleway = Raleway({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-raleway-next",
+  display: "swap"
+});
+const unbounded = Unbounded({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-unbounded-next",
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://pride-forged.local"),
@@ -27,7 +38,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" data-theme="dark" suppressHydrationWarning>
-      <body className={`${inter.className} premium-gradient antialiased`}>
+      <body className={`${inter.className} ${raleway.variable} ${unbounded.variable} premium-gradient antialiased`}>
         <Suspense>
           <ThemeProvider>
             <Navbar />

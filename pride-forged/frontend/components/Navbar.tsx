@@ -69,7 +69,17 @@ export function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isCallbackOpen, setIsCallbackOpen] = useState(false);
+  const [callbackSource, setCallbackSource] = useState("header-callback");
   const closeCallbackModal = useCallback(() => setIsCallbackOpen(false), []);
+  const openCallbackModal = useCallback((source = "header-callback") => {
+    setCallbackSource(source);
+    setIsCallbackOpen(true);
+  }, []);
+
+  const openMobileCallbackModal = useCallback(() => {
+    setIsOpen(false);
+    openCallbackModal("mobile_menu_call_request");
+  }, [openCallbackModal]);
 
   useEffect(() => {
     setIsOpen(false);
@@ -151,7 +161,7 @@ export function Navbar() {
           >
             +7 925 719-03-38
           </a>
-          <Button type="button" size="default" className="h-10 px-4 xl:px-5" onClick={() => setIsCallbackOpen(true)}>
+          <Button type="button" size="default" className="h-10 px-4 xl:px-5" onClick={() => openCallbackModal()}>
             Заказать звонок
           </Button>
           <ThemeSwitcher variant="icon" />
@@ -238,6 +248,15 @@ export function Navbar() {
                     </Link>
                   </motion.div>
                 ))}
+                <motion.div variants={menuItemVariants} className="pt-6">
+                  <button
+                    type="button"
+                    onClick={openMobileCallbackModal}
+                    className="mobile-menu-call-button flex min-h-[62px] w-full items-center justify-center rounded-full border border-accent/45 bg-accent px-6 text-center text-lg font-extrabold text-white shadow-[0_18px_44px_rgb(var(--accent-rgb)/0.30)] transition hover:-translate-y-0.5 hover:bg-accent/90 hover:shadow-[0_22px_54px_rgb(var(--accent-rgb)/0.36)] active:translate-y-0 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--menu-bg)] sm:min-h-[66px] sm:text-xl"
+                  >
+                    Заказать звонок
+                  </button>
+                </motion.div>
               </motion.nav>
 
               <div className="mt-6 flex justify-end">
@@ -250,7 +269,7 @@ export function Navbar() {
           </motion.div>
         ) : null}
       </AnimatePresence>
-      <CallbackModal isOpen={isCallbackOpen} onClose={closeCallbackModal} />
+      <CallbackModal isOpen={isCallbackOpen} onClose={closeCallbackModal} source={callbackSource} />
     </header>
   );
 }

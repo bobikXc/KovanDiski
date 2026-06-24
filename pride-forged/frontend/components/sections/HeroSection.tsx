@@ -68,9 +68,14 @@ export function HeroSection() {
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-[37.5rem] text-[clamp(2.375rem,11vw,3.375rem)] font-black leading-[0.95] tracking-[-0.055em] text-primary md:text-[clamp(3rem,6.2vw,4rem)] lg:text-[clamp(3.125rem,5vw,4.875rem)]"
+            className="max-w-[37.5rem] text-[clamp(2rem,8.7vw,2.625rem)] font-black leading-[0.96] tracking-[-0.055em] text-primary md:text-[clamp(2.75rem,5.6vw,3.75rem)] md:leading-[0.95] lg:text-[clamp(3rem,4.6vw,4.5rem)]"
           >
-            ИЗГОТОВЛЕНИЕ КОВАНЫХ ДИСКОВ НА ЛЮБОЙ АВТО
+            <span className="hidden md:inline">ИЗГОТОВЛЕНИЕ КОВАННЫХ ДИСКОВ НА ЛЮБОЙ АВТО</span>
+            <span className="md:hidden">
+              ИЗГОТОВЛЕНИЕ<br />
+              <span className="whitespace-nowrap">КОВАННЫХ ДИСКОВ</span><br />
+              <span className="whitespace-nowrap">НА ЛЮБОЙ АВТО</span>
+            </span>
           </motion.h1>
           <motion.p
             variants={fadeUp}
