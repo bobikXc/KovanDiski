@@ -152,7 +152,11 @@ export function DealProcessSection() {
             <Reveal>
               <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-accent opacity-95 sm:text-[13px] sm:tracking-[0.22em]">ЭТАПЫ ЗАКАЗА</p>
               <p className="mt-4 max-w-[38rem] text-[clamp(1.125rem,5vw,1.375rem)] font-extrabold leading-[1.15] tracking-[-0.025em] text-primary sm:text-[clamp(1.35rem,2vw,2.125rem)]">
-                Всё, что вам нужно — оставить заявку
+                <span className="hidden sm:inline">Всё, что вам нужно — оставить заявку</span>
+                <span className="sm:hidden">
+                  Всё, что вам нужно -<br />
+                  <span className="whitespace-nowrap">оставить заявку</span>
+                </span>
               </p>
               <h2 className="mt-2 max-w-[42.5rem] text-[clamp(2.125rem,10vw,2.875rem)] font-black leading-[1] tracking-[-0.055em] text-primary lg:text-[clamp(3rem,5vw,4.75rem)]">
                 Остальное мы возьмём на себя

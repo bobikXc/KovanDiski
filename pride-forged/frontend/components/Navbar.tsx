@@ -201,17 +201,23 @@ export function Navbar() {
             >
               <div className="flex shrink-0 items-center justify-between gap-4">
                 <HeaderLogo className="w-[138px] min-w-0 sm:w-[156px]" onClick={() => setIsOpen(false)} />
-                <button
-                  type="button"
-                  aria-label="Закрыть меню"
-                  onClick={() => setIsOpen(false)}
-                  className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.32)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)] backdrop-blur-xl transition hover:border-accent/55 hover:bg-[rgb(var(--accent-rgb)/0.12)] sm:h-14 sm:w-14"
-                >
-                  <span className="relative h-6 w-6">
-                    <span className="absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 rotate-45 rounded-full bg-current" />
-                    <span className="absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
-                  </span>
-                </button>
+                <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
+                  <ThemeSwitcher
+                    variant="icon"
+                    className="h-12 w-12 border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.30)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)] sm:h-14 sm:w-14"
+                  />
+                  <button
+                    type="button"
+                    aria-label="Закрыть меню"
+                    onClick={() => setIsOpen(false)}
+                    className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.32)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)] backdrop-blur-xl transition hover:border-accent/55 hover:bg-[rgb(var(--accent-rgb)/0.12)] sm:h-14 sm:w-14"
+                  >
+                    <span className="relative h-6 w-6">
+                      <span className="absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 rotate-45 rounded-full bg-current" />
+                      <span className="absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 -rotate-45 rounded-full bg-current" />
+                    </span>
+                  </button>
+                </div>
               </div>
 
               <div className="mt-6 h-px shrink-0 bg-gradient-to-r from-transparent via-[var(--menu-border)] to-transparent" />
@@ -259,12 +265,6 @@ export function Navbar() {
                 </motion.div>
               </motion.nav>
 
-              <div className="mt-6 flex justify-end">
-                <ThemeSwitcher
-                  variant="icon"
-                  className="h-14 w-14 border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.30)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)]"
-                />
-              </div>
             </motion.div>
           </motion.div>
         ) : null}

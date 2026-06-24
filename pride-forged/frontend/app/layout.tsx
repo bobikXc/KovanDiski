@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Raleway, Unbounded } from "next/font/google";
+import { Inter, Raleway, Russo_One } from "next/font/google";
 import { Suspense } from "react";
 
 import { BackToTopButton } from "@/components/back-to-top-button";
@@ -16,9 +16,10 @@ const raleway = Raleway({
   variable: "--font-raleway-next",
   display: "swap"
 });
-const unbounded = Unbounded({
+const russoOne = Russo_One({
   subsets: ["latin", "cyrillic"],
-  variable: "--font-unbounded-next",
+  weight: "400",
+  variable: "--font-russo-one-next",
   display: "swap"
 });
 
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" data-theme="dark" suppressHydrationWarning>
-      <body className={`${inter.className} ${raleway.variable} ${unbounded.variable} premium-gradient antialiased`}>
+      <body className={`${inter.className} ${raleway.variable} ${russoOne.variable} premium-gradient antialiased`}>
         <Suspense>
           <ThemeProvider>
             <Navbar />
