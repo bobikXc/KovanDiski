@@ -135,10 +135,12 @@ export function getFitments(filters: { brandSlug?: string; modelSlug?: string; w
   });
 }
 
-export async function submitContact(formData: FormData): Promise<void> {
+export async function submitLead(formData: FormData): Promise<void> {
   try {
-    await api.post("/contact", formData, { timeout: 60000 });
+    await api.post("/leads", formData, { timeout: 60000 });
   } catch (error) {
     throw toApiError(error, "заявку");
   }
 }
+
+export const submitContact = submitLead;

@@ -25,6 +25,12 @@ const menuItemVariants = {
   visible: { opacity: 1, y: 0 }
 };
 
+function isActivePath(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  if (href === "/contact") return pathname === "/contact" || pathname === "/contacts";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 type HeaderLogoProps = {
   className?: string;
   onClick?: () => void;
@@ -96,7 +102,7 @@ export function Navbar() {
               href={href}
               className={cn(
                 "whitespace-nowrap text-sm font-semibold text-graphite underline-offset-8 transition hover:text-accent hover:underline xl:text-[15px]",
-                pathname === href && "text-accent"
+                isActivePath(pathname, href) && "text-accent"
               )}
             >
               {label}
@@ -165,7 +171,7 @@ export function Navbar() {
       <AnimatePresence>
         {isOpen ? (
           <motion.div
-            className="fixed inset-0 z-[80] bg-[var(--menu-overlay)] backdrop-blur-[18px] lg:hidden"
+            className="mobile-menu-overlay fixed inset-0 z-[80] bg-[var(--menu-overlay)] backdrop-blur-[18px] lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -176,7 +182,7 @@ export function Navbar() {
               role="dialog"
               aria-modal="true"
               aria-label="Мобильное меню"
-              className="relative z-[90] mx-4 my-4 flex max-h-[calc(100dvh-32px)] w-[calc(100%_-_32px)] max-w-xl flex-col overflow-y-auto rounded-[28px] border border-[var(--menu-border)] bg-[var(--menu-bg)] px-7 pb-[calc(24px_+_env(safe-area-inset-bottom))] pt-[calc(28px_+_env(safe-area-inset-top))] text-[var(--menu-text)] shadow-[var(--menu-shadow)] backdrop-blur-2xl md:mx-auto md:max-w-2xl"
+              className="mobile-menu-panel relative z-[90] mx-4 my-4 flex max-h-[calc(100dvh-32px)] w-[calc(100%_-_32px)] max-w-xl flex-col overflow-y-auto rounded-[28px] border border-[var(--menu-border)] bg-[var(--menu-bg)] px-6 pb-[calc(24px_+_env(safe-area-inset-bottom))] pt-[calc(24px_+_env(safe-area-inset-top))] text-[var(--menu-text)] shadow-[var(--menu-shadow)] backdrop-blur-2xl sm:px-7 md:mx-auto md:max-w-2xl"
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
@@ -184,12 +190,12 @@ export function Navbar() {
               onClick={(event) => event.stopPropagation()}
             >
               <div className="flex shrink-0 items-center justify-between gap-4">
-                <HeaderLogo className="w-[145px] min-w-0" onClick={() => setIsOpen(false)} />
+                <HeaderLogo className="w-[138px] min-w-0 sm:w-[156px]" onClick={() => setIsOpen(false)} />
                 <button
                   type="button"
                   aria-label="Закрыть меню"
                   onClick={() => setIsOpen(false)}
-                  className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.22)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)] backdrop-blur-xl transition hover:border-accent/55 hover:bg-[rgb(var(--accent-rgb)/0.12)]"
+                  className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.32)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)] backdrop-blur-xl transition hover:border-accent/55 hover:bg-[rgb(var(--accent-rgb)/0.12)] sm:h-14 sm:w-14"
                 >
                   <span className="relative h-6 w-6">
                     <span className="absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 rotate-45 rounded-full bg-current" />
@@ -201,7 +207,7 @@ export function Navbar() {
               <div className="mt-6 h-px shrink-0 bg-gradient-to-r from-transparent via-[var(--menu-border)] to-transparent" />
 
               <motion.nav
-                className="mt-4 grid shrink-0"
+                className="mt-5 grid shrink-0 gap-1"
                 aria-label="Основная навигация"
                 initial="hidden"
                 animate="visible"
@@ -222,7 +228,10 @@ export function Navbar() {
                       onClick={() => setIsOpen(false)}
                       className={cn(
                         "group flex border-b border-[var(--menu-divider)] py-[15px] text-[28px] font-semibold leading-[1.18] text-[var(--menu-text)] transition hover:bg-[rgb(var(--accent-rgb)/0.08)] active:bg-[rgb(var(--accent-rgb)/0.12)]",
-                        pathname === href && "pl-3 text-accent shadow-[inset_2px_0_0_var(--accent)]"
+                        "rounded-2xl px-1 text-[clamp(1.75rem,7.4vw,2.35rem)] font-extrabold leading-[1.05] tracking-[-0.04em]",
+                        isActivePath(pathname, href)
+                          ? "border-transparent bg-[rgb(var(--accent-rgb)/0.10)] pl-4 text-accent shadow-[inset_3px_0_0_var(--accent)]"
+                          : "hover:pl-3"
                       )}
                     >
                       {label}
@@ -232,8 +241,8 @@ export function Navbar() {
               </motion.nav>
 
               <div className="mt-6">
-                <div className="rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.22)] p-1 shadow-[inset_0_1px_0_rgb(var(--surface-rgb)/0.18)]">
-                  <ThemeSwitcher className="h-11 w-full border-0 bg-transparent p-0 text-[14px] shadow-none [&_button]:h-9 [&_button]:rounded-full [&_button]:text-sm [&_button]:font-semibold [&_button[aria-pressed='true']]:bg-accent [&_button[aria-pressed='true']]:text-white [&_button:not([aria-pressed='true'])]:bg-transparent [&_button:not([aria-pressed='true'])]:text-[var(--menu-muted)] [&_button:not([aria-pressed='true'])]:hover:bg-[rgb(var(--accent-rgb)/0.08)] [&_button:not([aria-pressed='true'])]:hover:text-[var(--menu-text)]" />
+                <div className="mobile-menu-theme rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.30)] p-1.5 shadow-[inset_0_1px_0_rgb(var(--surface-rgb)/0.20)] backdrop-blur-xl">
+                  <ThemeSwitcher className="h-14 w-full border-0 bg-transparent p-0 text-[15px] shadow-none [&_button]:h-11 [&_button]:rounded-full [&_button]:text-[15px] [&_button]:font-extrabold [&_button[aria-pressed='true']]:bg-accent [&_button[aria-pressed='true']]:text-white [&_button:not([aria-pressed='true'])]:bg-transparent [&_button:not([aria-pressed='true'])]:text-[var(--menu-muted)] [&_button:not([aria-pressed='true'])]:hover:bg-[rgb(var(--accent-rgb)/0.08)] [&_button:not([aria-pressed='true'])]:hover:text-[var(--menu-text)]" />
                 </div>
               </div>
             </motion.div>

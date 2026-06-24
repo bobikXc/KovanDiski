@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { submitContact } from "@/lib/api";
 
 const MAX_FILES = 5;
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const SUBMIT_ERROR = "Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.";
 
@@ -127,7 +127,7 @@ export function FitmentConfigurator() {
 
     const oversized = selected.find((file) => file.size > MAX_FILE_SIZE);
     if (oversized) {
-      setFileError(`Файл «${oversized.name}» превышает максимальный размер 8 МБ.`);
+      setFileError(`Файл «${oversized.name}» превышает максимальный размер 10 МБ.`);
       event.target.value = "";
       return;
     }
@@ -164,8 +164,10 @@ export function FitmentConfigurator() {
     formData.append("phone", phone);
     formData.append("comment", requestComment.trim());
     formData.append("personal_data_consent", "true");
+    formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
-    requestFiles.forEach((file) => formData.append("files", file));
+    formData.append("preferred_contact", preferredContactMethod);
+    requestFiles.forEach((file) => formData.append("photos", file));
 
     setSubmitStatus("submitting");
     try {
@@ -354,11 +356,11 @@ export function FitmentConfigurator() {
                               className="sr-only"
                             />
                             <div className="flex flex-wrap items-center gap-3">
-                              <label htmlFor="fitment-request-files" className="fitment-request-file-button">Прикрепить фото</label>
+                              <label htmlFor="fitment-request-files" className="fitment-request-file-button">Прикрепить фото автомобиля или пример дисков</label>
                               {requestFiles.length > 0 ? (
                                 <button type="button" onClick={clearRequestFiles} className="text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--accent)]">Очистить</button>
                               ) : null}
-                              <span className="text-xs text-[var(--text-secondary)]">До 5 фото, каждое до 8 МБ</span>
+                              <span className="text-xs text-[var(--text-secondary)]">До 5 фото, каждое до 10 МБ</span>
                             </div>
                             {requestFiles.length > 0 ? (
                               <ul className="mt-2 grid gap-1 text-xs text-[var(--text-secondary)]">

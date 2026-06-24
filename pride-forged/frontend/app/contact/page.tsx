@@ -12,7 +12,7 @@ import { submitContact } from "@/lib/api";
 type ContactForm = { name: string; phone: string; car: string; comment: string };
 
 const MAX_FILES = 5;
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ALLOWED_FILE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const SUCCESS_MESSAGE = "Заявка отправлена. Мы свяжемся с вами в ближайшее время.";
 const ERROR_MESSAGE = "Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.";
@@ -57,7 +57,7 @@ export default function ContactPage() {
 
     const oversized = selected.find((file) => file.size > MAX_FILE_SIZE);
     if (oversized) {
-      setFileError(`Файл «${oversized.name}» превышает максимальный размер 8 МБ.`);
+      setFileError(`Файл «${oversized.name}» превышает максимальный размер 10 МБ.`);
       event.target.value = "";
       return;
     }
@@ -89,7 +89,9 @@ export default function ContactPage() {
     formData.append("comment", values.comment?.trim() ?? "");
     formData.append("source", isCalculatorRequest ? "calculator" : window.location.pathname || "contacts-page");
     formData.append("personal_data_consent", "true");
+    formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
+    formData.append("preferred_contact", preferredContactMethod);
     if (isCalculatorRequest) {
       [
         "calculator_type",
@@ -107,7 +109,7 @@ export default function ContactPage() {
         if (value) formData.append(field, value);
       });
     }
-    files.forEach((file) => formData.append("files", file));
+    files.forEach((file) => formData.append("photos", file));
 
     try {
       await submitContact(formData);
@@ -197,7 +199,7 @@ export default function ContactPage() {
                 disabled={isSubmitting}
               />
               <div className="contacts-files-actions">
-                <label htmlFor="contact-files" className="contacts-file-button">Прикрепить фото</label>
+                <label htmlFor="contact-files" className="contacts-file-button">Прикрепить фото автомобиля или пример дисков</label>
                 {files.length > 0 && (
                   <button type="button" className="contacts-files-clear" onClick={clearFiles} disabled={isSubmitting}>
                     Очистить

@@ -10,8 +10,8 @@ export function PaintSection() {
   return (
     <section className="py-10 lg:py-16">
       <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div className="paint-panel relative isolate overflow-hidden lg:grid lg:min-h-[560px] lg:grid-cols-[minmax(0,0.55fr)_minmax(0,0.45fr)]">
-          <Reveal delay={0.08} amount={0.12} className="paint-image-area relative z-10 aspect-[4/3] overflow-hidden lg:min-h-[560px] lg:aspect-auto">
+        <div className="paint-panel relative isolate overflow-hidden rounded-[28px] border border-[var(--border)] sm:rounded-[36px] lg:grid lg:min-h-[560px] lg:grid-cols-[minmax(0,0.55fr)_minmax(0,0.45fr)] lg:rounded-[40px]">
+          <Reveal delay={0.08} amount={0.12} className="paint-image-area relative z-0 aspect-[4/3] overflow-hidden lg:min-h-[560px] lg:aspect-auto">
             <Image
               src={paintImage}
               alt="Фиолетовая комбинированная отделка кованых дисков"
@@ -21,7 +21,7 @@ export function PaintSection() {
             />
           </Reveal>
 
-          <div className="paint-copy-area relative z-0 flex flex-col justify-center px-6 py-8 sm:px-10 sm:py-10 lg:min-h-[560px] lg:px-16 lg:py-14">
+          <div className="paint-copy-area relative z-10 flex flex-col justify-center px-6 py-10 sm:px-10 sm:py-12 lg:min-h-[560px] lg:px-14 lg:py-16 xl:px-16">
             <div className="paint-copy-inner max-w-[460px]">
               <Reveal>
                 <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-accent opacity-90">

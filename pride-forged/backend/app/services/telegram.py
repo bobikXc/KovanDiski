@@ -1,4 +1,5 @@
 import logging
+import json
 from dataclasses import dataclass
 from html import escape
 
@@ -254,10 +255,29 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
                 data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
             )
 
-        for upload in files:
+        if len(files) == 1:
+            upload = files[0]
             await _telegram_request(
                 client,
                 "sendPhoto",
-                data={"chat_id": chat_id},
+                data={"chat_id": chat_id, "caption": "Фото к заявке PRIDE Forged"},
                 files={"photo": (upload.filename, upload.content, upload.content_type)},
+            )
+        elif len(files) > 1:
+            media = [
+                {
+                    "type": "photo",
+                    "media": f"attach://photo{index}",
+                    **({"caption": "Фото к заявке PRIDE Forged"} if index == 0 else {}),
+                }
+                for index, _ in enumerate(files)
+            ]
+            await _telegram_request(
+                client,
+                "sendMediaGroup",
+                data={"chat_id": chat_id, "media": json.dumps(media, ensure_ascii=False)},
+                files={
+                    f"photo{index}": (upload.filename, upload.content, upload.content_type)
+                    for index, upload in enumerate(files)
+                },
             )

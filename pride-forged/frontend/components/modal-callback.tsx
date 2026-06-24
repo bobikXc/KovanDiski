@@ -104,7 +104,9 @@ export function CallbackModal({ isOpen, onClose }: CallbackModalProps) {
     formData.append("preferred_time", preferredTime);
     formData.append("comment", comment);
     formData.append("personal_data_consent", "true");
+    formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
+    formData.append("preferred_contact", preferredContactMethod);
 
     setIsSubmitting(true);
     try {

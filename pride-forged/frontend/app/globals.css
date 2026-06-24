@@ -24,12 +24,12 @@
   --shadow-premium: 0 30px 90px rgba(13, 27, 42, 0.12);
   --shadow-liquid: 0 26px 76px rgba(13, 27, 42, 0.12);
   --shadow-liquid-hover: 0 30px 86px rgba(74, 111, 165, 0.18);
-  --menu-overlay: rgba(247,248,250,0.82);
-  --menu-bg: rgba(255,255,255,0.94);
+  --menu-overlay: rgba(247,248,250,0.96);
+  --menu-bg: rgba(255,255,255,0.98);
   --menu-text: #0D1B2A;
   --menu-muted: #5D6B7A;
   --menu-border: rgba(13,27,42,0.14);
-  --menu-shadow: 0 24px 80px rgba(13,27,42,0.16);
+  --menu-shadow: 0 28px 90px rgba(13,27,42,0.20);
   --menu-divider: rgba(13,27,42,0.10);
   --header-bg: rgba(255,255,255,0.86);
   --header-border: rgba(13,27,42,0.10);
@@ -56,12 +56,12 @@
   --shadow-premium: 0 30px 90px rgba(0, 0, 0, 0.34);
   --shadow-liquid: 0 28px 90px rgba(0, 0, 0, 0.28);
   --shadow-liquid-hover: 0 34px 110px rgba(62, 110, 168, 0.22);
-  --menu-overlay: rgba(3,8,18,0.84);
-  --menu-bg: rgba(10,22,38,0.96);
+  --menu-overlay: rgba(3,8,18,0.96);
+  --menu-bg: rgba(7,18,34,0.985);
   --menu-text: #F4F7FB;
   --menu-muted: #A9B7C9;
   --menu-border: rgba(255,255,255,0.14);
-  --menu-shadow: 0 24px 80px rgba(0,0,0,0.45);
+  --menu-shadow: 0 30px 96px rgba(0,0,0,0.58);
   --menu-divider: rgba(255,255,255,0.08);
   --header-bg: rgba(7,17,31,0.86);
   --header-border: rgba(244,247,251,0.10);
@@ -346,6 +346,42 @@ select option {
       linear-gradient(180deg, rgb(var(--surface-rgb) / 0.04), transparent 54%, rgb(var(--bg-rgb) / 0.24)),
       radial-gradient(circle at 68% 42%, transparent, rgb(var(--accent-rgb) / 0.04) 68%, rgb(var(--surface-rgb) / 0.08));
   }
+}
+
+.mobile-menu-overlay {
+  background:
+    radial-gradient(circle at 12% 8%, rgb(var(--accent-rgb) / 0.12), transparent 17rem),
+    var(--menu-overlay);
+}
+
+.mobile-menu-panel {
+  background:
+    linear-gradient(180deg, rgb(var(--surface-rgb) / 0.12), transparent 34%),
+    var(--menu-bg);
+}
+
+[data-theme="dark"] .mobile-menu-overlay {
+  background:
+    radial-gradient(circle at 16% 10%, rgb(var(--accent-rgb) / 0.16), transparent 18rem),
+    linear-gradient(180deg, rgba(5, 12, 24, 0.985), rgba(7, 18, 34, 0.965));
+}
+
+[data-theme="dark"] .mobile-menu-panel {
+  background:
+    radial-gradient(circle at 82% 12%, rgb(var(--accent-rgb) / 0.16), transparent 14rem),
+    linear-gradient(180deg, rgba(5, 12, 24, 0.99), rgba(7, 18, 34, 0.975));
+}
+
+[data-theme="light"] .mobile-menu-overlay {
+  background:
+    radial-gradient(circle at 16% 10%, rgb(var(--accent-rgb) / 0.12), transparent 18rem),
+    rgba(247, 248, 250, 0.965);
+}
+
+[data-theme="light"] .mobile-menu-panel {
+  background:
+    radial-gradient(circle at 82% 12%, rgb(var(--accent-rgb) / 0.10), transparent 14rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 250, 255, 0.975));
 }
 
 [data-theme="light"] .liquid-glass,
@@ -4156,8 +4192,8 @@ html:has(.fitment-page)::-webkit-scrollbar {
 
 @media (min-width: 1024px) {
   .paint-image-area {
-    width: 108%;
-    clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%);
+    width: 100%;
+    clip-path: none;
   }
 }
 

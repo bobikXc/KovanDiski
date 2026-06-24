@@ -28,13 +28,24 @@ from app.services.telegram import (
 router = APIRouter(prefix="/api")
 
 MAX_CONTACT_FILES = 5
-MAX_CONTACT_FILE_SIZE = 8 * 1024 * 1024
+MAX_CONTACT_FILE_SIZE = 10 * 1024 * 1024
 ALLOWED_CONTACT_FILE_TYPES = {
     "image/jpeg": {".jpg", ".jpeg"},
     "image/png": {".png"},
     "image/webp": {".webp"},
 }
-ALLOWED_CONTACT_METHODS = {"call", "telegram", "whatsapp", "max"}
+CONTACT_METHOD_ALIASES = {
+    "phone": "call",
+    "tel": "call",
+    "telephone": "call",
+    "звонок": "call",
+    "телефон": "call",
+    "telegram": "telegram",
+    "tg": "telegram",
+    "whatsapp": "whatsapp",
+    "wa": "whatsapp",
+    "max": "max",
+}
 PUBLIC_READ_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=300"
 
 
@@ -79,7 +90,7 @@ async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]
             raise HTTPException(
                 status_code=413,
                 detail=(
-                    f"Файл «{filename}» превышает максимальный размер 8 МБ"
+                    f"Файл «{filename}» превышает максимальный размер 10 МБ"
                 ),
             )
         if not content:
@@ -92,8 +103,14 @@ async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]
     return validated
 
 
+def _normalize_contact_method(value: str | None) -> str:
+    normalized = (value or "").strip().lower()
+    return CONTACT_METHOD_ALIASES.get(normalized, "call")
+
+
+@router.post("/leads", status_code=status.HTTP_201_CREATED, tags=["leads"])
 @router.post("/contact", status_code=status.HTTP_201_CREATED, tags=["contact"])
-async def submit_contact(
+async def submit_lead(
     name: Annotated[str, Form(max_length=100)],
     phone: Annotated[str, Form(max_length=50)],
     car: Annotated[str | None, Form(max_length=150)] = None,
@@ -111,15 +128,20 @@ async def submit_contact(
     calculator_rear_width: Annotated[str | None, Form(max_length=20)] = None,
     calculator_rear_et: Annotated[str | None, Form(max_length=20)] = None,
     calculator_estimated_price: Annotated[str | None, Form(max_length=60)] = None,
+    preferred_contact: Annotated[str | None, Form(max_length=20)] = None,
     preferred_contact_method: Annotated[str | None, Form(max_length=20)] = None,
+    policy_accepted: Annotated[bool | None, Form()] = None,
     personal_data_consent: Annotated[bool | None, Form()] = None,
     fitment_car: Annotated[str | None, Form(max_length=60)] = None,
     fitment_year_generation: Annotated[str | None, Form(max_length=40)] = None,
     fitment_current_wheels: Annotated[str | None, Form(max_length=80)] = None,
     fitment_wishes: Annotated[str | None, Form(max_length=160)] = None,
     files: Annotated[list[UploadFile] | None, File()] = None,
+    photos: Annotated[list[UploadFile] | None, File()] = None,
+    attachments: Annotated[list[UploadFile] | None, File()] = None,
 ) -> dict[str, str]:
-    if personal_data_consent is not True:
+    has_policy_consent = personal_data_consent is True or policy_accepted is True
+    if not has_policy_consent:
         raise HTTPException(
             status_code=400,
             detail="Необходимо согласие на обработку персональных данных.",
@@ -127,12 +149,14 @@ async def submit_contact(
 
     normalized_name = _required_form_value(name, "Имя")
     normalized_phone = _required_form_value(phone, "Телефон")
-    normalized_contact_method = (
-        preferred_contact_method
-        if preferred_contact_method in ALLOWED_CONTACT_METHODS
-        else "call"
+    normalized_contact_method = _normalize_contact_method(
+        preferred_contact_method or preferred_contact
     )
-    validated_files = await _validate_contact_files(files or [])
+    validated_files = await _validate_contact_files([
+        *(files or []),
+        *(photos or []),
+        *(attachments or []),
+    ])
     messages = format_contact_messages(
         name=normalized_name,
         phone=normalized_phone,
