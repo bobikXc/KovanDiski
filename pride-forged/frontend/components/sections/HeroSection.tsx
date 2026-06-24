@@ -80,9 +80,9 @@ export function HeroSection() {
               ЛЮБОЙ АВТО
             </span>
             <span className="md:hidden">
-              ИЗГОТОВЛЕНИЕ<br />
-              <span className="whitespace-nowrap">КОВАННЫХ ДИСКОВ</span><br />
-              <span className="whitespace-nowrap">НА ЛЮБОЙ АВТО</span>
+              Изготовление<br />
+              <span className="whitespace-nowrap">кованных дисков</span><br />
+              <span className="whitespace-nowrap">на любой авто</span>
             </span>
           </motion.h1>
           <motion.p

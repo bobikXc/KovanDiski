@@ -41,8 +41,8 @@ export function AdvantagesSection() {
               вы получаете:
             </span>
             <span className="why-title-strong sm:hidden">
-              <span className="why-title-mobile-line">Выбирая кованые диски,</span><br />
-              <span className="why-title-mobile-line">вы получаете:</span>
+              <span className="why-title-mobile-line">Выбирая кованые</span><br />
+              <span className="why-title-mobile-line">диски, вы получаете:</span>
             </span>
             <span className="why-title-sub">
               БЕЗОПАСНОСТЬ, СКОРОСТЬ И СТИЛЬ ВАШЕГО АВТО
