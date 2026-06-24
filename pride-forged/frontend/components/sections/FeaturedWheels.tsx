@@ -150,7 +150,7 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
   }, [updateScrollState, featured.length]);
 
   return (
-    <section className="overflow-hidden px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+    <section className="overflow-hidden px-4 pb-14 pt-8 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
       <div className="mx-auto max-w-7xl">
         <Reveal className="relative z-10 mb-12 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>

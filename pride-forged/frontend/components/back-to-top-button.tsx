@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const TELEGRAM_URL = "https://t.me/pride_forged";
-const WHATSAPP_URL = "https://wa.me/79257190338";
+const WHATSAPP_URL = "https://wa.me/79999999999";
 // Заменить на реальную ссылку MAX, когда будет готова.
 const MAX_URL: string = "";
 

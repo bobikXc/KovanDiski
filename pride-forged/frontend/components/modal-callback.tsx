@@ -178,7 +178,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
               </div>
               <div>
                 <label htmlFor="callback-phone" className="mb-1.5 block text-sm font-semibold">Телефон</label>
-                <input id="callback-phone" name="phone" type="tel" required maxLength={30} placeholder="+7 999 000-00-00" autoComplete="tel" className={fieldClassName} />
+                <input id="callback-phone" name="phone" type="tel" required maxLength={30} placeholder="+7 (999) 999-99-99" autoComplete="tel" className={fieldClassName} />
               </div>
               <div>
                 <label htmlFor="callback-time" className="mb-1.5 block text-sm font-semibold">Удобное время для звонка</label>

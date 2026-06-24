@@ -156,10 +156,10 @@ export function Navbar() {
 
         <div className="hidden min-w-0 justify-self-end items-center justify-end gap-3 lg:flex 2xl:gap-3.5">
           <a
-            href="tel:+79257190338"
+            href="tel:+79999999999"
             className="hidden h-10 shrink-0 items-center justify-center rounded-full border border-primary/12 bg-primary/[0.06] px-4 text-sm font-semibold text-primary shadow-[inset_0_1px_0_rgb(var(--surface-rgb)/0.22)] backdrop-blur-xl transition hover:border-accent/45 hover:bg-accent/10 hover:text-accent xl:inline-flex"
           >
-            +7 925 719-03-38
+            +7 (999) 999-99-99
           </a>
           <Button type="button" size="default" className="h-10 px-4 xl:px-5" onClick={() => openCallbackModal()}>
             Заказать звонок
@@ -168,8 +168,8 @@ export function Navbar() {
         </div>
 
         <a
-          href="tel:+79257190338"
-          aria-label="Позвонить +7 925 719-03-38"
+          href="tel:+79999999999"
+          aria-label="Позвонить +7 (999) 999-99-99"
           className="inline-flex h-11 w-11 items-center justify-center justify-self-end rounded-full border border-primary/12 bg-surface/65 text-primary shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-xl transition hover:border-accent/45 hover:bg-surface hover:text-accent lg:hidden"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

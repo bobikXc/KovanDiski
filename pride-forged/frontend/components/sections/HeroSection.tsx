@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useTransform, type Variants } from "framer-motion";
 
@@ -20,6 +21,8 @@ const heroCarImages = [
   "/images/grey-bmw-g80-m3-touring-cs-brixton-forged-wheels-fr16-1-piece-2.jpg",
   "/images/green-ferrari-296-speciale-wheels-brixton-forged-wheel-pf14-rs-1-piece-wheel-3.jpg"
 ];
+
+const mobileHeroCarImage = "/images/hero/bmw-mobile.png";
 
 const content: Variants = {
   hidden: { opacity: 0 },
@@ -68,7 +71,7 @@ export function HeroSection() {
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-[37.5rem] text-[clamp(2rem,8.7vw,2.625rem)] font-black leading-[0.96] tracking-[-0.055em] text-primary md:text-[clamp(2.75rem,5.6vw,3.75rem)] md:leading-[0.95] lg:text-[clamp(3rem,4.6vw,4.5rem)]"
+            className="max-w-[34rem] text-[clamp(1.82rem,7.8vw,2.32rem)] font-black leading-[0.98] tracking-[-0.055em] text-primary md:text-[clamp(2.35rem,4.8vw,3.25rem)] md:leading-[0.96] lg:text-[clamp(2.55rem,3.8vw,3.8rem)]"
           >
             <span className="hidden md:inline">ИЗГОТОВЛЕНИЕ КОВАННЫХ ДИСКОВ НА ЛЮБОЙ АВТО</span>
             <span className="md:hidden">
@@ -84,6 +87,21 @@ export function HeroSection() {
           >
             Подберем или разработаем уникальный дизайн и идеальные параметры под вашу марку из наличия или под заказ
           </motion.p>
+          <motion.div
+            aria-hidden="true"
+            variants={fadeUp}
+            transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
+            className="hero-mobile-car md:hidden"
+          >
+            <Image
+              src={mobileHeroCarImage}
+              alt=""
+              fill
+              sizes="100vw"
+              priority
+              className="hero-mobile-car-image"
+            />
+          </motion.div>
           <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button asChild size="lg"><Link href="/tools/wheel-calculator">Рассчитать стоимость</Link></Button>
             <Button asChild variant="outline" size="lg"><Link href="/catalog">Каталог</Link></Button>

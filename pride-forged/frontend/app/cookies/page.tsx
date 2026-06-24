@@ -101,7 +101,7 @@ export default function CookiesPage() {
               <h2>Контакты</h2>
               <p>По вопросам использования cookie можно связаться с PRIDE Forged:</p>
               <div className="privacy-contact-links">
-                <a href="tel:+79257190338">+7 925 719-03-38</a>
+                <a href="tel:+79999999999">+7 (999) 999-99-99</a>
                 <a href="mailto:sales@pride-forged.ru">sales@pride-forged.ru</a>
               </div>
             </div>

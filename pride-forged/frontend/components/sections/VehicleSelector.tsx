@@ -14,7 +14,7 @@ export function VehicleSelector(_props: { brands: Brand[] }) {
   const shouldReduceMotion = useReducedMotion();
 
   return (
-    <section className="px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+    <section className="px-4 pb-6 pt-10 sm:px-6 sm:py-20 lg:px-8 lg:py-28">
       <motion.div
         initial={shouldReduceMotion ? false : "hidden"}
         whileInView="visible"
@@ -39,16 +39,10 @@ export function VehicleSelector(_props: { brands: Brand[] }) {
                 <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">Selection hub</p>
                 <h2 className="mt-4 text-3xl font-black sm:text-5xl">Подбор дисков</h2>
                 <p className="mt-5 leading-8 text-graphite">
-                  Два сценария в одном разделе: подбор по автомобилю или проверка совместимости конкретной модели диска.
+                  Подбор дисков под Ваше авто
+                  <br />
+                  Заполните анкету — и мы пришлём дизайны с ценой и характеристиками под ваше авто.
                 </p>
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <Link href="/fitment" className="rounded-2xl border border-primary/10 bg-surface/70 p-4 text-sm font-semibold text-primary backdrop-blur-xl transition hover:-translate-y-1 hover:border-accent/45">
-                    По автомобилю
-                  </Link>
-                  <Link href="/fitment" className="rounded-2xl border border-primary/10 bg-surface/70 p-4 text-sm font-semibold text-primary backdrop-blur-xl transition hover:-translate-y-1 hover:border-accent/45">
-                    По модели диска
-                  </Link>
-                </div>
                 <Button asChild size="lg" className="mt-8 w-full sm:w-auto">
                   <Link href="/fitment">Перейти к подбору</Link>
                 </Button>

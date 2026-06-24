@@ -8,7 +8,7 @@ import { Reveal } from "@/components/ui/reveal";
 
 export function CTASection() {
   return (
-    <section className="overflow-hidden py-20 lg:py-28">
+    <section className="overflow-hidden pb-16 pt-8 sm:py-20 lg:py-28">
       <div className="mx-auto grid w-full max-w-7xl items-stretch lg:grid-cols-[minmax(0,1.08fr)_minmax(380px,0.92fr)]">
         <div className="flex flex-col justify-center px-5 py-12 sm:px-8 lg:px-12 lg:py-16">
           <Reveal>

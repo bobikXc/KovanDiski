@@ -325,7 +325,7 @@ export function FitmentConfigurator() {
                               name="phone"
                               value={requestPhone}
                               onChange={(event) => setRequestPhone(event.target.value)}
-                              placeholder="+7 999 000-00-00"
+                              placeholder="+7 (999) 999-99-99"
                               maxLength={30}
                               required
                               inputMode="tel"

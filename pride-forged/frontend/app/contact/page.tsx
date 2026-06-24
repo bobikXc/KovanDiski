@@ -20,7 +20,7 @@ const CONSENT_ERROR_MESSAGE = "Для отправки заявки необхо
 
 const contactItems = [
   { label: "Адрес", value: "Москва, премиальный шоурум PRIDE Forged" },
-  { label: "Телефон", value: "+7 925 719-03-38", href: "tel:+79257190338" },
+  { label: "Телефон", value: "+7 (999) 999-99-99", href: "tel:+79999999999" },
   { label: "Email", value: "sales@pride-forged.ru", href: "mailto:sales@pride-forged.ru" }
 ];
 
