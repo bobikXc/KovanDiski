@@ -71,7 +71,7 @@ export function HeroSection() {
           <motion.h1
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-[31rem] text-[clamp(1.82rem,7.8vw,2.32rem)] font-black leading-[0.98] tracking-[-0.055em] text-primary md:text-[clamp(2.15rem,4.2vw,2.95rem)] md:leading-[0.96] lg:text-[clamp(2.25rem,3.25vw,3.25rem)]"
+            className="max-w-[31rem] text-[clamp(2.45rem,10.7vw,3.3rem)] font-black leading-[0.96] tracking-[-0.055em] text-primary md:text-[clamp(2.15rem,4.2vw,2.95rem)] md:leading-[0.96] lg:text-[clamp(2.25rem,3.25vw,3.25rem)]"
           >
             <span className="hidden md:inline">
               ИЗГОТОВЛЕНИЕ<br />
@@ -107,11 +107,11 @@ export function HeroSection() {
               className="hero-mobile-car-image"
             />
           </motion.div>
-          <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-4 flex flex-col gap-3 sm:flex-row md:mt-8">
             <Button asChild size="lg"><Link href="/tools/wheel-calculator">Рассчитать стоимость</Link></Button>
             <Button asChild variant="outline" size="lg"><Link href="/catalog">Каталог</Link></Button>
           </motion.div>
-          <motion.div variants={content} className="mt-8 grid max-w-[30rem] grid-cols-1 gap-2 sm:grid-cols-3">
+          <motion.div variants={content} className="mt-5 grid max-w-[30rem] grid-cols-1 gap-2 sm:grid-cols-3 md:mt-8">
             {stats.map(([value, label]) => (
               <motion.div key={value} variants={fadeUp} transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}>
                 <LiquidCard className="h-full rounded-2xl px-3 py-3 sm:py-2.5">
