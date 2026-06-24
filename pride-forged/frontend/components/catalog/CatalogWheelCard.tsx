@@ -1,24 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { formatWheelPrice } from "@/components/catalog/WheelCard";
 import { normalizeWheelImages } from "@/lib/assets";
 import type { Wheel } from "@/lib/api";
-
-function compactWheelSpecs(wheel: Wheel) {
-  return [
-    wheel.diameter ? `${wheel.diameter}″` : null,
-    wheel.width ? `${wheel.width}J` : null,
-    wheel.et !== null && wheel.et !== undefined ? `ET${wheel.et}` : null,
-    wheel.pcd || null
-  ].filter((value): value is string => Boolean(value));
-}
 
 export function CatalogWheelCard({ wheel }: { wheel: Wheel }) {
   const images = normalizeWheelImages(wheel);
   const mainImage = images[0];
   const hoverImage = images[1] ?? mainImage;
-  const specs = compactWheelSpecs(wheel);
 
   return (
     <Link href={`/catalog/${wheel.slug}`} className="catalog-wheel-card group">
@@ -47,8 +36,16 @@ export function CatalogWheelCard({ wheel }: { wheel: Wheel }) {
 
       <div className="catalog-wheel-info">
         <h2>{wheel.name}</h2>
-        {specs.length > 0 && <p className="catalog-wheel-specs">{specs.join(" · ")}</p>}
-        <p className="catalog-wheel-price">{formatWheelPrice(wheel.price)}</p>
+        <div className="catalog-wheel-meta">
+          <div>
+            <span>Параметры</span>
+            <strong>по запросу</strong>
+          </div>
+          <div>
+            <span>Цена</span>
+            <strong>по запросу</strong>
+          </div>
+        </div>
         <span className="catalog-wheel-accent" aria-hidden="true" />
       </div>
     </Link>

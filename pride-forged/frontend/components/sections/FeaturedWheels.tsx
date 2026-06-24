@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 
-import { formatWheelPrice, getWheelImageOrFallback } from "@/components/catalog/WheelCard";
+import { getWheelImageOrFallback } from "@/components/catalog/WheelCard";
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { Reveal } from "@/components/ui/reveal";
 import type { Wheel } from "@/lib/api";
@@ -228,18 +228,14 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
                     <div className="mt-6 flex items-start justify-between gap-5">
                       <div>
                         <h3 className="text-3xl font-black tracking-tight text-primary">{wheel.name}</h3>
-                        <p className="mt-3 text-sm text-graphite/70">
-                          {wheel.diameter}″ • {wheel.width}J • ET{wheel.et} • {wheel.pcd} • DIA {wheel.dia}
-                        </p>
                       </div>
                       <span className="rounded-full border border-primary/10 bg-surface/55 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
                         forged
                       </span>
                     </div>
-                    <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
-                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Вес</span><b>{wheel.weight} кг</b></div>
-                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">PCD</span><b>{wheel.pcd}</b></div>
-                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Цена</span><b>{formatWheelPrice(wheel.price)}</b></div>
+                    <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
+                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Параметры</span><b className="text-primary">по запросу</b></div>
+                      <div className="rounded-2xl bg-surface/55 p-3"><span className="block text-graphite/70">Цена</span><b className="text-primary">по запросу</b></div>
                     </div>
                   </LiquidCard>
                 </Link>

@@ -40,9 +40,6 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="text-2xl font-black tracking-tight text-primary">{wheel.name}</h3>
-            <p className="mt-2 text-sm text-graphite/70">
-              {wheel.diameter}″ • {wheel.weight} кг • ET{wheel.et}
-            </p>
           </div>
           <span className="rounded-full border border-accent/40 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-accent">
             forged
@@ -50,11 +47,15 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
         </div>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-graphite/65">{wheel.description}</p>
         <div className="mt-auto pt-5">
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <p className="text-2xl font-black leading-tight text-primary">
-              <span className="block text-sm uppercase tracking-[0.14em] text-graphite/70">Цена</span>
-              {formatWheelPrice(wheel.price)}
-            </p>
+          <div className="mb-4 grid grid-cols-2 gap-3 text-sm">
+            <div className="rounded-2xl bg-surface/55 p-3">
+              <span className="block text-graphite/70">Параметры</span>
+              <b className="text-primary">по запросу</b>
+            </div>
+            <div className="rounded-2xl bg-surface/55 p-3">
+              <span className="block text-graphite/70">Цена</span>
+              <b className="text-primary">по запросу</b>
+            </div>
           </div>
           <div className="grid gap-3 sm:grid-cols-[0.92fr_1.08fr]">
             <Button asChild size="default" variant="outline" className="min-w-0 px-4 text-center">

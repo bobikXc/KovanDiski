@@ -70,7 +70,7 @@ export function HeroSection() {
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
             className="max-w-[37.5rem] text-[clamp(2.375rem,11vw,3.375rem)] font-black leading-[0.95] tracking-[-0.055em] text-primary md:text-[clamp(3rem,6.2vw,4rem)] lg:text-[clamp(3.125rem,5vw,4.875rem)]"
           >
-            Изготовление кованых дисков на любой авто
+            ИЗГОТОВЛЕНИЕ КОВАНЫХ ДИСКОВ НА ЛЮБОЙ АВТО
           </motion.h1>
           <motion.p
             variants={fadeUp}

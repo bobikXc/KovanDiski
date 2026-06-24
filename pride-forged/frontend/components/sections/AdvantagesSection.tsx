@@ -34,9 +34,14 @@ export function AdvantagesSection() {
       <div aria-hidden="true" className="advantages-wheel-overlay pointer-events-none absolute inset-0 z-[1]" />
       <div className="relative z-[2] mx-auto max-w-[1440px]">
         <Reveal className="mb-8 max-w-5xl lg:mb-9">
-          <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-accent sm:text-sm sm:tracking-[0.24em]">Почему PRIDE</p>
-          <h2 className="mt-3 max-w-[920px] text-[clamp(2.125rem,9vw,2.875rem)] font-black leading-[1.02] tracking-[-0.045em] text-primary sm:text-[clamp(2.75rem,5vw,4.5rem)]">
-            Выбирая кованые диски, вы получаете безопасность, скорость и стиль вашего авто
+          <p className="why-kicker text-xs font-extrabold uppercase tracking-[0.2em] text-accent sm:text-sm sm:tracking-[0.24em]">Почему PRIDE</p>
+          <h2 className="why-title mt-3 max-w-[980px] text-primary">
+            <span className="why-title-strong">
+              Выбирая кованые диски, вы получаете:
+            </span>
+            <span className="why-title-sub">
+              БЕЗОПАСНОСТЬ, СКОРОСТЬ И СТИЛЬ ВАШЕГО АВТО
+            </span>
           </h2>
         </Reveal>
         <div className="grid gap-4 md:grid-cols-2 lg:gap-5 xl:grid-cols-3">
@@ -46,8 +51,8 @@ export function AdvantagesSection() {
                 <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-full border border-primary/15 bg-surface/65 text-xs font-black text-accent shadow-liquid">
                   {String(index + 1).padStart(2, "0")}
                 </div>
-                <h3 className="text-lg font-bold leading-[1.2] tracking-normal text-primary lg:text-xl">{title}</h3>
-                <p className="advantages-card-description mt-2 text-sm leading-[1.45] lg:text-[0.9375rem]">{text}</p>
+                <h3 className="why-card-title text-lg font-bold leading-[1.2] tracking-normal text-primary lg:text-xl">{title}</h3>
+                <p className="why-card-text advantages-card-description mt-2 text-sm leading-[1.45] lg:text-[0.9375rem]">{text}</p>
               </LiquidCard>
             </Reveal>
           ))}

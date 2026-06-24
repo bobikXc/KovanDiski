@@ -240,10 +240,11 @@ export function Navbar() {
                 ))}
               </motion.nav>
 
-              <div className="mt-6">
-                <div className="mobile-menu-theme rounded-full border border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.30)] p-1.5 shadow-[inset_0_1px_0_rgb(var(--surface-rgb)/0.20)] backdrop-blur-xl">
-                  <ThemeSwitcher className="h-14 w-full border-0 bg-transparent p-0 text-[15px] shadow-none [&_button]:h-11 [&_button]:rounded-full [&_button]:text-[15px] [&_button]:font-extrabold [&_button[aria-pressed='true']]:bg-accent [&_button[aria-pressed='true']]:text-white [&_button:not([aria-pressed='true'])]:bg-transparent [&_button:not([aria-pressed='true'])]:text-[var(--menu-muted)] [&_button:not([aria-pressed='true'])]:hover:bg-[rgb(var(--accent-rgb)/0.08)] [&_button:not([aria-pressed='true'])]:hover:text-[var(--menu-text)]" />
-                </div>
+              <div className="mt-6 flex justify-end">
+                <ThemeSwitcher
+                  variant="icon"
+                  className="h-14 w-14 border-[var(--menu-border)] bg-[rgb(var(--surface-rgb)/0.30)] text-[var(--menu-text)] shadow-[0_14px_36px_rgba(0,0,0,0.16)]"
+                />
               </div>
             </motion.div>
           </motion.div>

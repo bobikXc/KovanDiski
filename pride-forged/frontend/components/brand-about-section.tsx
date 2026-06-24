@@ -17,8 +17,8 @@ export function BrandAboutSection() {
               <span className="brand-about-kicker-line h-px w-9" />
               <p className="text-xs font-extrabold uppercase tracking-[0.24em] text-accent sm:text-[13px]">О БРЕНДЕ</p>
             </div>
-            <h2 className="mt-5 max-w-[540px] text-[clamp(2rem,9vw,2.5rem)] font-black leading-[1.08] tracking-[-0.03em] text-primary lg:text-[clamp(2.25rem,3.6vw,3.625rem)] lg:leading-[1.05]">
-              Эксклюзивные кованые диски <span className="text-accent">PRIDE Forged</span> для вашего автомобиля
+            <h2 className="home-brand-title mt-5 max-w-[560px] font-black text-primary">
+              Эксклюзивные кованые диски <span className="text-accent">PRIDE Forged</span> для <span className="whitespace-nowrap">вашего автомобиля</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1}>

@@ -33,6 +33,9 @@
   --menu-divider: rgba(13,27,42,0.10);
   --header-bg: rgba(255,255,255,0.86);
   --header-border: rgba(13,27,42,0.10);
+  --font-rawline: "Rawline", var(--font-sans, system-ui), system-ui, sans-serif;
+  --font-benzin: "Benzin", var(--font-sans, system-ui), system-ui, sans-serif;
+  --font-raleway: "Raleway", var(--font-sans, system-ui), system-ui, sans-serif;
 }
 
 [data-theme="dark"] {
@@ -433,6 +436,49 @@ select option {
   background: linear-gradient(90deg, transparent 42%, rgb(var(--bg-rgb) / 0.06) 68%, rgb(var(--bg-rgb) / 0.22) 100%);
 }
 
+.why-kicker {
+  font-family: var(--font-rawline);
+}
+
+.why-title {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font-benzin);
+}
+
+.why-title-strong {
+  color: var(--text-primary);
+  font-size: clamp(42px, 4.8vw, 68px);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.why-title-sub {
+  color: rgb(var(--text-primary-rgb) / 0.88);
+  font-size: clamp(28px, 3vw, 44px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.why-card-title,
+.why-card-text {
+  font-family: var(--font-raleway);
+}
+
+.why-card-title {
+  font-weight: 800;
+  line-height: 1.22;
+}
+
+.why-card-text {
+  font-weight: 500;
+  line-height: 1.52;
+}
+
 .advantages-card {
   border-color: rgb(var(--text-primary-rgb) / 0.12);
   background: rgb(var(--surface-rgb) / 0.86);
@@ -476,6 +522,20 @@ select option {
   .advantages-card-description {
     font-size: 0.95rem;
     line-height: 1.5;
+  }
+
+  .why-title {
+    gap: 8px;
+  }
+
+  .why-title-strong {
+    font-size: clamp(30px, 8vw, 42px);
+    line-height: 1.02;
+  }
+
+  .why-title-sub {
+    font-size: clamp(21px, 6vw, 30px);
+    line-height: 1.12;
   }
 }
 
@@ -1077,6 +1137,20 @@ select option {
   color: rgb(var(--text-primary-rgb) / 0.82);
 }
 
+.home-brand-title {
+  font-size: clamp(2rem, 8vw, 2.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+@media (min-width: 1024px) {
+  .home-brand-title {
+    font-size: clamp(2.35rem, 3.2vw, 3.25rem);
+    line-height: 1.04;
+    letter-spacing: -0.04em;
+  }
+}
+
 .brand-about-kicker-line,
 .brand-about-rule {
   background: linear-gradient(90deg, var(--accent), rgb(var(--accent-rgb) / 0.18));
@@ -1116,6 +1190,11 @@ select option {
     background:
       linear-gradient(180deg, rgb(5 12 24 / 0.24) 0%, rgb(5 12 24 / 0.42) 36%, rgb(5 12 24 / 0.86) 100%),
       radial-gradient(circle at 52% 28%, rgb(var(--accent-rgb) / 0.2), transparent 24rem);
+  }
+
+  .home-brand-title {
+    font-size: clamp(1.82rem, 7.6vw, 2.18rem);
+    line-height: 1.1;
   }
 
   [data-theme="light"] .brand-about-overlay {
@@ -1635,6 +1714,37 @@ select option {
   color: var(--text-secondary);
   font-size: 0.8125rem;
   line-height: 1.45;
+}
+
+.catalog-wheel-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.catalog-wheel-meta div {
+  min-width: 0;
+  border-radius: 1rem;
+  background: rgb(var(--surface-rgb) / 0.55);
+  padding: 0.75rem;
+}
+
+.catalog-wheel-meta span {
+  display: block;
+  color: rgb(var(--text-secondary-rgb) / 0.82);
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.catalog-wheel-meta strong {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1.35;
 }
 
 .catalog-wheel-price {
