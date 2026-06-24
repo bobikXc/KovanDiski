@@ -396,14 +396,28 @@ select option {
 }
 
 @media (max-width: 767px) {
+  .hero-slider-frame img {
+    filter: brightness(0.86) contrast(1.08) saturate(1.02);
+  }
+
+  .hero-slider-overlay {
+    background:
+      linear-gradient(180deg, rgb(var(--bg-rgb) / 0.22) 0%, rgb(var(--bg-rgb) / 0.34) 46%, rgb(var(--bg-rgb) / 0.72) 100%),
+      linear-gradient(90deg, rgb(var(--bg-rgb) / 0.42) 0%, rgb(var(--bg-rgb) / 0.16) 58%, rgb(var(--bg-rgb) / 0.32) 100%);
+  }
+
   .hero-mobile-car {
     position: relative;
     z-index: 1;
     display: block;
-    width: calc(100% + 7.5rem);
-    height: clamp(12.75rem, 55vw, 15.75rem);
-    margin: 0.35rem -5.25rem 1.15rem auto;
+    width: min(178vw, 43rem);
+    height: clamp(16rem, 72vw, 21rem);
+    margin: 0.1rem -58vw 0.8rem auto;
     pointer-events: none;
+  }
+
+  .hero-mobile-car-image {
+    object-position: left center;
   }
 }
 
@@ -582,6 +596,10 @@ select option {
 
   .why-title {
     gap: 8px;
+  }
+
+  .why-title-mobile-line {
+    white-space: nowrap;
   }
 
   .why-title-strong {
