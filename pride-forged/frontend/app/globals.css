@@ -58,7 +58,7 @@
   --header-bg: rgba(255,255,255,0.86);
   --header-border: rgba(13,27,42,0.10);
   --font-rawline: "Rawline", var(--font-sans, system-ui), system-ui, sans-serif;
-  --font-benzin: "Benzin", var(--font-sans, system-ui), system-ui, sans-serif;
+  --font-benzin: var(--font-russo-one-next), "Russo One", var(--font-sans, system-ui), system-ui, sans-serif;
   --font-wide-display: var(--font-russo-one-next), "Russo One", var(--font-sans, system-ui), system-ui, sans-serif;
   --font-raleway: var(--font-raleway-next), "Raleway", var(--font-sans, system-ui), system-ui, sans-serif;
 }
@@ -508,17 +508,18 @@ select option {
 }
 
 .why-kicker {
-  font-family: var(--font-rawline);
+  font-family: var(--font-rawline) !important;
 }
 
 .why-title {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-family: var(--font-wide-display);
+  font-family: var(--font-benzin) !important;
 }
 
 .why-title-strong {
+  font-family: var(--font-benzin) !important;
   color: var(--text-primary);
   font-size: clamp(36px, 3.9vw, 56px);
   font-weight: 900;
@@ -527,6 +528,7 @@ select option {
 }
 
 .why-title-sub {
+  font-family: var(--font-benzin) !important;
   color: rgb(var(--text-primary-rgb) / 0.88);
   font-size: clamp(22px, 2.35vw, 34px);
   font-weight: 500;
@@ -537,7 +539,7 @@ select option {
 
 .why-card-title,
 .why-card-text {
-  font-family: var(--font-raleway);
+  font-family: var(--font-raleway) !important;
 }
 
 .why-card-title {
