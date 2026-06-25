@@ -20,7 +20,9 @@ const CONSENT_ERROR_MESSAGE = "Для отправки заявки необхо
 
 const contactItems = [
   { label: "Адрес", value: "Россия, Москва, Рябиновая улица, 55с8" },
-  { label: "Телефон", value: "+7 (999) 999-99-99", href: "tel:+79999999999" },
+  { label: "Телефон", value: "+7 993 289-10-33", href: "tel:+79932891033" },
+  { label: "Telegram", value: "Telegram", href: "https://t.me/pride_forged", external: true },
+  { label: "MAX", value: "MAX", href: "https://max.ru/u/f9LHodD0cOKgLFob6TakxBenvXyB_sdHBNXxxh-OqKuv1dEmcqPP5ldf1VQ", external: true },
   { label: "Email", value: "sales@pride-forged.ru", href: "mailto:sales@pride-forged.ru" }
 ];
 
@@ -150,7 +152,13 @@ export default function ContactPage() {
             {contactItems.map((item) => (
               <div key={item.label} className="contacts-info-item">
                 <span>{item.label}</span>
-                {item.href ? <a href={item.href}>{item.value}</a> : <p>{item.value}</p>}
+                {item.href ? (
+                  <a href={item.href} target={item.external ? "_blank" : undefined} rel={item.external ? "noopener noreferrer" : undefined}>
+                    {item.value}
+                  </a>
+                ) : (
+                  <p>{item.value}</p>
+                )}
               </div>
             ))}
           </div>

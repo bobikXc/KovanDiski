@@ -10,6 +10,11 @@ const footerLinks = [
   ["Контакты", "/contact"]
 ];
 
+const socialLinks = [
+  ["Telegram", "https://t.me/pride_forged"],
+  ["MAX", "https://max.ru/u/f9LHodD0cOKgLFob6TakxBenvXyB_sdHBNXxxh-OqKuv1dEmcqPP5ldf1VQ"]
+];
+
 export function Footer() {
   return (
     <footer className="border-t border-primary/10 bg-background/80 backdrop-blur-2xl">
@@ -30,8 +35,21 @@ export function Footer() {
         <div className="text-sm leading-7 text-graphite">
           <p className="font-semibold text-primary">PRIDE contacts</p>
           <p className="mt-2">Россия, Москва, Рябиновая улица, 55с8</p>
-          <p>+7 (999) 999-99-99</p>
+          <a href="tel:+79932891033" className="block transition hover:text-accent">+7 993 289-10-33</a>
           <p>sales@pride-forged.ru</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {socialLinks.map(([label, href]) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-primary/10 px-3 py-1 text-xs font-bold text-primary transition hover:border-accent hover:text-accent"
+              >
+                {label}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
       <div className="border-t border-primary/10 px-4 py-5 text-xs text-graphite/60">

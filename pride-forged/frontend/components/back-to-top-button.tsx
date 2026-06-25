@@ -4,9 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 const TELEGRAM_URL = "https://t.me/pride_forged";
-const WHATSAPP_URL = "https://wa.me/79999999999";
-// Заменить на реальную ссылку MAX, когда будет готова.
-const MAX_URL: string = "";
+const MAX_URL = "https://max.ru/u/f9LHodD0cOKgLFob6TakxBenvXyB_sdHBNXxxh-OqKuv1dEmcqPP5ldf1VQ";
+const PHONE_URL = "tel:+79932891033";
 
 export function BackToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
@@ -46,12 +45,8 @@ export function BackToTopButton() {
                 aria-label="Быстрые способы связи"
               >
                 <a href={TELEGRAM_URL} target="_blank" rel="noreferrer" aria-label="Открыть Telegram" onClick={() => setIsContactOpen(false)} className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[0.68rem] font-black tracking-[0.08em] text-primary transition hover:bg-accent hover:text-white">TG</a>
-                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" aria-label="Открыть WhatsApp" onClick={() => setIsContactOpen(false)} className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[0.68rem] font-black tracking-[0.08em] text-primary transition hover:bg-accent hover:text-white">WA</a>
-                {MAX_URL ? (
-                  <a href={MAX_URL} target="_blank" rel="noreferrer" aria-label="Открыть MAX" onClick={() => setIsContactOpen(false)} className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[0.68rem] font-black tracking-[0.08em] text-primary transition hover:bg-accent hover:text-white">MAX</a>
-                ) : (
-                  <span title="Скоро" aria-disabled="true" className="inline-flex h-8 min-w-8 cursor-not-allowed items-center justify-center rounded-full px-2 text-[0.68rem] font-black tracking-[0.08em] text-graphite/40">MAX</span>
-                )}
+                <a href={MAX_URL} target="_blank" rel="noreferrer" aria-label="Открыть MAX" onClick={() => setIsContactOpen(false)} className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[0.68rem] font-black tracking-[0.08em] text-primary transition hover:bg-accent hover:text-white">MAX</a>
+                <a href={PHONE_URL} aria-label="Позвонить +7 993 289-10-33" onClick={() => setIsContactOpen(false)} className="inline-flex h-8 min-w-8 items-center justify-center rounded-full px-2 text-[0.68rem] font-black tracking-[0.08em] text-primary transition hover:bg-accent hover:text-white">TEL</a>
               </motion.div>
             ) : null}
           </AnimatePresence>
