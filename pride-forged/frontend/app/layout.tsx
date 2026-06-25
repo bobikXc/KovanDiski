@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Raleway, Russo_One } from "next/font/google";
+import { Raleway, Russo_One } from "next/font/google";
 import { Suspense } from "react";
 
 import { BackToTopButton } from "@/components/back-to-top-button";
@@ -9,10 +9,9 @@ import { Navbar } from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin", "cyrillic"] });
 const raleway = Raleway({
   subsets: ["latin", "cyrillic"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-raleway-next",
   display: "swap"
 });
@@ -39,7 +38,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru" data-theme="dark" suppressHydrationWarning>
-      <body className={`${inter.className} ${raleway.variable} ${russoOne.variable} premium-gradient antialiased`}>
+      <body className={`${raleway.variable} ${russoOne.variable} premium-gradient antialiased`}>
         <Suspense>
           <ThemeProvider>
             <Navbar />

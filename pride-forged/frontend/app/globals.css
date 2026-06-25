@@ -26,6 +26,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Space Ranger Rus";
+  src: url("/fonts/space-ranger/SpaceRangerRus.otf") format("opentype");
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root,
 [data-theme="light"] {
   --bg: #F7F8FA;
@@ -58,9 +66,13 @@
   --header-bg: rgba(255,255,255,0.86);
   --header-border: rgba(13,27,42,0.10);
   --font-rawline: "Rawline", var(--font-sans, system-ui), system-ui, sans-serif;
-  --font-benzin: var(--font-russo-one-next), "Russo One", var(--font-sans, system-ui), system-ui, sans-serif;
-  --font-wide-display: var(--font-russo-one-next), "Russo One", var(--font-sans, system-ui), system-ui, sans-serif;
   --font-raleway: var(--font-raleway-next), "Raleway", var(--font-sans, system-ui), system-ui, sans-serif;
+  --font-space-ranger: "Space Ranger Rus", var(--font-raleway-next), "Raleway", system-ui, sans-serif;
+  --font-kicker: var(--font-rawline);
+  --font-heading: var(--font-space-ranger);
+  --font-body: var(--font-raleway);
+  --font-benzin: var(--font-heading);
+  --font-wide-display: var(--font-heading);
 }
 
 [data-theme="dark"] {
@@ -120,7 +132,89 @@ body {
     radial-gradient(circle at 82% 3%, rgb(var(--text-primary-rgb) / 0.08), transparent 34rem),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary) 46%, var(--bg) 100%);
   color: var(--text-primary);
+  font-family: var(--font-body);
   text-rendering: geometricPrecision;
+}
+
+.font-body,
+p,
+li,
+span,
+a,
+button,
+label,
+legend,
+input,
+textarea,
+select,
+small,
+figcaption,
+nav {
+  font-family: var(--font-body);
+}
+
+h1,
+h1 *,
+h2,
+h2 *,
+h3,
+h3 *,
+.font-heading,
+.font-heading *,
+.hero-title,
+.hero-title *,
+.section-title,
+.section-title *,
+.home-brand-title,
+.home-brand-title *,
+.why-title,
+.why-title *,
+.catalog-title,
+.catalog-title *,
+.calculator-title,
+.calculator-title *,
+.contacts-title,
+.contacts-title *,
+.process-title,
+.process-title *,
+.visualization-title,
+.visualization-title *,
+.deal-title,
+.deal-title * {
+  font-family: var(--font-heading) !important;
+}
+
+.font-kicker,
+.font-kicker *,
+.kicker,
+.kicker *,
+.section-kicker,
+.section-kicker *,
+.why-kicker,
+.why-kicker *,
+.paint-kicker,
+.paint-kicker *,
+.production-kicker,
+.production-kicker *,
+.brand-kicker,
+.brand-kicker *,
+.contacts-kicker,
+.contacts-kicker *,
+.process-kicker,
+.process-kicker *,
+.contacts-label,
+.contacts-label *,
+.about-page-label,
+.about-page-label *,
+.wheel-detail-kicker,
+.wheel-detail-kicker *,
+[class*="kicker" i],
+[class*="kicker" i] *,
+[class*="label" i].uppercase,
+[class*="label" i].uppercase *,
+.uppercase[class*="tracking-"],
+.uppercase[class*="tracking-"] * {
+  font-family: var(--font-kicker) !important;
 }
 
 main {

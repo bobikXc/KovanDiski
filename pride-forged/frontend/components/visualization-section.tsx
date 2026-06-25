@@ -20,7 +20,7 @@ export function VisualizationSection() {
               <Reveal>
                 <div className="visualization-label flex max-w-full items-center gap-3">
                   <span className="h-px w-8 bg-accent" />
-                  <p className="text-xs font-bold uppercase tracking-[0.28em] text-accent sm:text-sm">Примерьте дизайн</p>
+                  <p className="font-kicker text-xs font-bold uppercase tracking-[0.28em] text-accent sm:text-sm">Примерьте дизайн</p>
                 </div>
                 <h2 className="visualization-title mt-5 text-[2.45rem] font-black leading-[0.98] tracking-[-0.055em] text-primary sm:text-5xl lg:text-[3.25rem] xl:text-[3.7rem]">
                   <span className="hidden sm:inline">Как будут выглядеть диски на вашем авто</span>

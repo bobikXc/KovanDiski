@@ -150,8 +150,8 @@ export function DealProcessSection() {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(23.75rem,30rem)] lg:items-start lg:gap-10 xl:grid-cols-[minmax(0,1fr)_minmax(33.5rem,37.5rem)] xl:gap-12 2xl:gap-14">
           <div className="max-w-[42.5rem]">
             <Reveal>
-              <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-accent opacity-95 sm:text-[13px] sm:tracking-[0.22em]">ЭТАПЫ ЗАКАЗА</p>
-              <p className="mt-4 max-w-[38rem] text-[clamp(1.125rem,5vw,1.375rem)] font-extrabold leading-[1.15] tracking-[-0.025em] text-primary sm:text-[clamp(1.35rem,2vw,2.125rem)]">
+              <p className="font-kicker text-xs font-extrabold uppercase tracking-[0.18em] text-accent opacity-95 sm:text-[13px] sm:tracking-[0.22em]">ЭТАПЫ ЗАКАЗА</p>
+              <p className="font-heading mt-4 max-w-[38rem] text-[clamp(1.125rem,5vw,1.375rem)] font-extrabold leading-[1.15] tracking-[-0.025em] text-primary sm:text-[clamp(1.35rem,2vw,2.125rem)]">
                 <span className="hidden sm:inline">Всё, что вам нужно — оставить заявку</span>
                 <span className="sm:hidden">
                   Всё, что вам нужно -<br />
@@ -199,7 +199,7 @@ export function DealProcessSection() {
                   >
                     <div className="absolute right-[-4rem] top-[-4rem] h-36 w-36 rounded-full bg-accent/20 blur-3xl transition duration-500 group-hover:bg-accent/28" />
                     <div className="relative z-10 flex h-full flex-col justify-end">
-                      <p className="text-xl font-extrabold leading-[1.15] tracking-[-0.02em] text-primary sm:text-[1.35rem] lg:text-2xl">{action.title}</p>
+                      <p className="font-heading text-xl font-extrabold leading-[1.15] tracking-[-0.02em] text-primary sm:text-[1.35rem] lg:text-2xl">{action.title}</p>
                       <Link
                         href={action.href}
                         onClick={(event) => event.stopPropagation()}
@@ -218,7 +218,7 @@ export function DealProcessSection() {
 
         <div className="mt-8 lg:mt-10">
           <div className="mb-[22px] flex items-center justify-between gap-4 sm:mb-6">
-            <p className="deal-process-copy text-xs font-extrabold uppercase tracking-[0.18em] sm:text-[13px] sm:tracking-[0.22em]">
+            <p className="deal-process-copy font-kicker text-xs font-extrabold uppercase tracking-[0.18em] sm:text-[13px] sm:tracking-[0.22em]">
               Этапы работы · {orderMode === "stock" ? "из наличия" : "под заказ"}
             </p>
             <div className="flex items-center gap-2" aria-label="Управление этапами заказа">

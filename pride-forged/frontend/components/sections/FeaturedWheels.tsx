@@ -154,7 +154,7 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
       <div className="mx-auto max-w-7xl">
         <Reveal className="relative z-10 mb-12 flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-accent">Каталог</p>
+            <p className="font-kicker text-sm font-semibold uppercase tracking-[0.35em] text-accent">Каталог</p>
             <h2 className="mt-4 text-4xl font-black leading-none tracking-[-0.06em] text-primary sm:text-6xl lg:text-7xl">
               Флагманские модели
             </h2>
