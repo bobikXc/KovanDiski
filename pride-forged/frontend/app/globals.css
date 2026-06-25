@@ -404,9 +404,9 @@ select option {
     position: relative;
     z-index: 5;
     display: block;
-    width: calc(100% + 240px);
-    height: clamp(210px, 54vw, 270px);
-    margin: -2px -165px 8px -10px;
+    width: calc(100% + 310px);
+    height: clamp(245px, 63vw, 320px);
+    margin: -18px -215px -2px -22px;
     overflow: visible;
     pointer-events: none;
   }
@@ -416,6 +416,8 @@ select option {
     object-position: right center;
     opacity: 1;
     filter: none;
+    transform: scale(1.34);
+    transform-origin: right center;
   }
 
 }
