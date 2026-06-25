@@ -404,9 +404,9 @@ select option {
     position: relative;
     z-index: 5;
     display: block;
-    width: calc(100% + 7rem);
-    height: clamp(9.5rem, 37vw, 12.75rem);
-    margin: 0.55rem -5.25rem 0.9rem 0;
+    width: calc(100% + 120px);
+    height: clamp(165px, 42vw, 230px);
+    margin: 10px -92px 18px 0;
     overflow: visible;
     pointer-events: none;
   }
