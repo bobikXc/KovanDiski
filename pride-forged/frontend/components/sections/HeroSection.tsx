@@ -61,12 +61,12 @@ export function HeroSection() {
 
       <HeroSlider images={heroCarImages} />
 
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl items-center py-14 sm:py-16 md:py-18 lg:py-10 xl:py-8">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl items-center py-10 sm:py-16 md:py-18 lg:py-10 xl:py-8">
         <motion.div
           variants={content}
           initial={shouldReduceMotion ? false : "hidden"}
           animate="visible"
-          className="relative z-10 flex w-full flex-col justify-center pt-6 md:pt-0 lg:w-[46%] lg:max-w-[38.75rem] lg:self-center lg:pr-[clamp(1.25rem,4vw,4.5rem)] xl:w-[48%]"
+          className="relative z-10 flex w-full flex-col justify-center pt-2 md:pt-0 lg:w-[46%] lg:max-w-[38.75rem] lg:self-center lg:pr-[clamp(1.25rem,4vw,4.5rem)] xl:w-[48%]"
         >
           <motion.h1
             variants={fadeUp}
@@ -88,7 +88,7 @@ export function HeroSection() {
           <motion.p
             variants={fadeUp}
             transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 max-w-[35rem] text-base font-semibold leading-[1.5] text-graphite sm:text-lg sm:leading-8 lg:text-[1.125rem]"
+            className="mt-4 max-w-[35rem] text-base font-semibold leading-[1.5] text-graphite sm:text-lg sm:mt-5 sm:leading-8 lg:text-[1.125rem]"
           >
             Подберем или разработаем уникальный дизайн и идеальные параметры под вашу марку из наличия или под заказ
           </motion.p>
@@ -107,7 +107,7 @@ export function HeroSection() {
               className="hero-mobile-car-image"
             />
           </motion.div>
-          <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-4 flex flex-col gap-3 sm:flex-row md:mt-8">
+          <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-2 flex flex-col gap-3 sm:mt-4 sm:flex-row md:mt-8">
             <Button asChild size="lg"><Link href="/tools/wheel-calculator">Рассчитать стоимость</Link></Button>
             <Button asChild variant="outline" size="lg"><Link href="/catalog">Каталог</Link></Button>
           </motion.div>

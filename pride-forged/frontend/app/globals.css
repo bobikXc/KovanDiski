@@ -406,7 +406,7 @@ select option {
     display: block;
     width: calc(100% + 310px);
     height: clamp(245px, 63vw, 320px);
-    margin: -18px -215px -2px -22px;
+    margin: -28px -240px -16px 10px;
     overflow: visible;
     pointer-events: none;
   }
