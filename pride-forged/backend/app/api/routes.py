@@ -100,7 +100,6 @@ async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]
 
     for upload in files:
         filename = upload.filename or "photo"
-        logger.info("photo received: %s, %s", filename, upload.content_type or "unknown")
         suffix = f".{filename.rsplit('.', 1)[-1].lower()}" if "." in filename else ""
         allowed_suffixes = ALLOWED_CONTACT_FILE_TYPES.get(upload.content_type or "")
         if not allowed_suffixes or suffix not in allowed_suffixes:
@@ -123,7 +122,12 @@ async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]
         if not content:
             raise HTTPException(status_code=422, detail=f"Файл «{filename}» пуст")
 
-        await upload.seek(0)
+        logger.info(
+            "photo received filename=%s type=%s size=%s",
+            filename,
+            upload.content_type or "unknown",
+            len(content),
+        )
         validated.append(
             TelegramFile(filename=filename, content_type=upload.content_type or "", content=content)
         )
@@ -246,6 +250,7 @@ async def submit_lead(
     photos: Annotated[list[UploadFile] | None, File()] = None,
     attachments: Annotated[list[UploadFile] | None, File()] = None,
 ) -> dict[str, bool | str]:
+    logger.info("lead received")
     content_type = request.headers.get("content-type", "")
     if "application/json" in content_type:
         try:

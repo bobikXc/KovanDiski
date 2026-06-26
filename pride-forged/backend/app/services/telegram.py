@@ -30,8 +30,8 @@ class TelegramFile:
 
 TELEGRAM_MESSAGE_LIMIT = 3900
 TELEGRAM_PLACEHOLDER_VALUES = {"put_token_here", "put_chat_id_here"}
-TELEGRAM_REQUEST_ATTEMPTS = 3
-TELEGRAM_RETRY_DELAY_SECONDS = 2
+TELEGRAM_REQUEST_ATTEMPTS = 5
+TELEGRAM_RETRY_DELAYS_SECONDS = (2, 4, 6, 8)
 CONTACT_METHOD_LABELS = {
     "call": "Звонок",
     "telegram": "Telegram",
@@ -293,8 +293,10 @@ async def _telegram_request(
             )
         raise TelegramDeliveryError
 
-    if method in {"sendPhoto", "sendMediaGroup"}:
-        logger.info("Telegram photo sent")
+    if method == "sendPhoto":
+        logger.info("telegram sendPhoto sent")
+    elif method == "sendMessage":
+        logger.info("telegram sendMessage sent")
 
 
 async def _telegram_request_with_retry(
@@ -307,17 +309,38 @@ async def _telegram_request_with_retry(
     last_error: Exception | None = None
 
     for attempt in range(1, TELEGRAM_REQUEST_ATTEMPTS + 1):
-        logger.info("Telegram notification attempt %s/%s", attempt, TELEGRAM_REQUEST_ATTEMPTS)
+        logger.info("telegram %s attempt %s/%s", method, attempt, TELEGRAM_REQUEST_ATTEMPTS)
         try:
             await _telegram_request(client, method, data=data, files=files)
             return
         except TelegramDeliveryError as exc:
             last_error = exc
+            logger.warning(
+                "telegram %s failed attempt %s/%s",
+                method,
+                attempt,
+                TELEGRAM_REQUEST_ATTEMPTS,
+                exc_info=True,
+            )
             if attempt < TELEGRAM_REQUEST_ATTEMPTS:
-                await asyncio.sleep(TELEGRAM_RETRY_DELAY_SECONDS)
+                await asyncio.sleep(TELEGRAM_RETRY_DELAYS_SECONDS[attempt - 1])
 
-    logger.warning("Telegram notification failed after retries")
+    logger.warning("telegram %s failed after retries", method)
     raise TelegramDeliveryError from last_error
+
+
+async def _send_text_messages(
+    client: httpx.AsyncClient,
+    *,
+    chat_id: str,
+    messages: list[str],
+) -> None:
+    for message in messages:
+        await _telegram_request_with_retry(
+            client,
+            "sendMessage",
+            data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
+        )
 
 
 async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> None:
@@ -332,23 +355,34 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
         async with httpx.AsyncClient(timeout=timeout) as client:
             if files:
                 upload = files[0]
-                await _telegram_request_with_retry(
-                    client,
-                    "sendPhoto",
-                    data={
-                        "chat_id": chat_id,
-                        "caption": messages[0],
-                        "parse_mode": "HTML",
-                    },
-                    files={"photo": (upload.filename, upload.content, upload.content_type)},
-                )
-
-                for message in messages[1:]:
+                try:
+                    await _telegram_request_with_retry(
+                        client,
+                        "sendPhoto",
+                        data={
+                            "chat_id": chat_id,
+                            "caption": messages[0],
+                            "parse_mode": "HTML",
+                        },
+                        files={"photo": (upload.filename, upload.content, upload.content_type)},
+                    )
+                except TelegramDeliveryError:
+                    logger.warning("telegram sendPhoto failed after retries")
                     await _telegram_request_with_retry(
                         client,
                         "sendMessage",
-                        data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
+                        data={
+                            "chat_id": chat_id,
+                            "text": (
+                                "⚠️ <b>Фото не удалось отправить.</b>\n\n"
+                                f"{messages[0]}"
+                            ),
+                            "parse_mode": "HTML",
+                        },
                     )
+                    logger.info("fallback sendMessage sent")
+                else:
+                    await _send_text_messages(client, chat_id=chat_id, messages=messages[1:])
 
                 remaining_files = files[1:]
                 if remaining_files:
@@ -370,12 +404,7 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
                         },
                     )
             else:
-                for message in messages:
-                    await _telegram_request_with_retry(
-                        client,
-                        "sendMessage",
-                        data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
-                    )
+                await _send_text_messages(client, chat_id=chat_id, messages=messages)
     except (TelegramDeliveryError, TelegramNotConfiguredError):
         return
     except Exception:
