@@ -7,7 +7,8 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { ContactMethodPicker, type PreferredContactMethod } from "@/components/contact-method-picker";
-import { submitContact } from "@/lib/api";
+import { ApiRequestError, submitContact } from "@/lib/api";
+import { appendLeadSecurityFields, createLeadFormStartedAt, LeadHoneypotFields } from "@/lib/lead-security";
 
 type ContactForm = { name: string; phone: string; car: string; comment: string };
 
@@ -22,18 +23,21 @@ const contactItems = [
   { label: "Адрес", value: "Россия, Москва, Рябиновая улица, 55с8" },
   { label: "Телефон", value: "+7 993 289-10-33", href: "tel:+79932891033" },
   { label: "Telegram", value: "Telegram", href: "https://t.me/pride_forged", external: true },
+  { label: "WhatsApp", value: "WhatsApp", href: "https://wa.me/message/3JNO6WG3RTMTM1", external: true },
   { label: "MAX", value: "MAX", href: "https://max.ru/u/f9LHodD0cOKgLFob6TakxBenvXyB_sdHBNXxxh-OqKuv1dEmcqPP5ldf1VQ", external: true },
-  { label: "Email", value: "sales@pride-forged.ru", href: "mailto:sales@pride-forged.ru" }
+  { label: "Email", value: "prideforged@yandex.ru", href: "mailto:prideforged@yandex.ru" }
 ];
 
 export default function ContactPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formStartedAtRef = useRef(createLeadFormStartedAt());
   const [files, setFiles] = useState<File[]>([]);
   const [fileError, setFileError] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [preferredContactMethod, setPreferredContactMethod] = useState<PreferredContactMethod>("call");
   const [consentTouched, setConsentTouched] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitErrorMessage, setSubmitErrorMessage] = useState(ERROR_MESSAGE);
   const {
     register,
     handleSubmit,
@@ -77,6 +81,7 @@ export default function ContactPage() {
 
   async function onSubmit(values: ContactForm) {
     setSubmitStatus("idle");
+    setSubmitErrorMessage(ERROR_MESSAGE);
     if (!consent) {
       setConsentTouched(true);
       return;
@@ -89,7 +94,7 @@ export default function ContactPage() {
     formData.append("phone", values.phone.trim());
     formData.append("car", values.car?.trim() ?? "");
     formData.append("comment", values.comment?.trim() ?? "");
-    formData.append("source", isCalculatorRequest ? "calculator" : window.location.pathname || "contacts-page");
+    formData.append("source", isCalculatorRequest ? "calculator_request" : "contacts_form");
     formData.append("personal_data_consent", "true");
     formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
@@ -112,6 +117,7 @@ export default function ContactPage() {
       });
     }
     files.forEach((file) => formData.append("photos", file));
+    appendLeadSecurityFields(formData, formStartedAtRef.current);
 
     try {
       await submitContact(formData);
@@ -120,8 +126,10 @@ export default function ContactPage() {
       setConsent(false);
       setPreferredContactMethod("call");
       setConsentTouched(false);
+      formStartedAtRef.current = createLeadFormStartedAt();
       setSubmitStatus("success");
-    } catch {
+    } catch (error) {
+      setSubmitErrorMessage(error instanceof ApiRequestError ? error.message : ERROR_MESSAGE);
       setSubmitStatus("error");
     }
   }
@@ -167,6 +175,7 @@ export default function ContactPage() {
 
         <div className="contacts-form-panel">
           <form onSubmit={handleSubmit(onSubmit)} className="contacts-form">
+            <LeadHoneypotFields formStartedAt={formStartedAtRef.current} />
             <input
               {...register("name", {
                 required: "Укажите ваше имя",
@@ -223,7 +232,7 @@ export default function ContactPage() {
             </div>
 
             {submitStatus === "success" && <p className="contacts-form-status contacts-form-success" role="status">{SUCCESS_MESSAGE}</p>}
-            {submitStatus === "error" && <p className="contacts-form-status contacts-form-error" role="alert">{ERROR_MESSAGE}</p>}
+            {submitStatus === "error" && <p className="contacts-form-status contacts-form-error" role="alert">{submitErrorMessage}</p>}
 
             <div className="contact-consent-group">
               <label className="contact-consent">

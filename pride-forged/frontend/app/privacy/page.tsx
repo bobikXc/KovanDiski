@@ -84,7 +84,7 @@ export default function PrivacyPage() {
               <p>По вопросам обработки данных можно связаться с PRIDE Forged:</p>
               <div className="privacy-contact-links">
                 <a href="tel:+79932891033">+7 993 289-10-33</a>
-                <a href="mailto:sales@pride-forged.ru">sales@pride-forged.ru</a>
+                <a href="mailto:prideforged@yandex.ru">prideforged@yandex.ru</a>
               </div>
             </div>
           </section>

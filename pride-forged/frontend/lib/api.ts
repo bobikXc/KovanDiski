@@ -73,7 +73,7 @@ function toApiError(error: unknown, resource: string): ApiRequestError {
   if (error instanceof AxiosError) {
     const status = error.response?.status;
     const detail = typeof error.response?.data?.detail === "string" ? error.response.data.detail : undefined;
-    const message = status === 429 ? "Сервис временно перегружен. Попробуйте позже." : detail ?? `Не удалось загрузить ${resource}`;
+    const message = status === 429 ? detail ?? "Слишком много заявок. Попробуйте позже." : detail ?? `Не удалось загрузить ${resource}`;
 
     const log = status === 429 ? console.warn : console.error;
     log("API request failed", {
@@ -88,6 +88,13 @@ function toApiError(error: unknown, resource: string): ApiRequestError {
   }
 
   return new ApiRequestError(`Не удалось загрузить ${resource}`);
+}
+
+async function toSubmitError(response: Response, resource: string): Promise<ApiRequestError> {
+  const payload = await response.json().catch(() => null);
+  const detail = typeof payload?.detail === "string" ? payload.detail : undefined;
+  const message = response.status === 429 ? detail ?? "Слишком много заявок. Попробуйте позже." : detail ?? `Не удалось загрузить ${resource}`;
+  return new ApiRequestError(message, response.status);
 }
 
 async function request<T>(path: string, resource: string, params?: Record<string, string | undefined>): Promise<T> {
@@ -136,10 +143,13 @@ export function getFitments(filters: { brandSlug?: string; modelSlug?: string; w
 }
 
 export async function submitLead(formData: FormData): Promise<void> {
-  try {
-    await api.post("/leads", formData, { timeout: 60000 });
-  } catch (error) {
-    throw toApiError(error, "заявку");
+  const response = await fetch("/api/leads", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw await toSubmitError(response, "заявку");
   }
 }
 

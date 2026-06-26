@@ -7,7 +7,8 @@ import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { ContactMethodPicker, type PreferredContactMethod } from "@/components/contact-method-picker";
-import { submitContact } from "@/lib/api";
+import { ApiRequestError, submitContact } from "@/lib/api";
+import { appendLeadSecurityFields, createLeadFormStartedAt, LeadHoneypotFields } from "@/lib/lead-security";
 
 type CallbackModalProps = {
   isOpen: boolean;
@@ -17,14 +18,17 @@ type CallbackModalProps = {
 
 const fieldClassName =
   "h-[52px] w-full rounded-2xl border border-[var(--border)] bg-[var(--surface-2)] px-4 text-base text-primary outline-none transition placeholder:text-graphite/65 focus:border-accent focus:ring-4 focus:ring-accent/10";
+const SUBMIT_ERROR = "Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.";
 
 export function CallbackModal({ isOpen, onClose, source = "header-callback" }: CallbackModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const formStartedAtRef = useRef(createLeadFormStartedAt());
   const [isMounted, setIsMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [submitErrorMessage, setSubmitErrorMessage] = useState(SUBMIT_ERROR);
   const [validationError, setValidationError] = useState("");
   const [preferredContactMethod, setPreferredContactMethod] = useState<PreferredContactMethod>("call");
 
@@ -35,6 +39,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
   useEffect(() => {
     if (!isOpen) return;
 
+    formStartedAtRef.current = createLeadFormStartedAt();
     restoreFocusRef.current = document.activeElement as HTMLElement | null;
     document.body.style.overflow = "hidden";
     const focusTimer = window.setTimeout(() => nameInputRef.current?.focus(), 80);
@@ -87,6 +92,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
 
     setStatus("idle");
     setValidationError("");
+    setSubmitErrorMessage(SUBMIT_ERROR);
 
     if (!name || !phone) {
       setValidationError("Заполните имя и телефон.");
@@ -98,7 +104,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
     }
 
     const formData = new FormData();
-    formData.append("source", source);
+    formData.append("source", "call_request");
     formData.append("request_type", "callback");
     formData.append("name", name);
     formData.append("phone", phone);
@@ -108,14 +114,17 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
     formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
     formData.append("preferred_contact", preferredContactMethod);
+    appendLeadSecurityFields(formData, formStartedAtRef.current);
 
     setIsSubmitting(true);
     try {
       await submitContact(formData);
       form.reset();
       setPreferredContactMethod("call");
+      formStartedAtRef.current = createLeadFormStartedAt();
       setStatus("success");
-    } catch {
+    } catch (error) {
+      setSubmitErrorMessage(error instanceof ApiRequestError ? error.message : SUBMIT_ERROR);
       setStatus("error");
     } finally {
       setIsSubmitting(false);
@@ -172,6 +181,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
             </div>
 
             <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
+              <LeadHoneypotFields formStartedAt={formStartedAtRef.current} />
               <div>
                 <label htmlFor="callback-name" className="mb-1.5 block text-sm font-semibold">Имя</label>
                 <input ref={nameInputRef} id="callback-name" name="name" required maxLength={60} placeholder="Ваше имя" autoComplete="name" className={fieldClassName} />
@@ -203,7 +213,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
 
               {validationError ? <p role="alert" className="text-sm font-semibold text-red-500">{validationError}</p> : null}
               {status === "success" ? <p role="status" className="text-sm font-semibold text-primary">Заявка отправлена. Мы свяжемся с вами в ближайшее время.</p> : null}
-              {status === "error" ? <p role="alert" className="text-sm font-semibold text-red-500">Не удалось отправить заявку. Попробуйте ещё раз или свяжитесь с нами по телефону.</p> : null}
+              {status === "error" ? <p role="alert" className="text-sm font-semibold text-red-500">{submitErrorMessage}</p> : null}
 
               <Button type="submit" disabled={isSubmitting} className="w-full">
                 {isSubmitting ? "Отправляем..." : "Заказать звонок"}

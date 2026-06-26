@@ -1,3 +1,5 @@
+import time
+from collections import defaultdict, deque
 from typing import Annotated
 
 from fastapi import (
@@ -7,10 +9,12 @@ from fastapi import (
     Form,
     HTTPException,
     Query,
+    Request,
     Response,
     UploadFile,
     status,
 )
+from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
@@ -18,10 +22,9 @@ from app.db.session import get_db
 from app.models import Brand, Fitment, VehicleModel, Wheel
 from app.schemas import BrandDetail, BrandRead, FitmentRead, VehicleModelRead, WheelRead
 from app.services.telegram import (
-    TelegramDeliveryError,
     TelegramFile,
-    TelegramNotConfiguredError,
     format_contact_messages,
+    format_lead_message,
     send_contact_to_telegram,
 )
 
@@ -29,6 +32,11 @@ router = APIRouter(prefix="/api")
 
 MAX_CONTACT_FILES = 5
 MAX_CONTACT_FILE_SIZE = 10 * 1024 * 1024
+MIN_FORM_FILL_SECONDS = 2
+RATE_LIMIT_SHORT_WINDOW_SECONDS = 10 * 60
+RATE_LIMIT_SHORT_MAX_REQUESTS = 3
+RATE_LIMIT_DAY_WINDOW_SECONDS = 24 * 60 * 60
+RATE_LIMIT_DAY_MAX_REQUESTS = 10
 ALLOWED_CONTACT_FILE_TYPES = {
     "image/jpeg": {".jpg", ".jpeg"},
     "image/png": {".png"},
@@ -47,6 +55,18 @@ CONTACT_METHOD_ALIASES = {
     "max": "max",
 }
 PUBLIC_READ_CACHE_CONTROL = "public, max-age=60, stale-while-revalidate=300"
+_lead_rate_limit_events: dict[str, deque[float]] = defaultdict(deque)
+
+
+class LeadCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    phone: str = Field(min_length=5, max_length=30)
+    car: str | None = Field(default=None, max_length=150)
+    message: str | None = Field(default=None, max_length=2000)
+    source: str | None = Field(default="site", max_length=300)
+    website: str | None = Field(default=None, max_length=300)
+    company_url: str | None = Field(default=None, max_length=300)
+    form_started_at: str | None = Field(default=None, max_length=40)
 
 
 def _required_form_value(value: str, field_name: str) -> str:
@@ -108,11 +128,84 @@ def _normalize_contact_method(value: str | None) -> str:
     return CONTACT_METHOD_ALIASES.get(normalized, "call")
 
 
+def _client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        first_ip = forwarded_for.split(",", 1)[0].strip()
+        if first_ip:
+            return first_ip
+
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip()
+
+    return request.client.host if request.client else "unknown"
+
+
+def _is_honeypot_filled(*values: str | None) -> bool:
+    return any((value or "").strip() for value in values)
+
+
+def _is_too_fast_submission(form_started_at: str | None) -> bool:
+    if not form_started_at:
+        return False
+
+    try:
+        started_at = float(form_started_at)
+    except ValueError:
+        return False
+
+    if started_at > 1_000_000_000_000:
+        started_at = started_at / 1000
+
+    now = time.time()
+    if started_at > now + 5:
+        return True
+
+    return now - started_at < MIN_FORM_FILL_SECONDS
+
+
+def _check_lead_rate_limit(client_ip: str) -> None:
+    now = time.time()
+    events = _lead_rate_limit_events[client_ip]
+
+    while events and events[0] <= now - RATE_LIMIT_DAY_WINDOW_SECONDS:
+        events.popleft()
+
+    short_count = sum(1 for timestamp in events if timestamp > now - RATE_LIMIT_SHORT_WINDOW_SECONDS)
+    if short_count >= RATE_LIMIT_SHORT_MAX_REQUESTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Слишком много заявок. Попробуйте позже.",
+            headers={
+                "Retry-After": str(RATE_LIMIT_SHORT_WINDOW_SECONDS),
+                "X-RateLimit-Reason": "lead-short-window",
+                "X-RateLimit-Limit": str(RATE_LIMIT_SHORT_MAX_REQUESTS),
+                "X-RateLimit-Remaining": "0",
+            },
+        )
+
+    if len(events) >= RATE_LIMIT_DAY_MAX_REQUESTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Слишком много заявок. Попробуйте позже.",
+            headers={
+                "Retry-After": str(RATE_LIMIT_DAY_WINDOW_SECONDS),
+                "X-RateLimit-Reason": "lead-day-window",
+                "X-RateLimit-Limit": str(RATE_LIMIT_DAY_MAX_REQUESTS),
+                "X-RateLimit-Remaining": "0",
+            },
+        )
+
+    events.append(now)
+
+
 @router.post("/leads", status_code=status.HTTP_201_CREATED, tags=["leads"])
 @router.post("/contact", status_code=status.HTTP_201_CREATED, tags=["contact"])
 async def submit_lead(
-    name: Annotated[str, Form(max_length=100)],
-    phone: Annotated[str, Form(max_length=50)],
+    request: Request,
+    name: Annotated[str | None, Form(max_length=100)] = None,
+    phone: Annotated[str | None, Form(max_length=50)] = None,
     car: Annotated[str | None, Form(max_length=150)] = None,
     comment: Annotated[str | None, Form(max_length=2000)] = None,
     source: Annotated[str | None, Form(max_length=300)] = None,
@@ -136,10 +229,52 @@ async def submit_lead(
     fitment_year_generation: Annotated[str | None, Form(max_length=40)] = None,
     fitment_current_wheels: Annotated[str | None, Form(max_length=80)] = None,
     fitment_wishes: Annotated[str | None, Form(max_length=160)] = None,
+    website: Annotated[str | None, Form(max_length=300)] = None,
+    company_url: Annotated[str | None, Form(max_length=300)] = None,
+    form_started_at: Annotated[str | None, Form(max_length=40)] = None,
     files: Annotated[list[UploadFile] | None, File()] = None,
     photos: Annotated[list[UploadFile] | None, File()] = None,
     attachments: Annotated[list[UploadFile] | None, File()] = None,
-) -> dict[str, str]:
+) -> dict[str, bool | str]:
+    content_type = request.headers.get("content-type", "")
+    if "application/json" in content_type:
+        try:
+            json_body = await request.json()
+            payload = LeadCreate.model_validate(json_body)
+        except ValidationError as exc:
+            raise HTTPException(status_code=422, detail=exc.errors()) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="Некорректный JSON") from exc
+
+        if _is_honeypot_filled(payload.website, payload.company_url):
+            return {"ok": True, "message": "Заявка отправлена"}
+
+        if _is_too_fast_submission(payload.form_started_at):
+            return {"ok": True, "message": "Заявка отправлена"}
+
+        _check_lead_rate_limit(_client_ip(request))
+        await send_contact_to_telegram(
+            [
+                format_lead_message(
+                    name=payload.name.strip(),
+                    phone=payload.phone.strip(),
+                    car=payload.car,
+                    message=payload.message,
+                    source=payload.source,
+                )
+            ],
+            [],
+        )
+        return {"ok": True, "message": "Заявка отправлена"}
+
+    if _is_honeypot_filled(website, company_url):
+        return {"ok": True, "message": "Заявка отправлена"}
+
+    if _is_too_fast_submission(form_started_at):
+        return {"ok": True, "message": "Заявка отправлена"}
+
+    _check_lead_rate_limit(_client_ip(request))
+
     has_policy_consent = personal_data_consent is True or policy_accepted is True
     if not has_policy_consent:
         raise HTTPException(
@@ -147,8 +282,8 @@ async def submit_lead(
             detail="Необходимо согласие на обработку персональных данных.",
         )
 
-    normalized_name = _required_form_value(name, "Имя")
-    normalized_phone = _required_form_value(phone, "Телефон")
+    normalized_name = _required_form_value(name or "", "Имя")
+    normalized_phone = _required_form_value(phone or "", "Телефон")
     normalized_contact_method = _normalize_contact_method(
         preferred_contact_method or preferred_contact
     )
@@ -182,19 +317,9 @@ async def submit_lead(
         fitment_wishes=fitment_wishes,
     )
 
-    try:
-        await send_contact_to_telegram(messages, validated_files)
-    except TelegramNotConfiguredError as exc:
-        raise HTTPException(
-            status_code=503,
-            detail="Отправка заявок временно не настроена",
-        ) from exc
-    except TelegramDeliveryError as exc:
-        raise HTTPException(
-            status_code=502, detail="Не удалось передать заявку в Telegram"
-        ) from exc
+    await send_contact_to_telegram(messages, validated_files)
 
-    return {"message": "Заявка отправлена"}
+    return {"ok": True, "message": "Заявка отправлена"}
 
 
 @router.get("/brands", response_model=list[BrandRead], tags=["brands"])

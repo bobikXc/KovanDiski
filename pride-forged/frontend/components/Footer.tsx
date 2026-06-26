@@ -12,6 +12,7 @@ const footerLinks = [
 
 const socialLinks = [
   ["Telegram", "https://t.me/pride_forged"],
+  ["WhatsApp", "https://wa.me/message/3JNO6WG3RTMTM1"],
   ["MAX", "https://max.ru/u/f9LHodD0cOKgLFob6TakxBenvXyB_sdHBNXxxh-OqKuv1dEmcqPP5ldf1VQ"]
 ];
 
@@ -36,7 +37,7 @@ export function Footer() {
           <p className="font-semibold text-primary">PRIDE contacts</p>
           <p className="mt-2">Россия, Москва, Рябиновая улица, 55с8</p>
           <a href="tel:+79932891033" className="block transition hover:text-accent">+7 993 289-10-33</a>
-          <p>sales@pride-forged.ru</p>
+          <a href="mailto:prideforged@yandex.ru" className="block transition hover:text-accent">prideforged@yandex.ru</a>
           <div className="mt-3 flex flex-wrap gap-2">
             {socialLinks.map(([label, href]) => (
               <a

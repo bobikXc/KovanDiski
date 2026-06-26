@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { ContactMethodPicker, type PreferredContactMethod } from "@/components/contact-method-picker";
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { cn } from "@/lib/utils";
-import { submitContact } from "@/lib/api";
+import { ApiRequestError, submitContact } from "@/lib/api";
+import { appendLeadSecurityFields, createLeadFormStartedAt, LeadHoneypotFields } from "@/lib/lead-security";
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -81,6 +82,7 @@ function ManualField({
 
 export function FitmentConfigurator() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const formStartedAtRef = useRef(createLeadFormStartedAt());
   const [vehicle, setVehicle] = useState("");
   const [yearGeneration, setYearGeneration] = useState("");
   const [currentWheelSpecs, setCurrentWheelSpecs] = useState("");
@@ -95,6 +97,7 @@ export function FitmentConfigurator() {
   const [requestConsentTouched, setRequestConsentTouched] = useState(false);
   const [fileError, setFileError] = useState("");
   const [submitStatus, setSubmitStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [submitErrorMessage, setSubmitErrorMessage] = useState(SUBMIT_ERROR);
   const normalizedVehicle = vehicle.trim();
   const normalizedYearGeneration = yearGeneration.trim();
   const normalizedWheelSpecs = currentWheelSpecs.trim();
@@ -146,6 +149,7 @@ export function FitmentConfigurator() {
   async function handleRequestSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSubmitStatus("idle");
+    setSubmitErrorMessage(SUBMIT_ERROR);
 
     const name = requestName.trim();
     const phone = requestPhone.trim();
@@ -155,7 +159,7 @@ export function FitmentConfigurator() {
     }
 
     const formData = new FormData();
-    formData.append("source", "home-fitment-form");
+    formData.append("source", "home_fitment_form");
     formData.append("fitment_car", normalizedVehicle);
     formData.append("fitment_year_generation", normalizedYearGeneration);
     formData.append("fitment_current_wheels", normalizedWheelSpecs);
@@ -168,6 +172,7 @@ export function FitmentConfigurator() {
     formData.append("preferred_contact_method", preferredContactMethod);
     formData.append("preferred_contact", preferredContactMethod);
     requestFiles.forEach((file) => formData.append("photos", file));
+    appendLeadSecurityFields(formData, formStartedAtRef.current);
 
     setSubmitStatus("submitting");
     try {
@@ -178,9 +183,11 @@ export function FitmentConfigurator() {
       setRequestConsent(false);
       setPreferredContactMethod("call");
       setRequestConsentTouched(false);
+      formStartedAtRef.current = createLeadFormStartedAt();
       clearRequestFiles();
       setSubmitStatus("success");
-    } catch {
+    } catch (error) {
+      setSubmitErrorMessage(error instanceof ApiRequestError ? error.message : SUBMIT_ERROR);
       setSubmitStatus("error");
     }
   }
@@ -310,6 +317,7 @@ export function FitmentConfigurator() {
                         </div>
 
                         <form className="fitment-request-form grid gap-4" onSubmit={handleRequestSubmit}>
+                          <LeadHoneypotFields formStartedAt={formStartedAtRef.current} />
                           <div className="grid gap-3 sm:grid-cols-2">
                             <input
                               name="name"
@@ -393,7 +401,7 @@ export function FitmentConfigurator() {
                           </div>
 
                           {submitStatus === "success" ? <p className="text-sm font-semibold text-emerald-400" role="status">Заявка отправлена. Мы свяжемся с вами в ближайшее время.</p> : null}
-                          {submitStatus === "error" ? <p className="text-sm font-semibold text-red-400" role="alert">{SUBMIT_ERROR}</p> : null}
+                          {submitStatus === "error" ? <p className="text-sm font-semibold text-red-400" role="alert">{submitErrorMessage}</p> : null}
 
                           <Button type="submit" size="lg" className="w-full" disabled={submitStatus === "submitting" || Boolean(fileError)}>
                             {submitStatus === "submitting" ? "Отправляем..." : "Отправить заявку"}
