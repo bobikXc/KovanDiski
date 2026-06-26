@@ -116,7 +116,15 @@ export default function ContactPage() {
         if (value) formData.append(field, value);
       });
     }
-    files.forEach((file) => formData.append("photos", file));
+    files.forEach((file) => {
+      formData.append("photos", file);
+      console.debug("Lead photo added to FormData", {
+        field: "photos",
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+    });
     appendLeadSecurityFields(formData, formStartedAtRef.current);
 
     try {

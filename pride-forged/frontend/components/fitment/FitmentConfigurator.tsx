@@ -171,7 +171,15 @@ export function FitmentConfigurator() {
     formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
     formData.append("preferred_contact", preferredContactMethod);
-    requestFiles.forEach((file) => formData.append("photos", file));
+    requestFiles.forEach((file) => {
+      formData.append("photos", file);
+      console.debug("Lead photo added to FormData", {
+        field: "photos",
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      });
+    });
     appendLeadSecurityFields(formData, formStartedAtRef.current);
 
     setSubmitStatus("submitting");

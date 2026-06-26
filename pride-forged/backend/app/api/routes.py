@@ -1,3 +1,4 @@
+import logging
 import time
 from collections import defaultdict, deque
 from typing import Annotated
@@ -30,6 +31,7 @@ from app.services.telegram import (
 )
 
 router = APIRouter(prefix="/api")
+logger = logging.getLogger(__name__)
 
 MAX_CONTACT_FILES = 5
 MAX_CONTACT_FILE_SIZE = 10 * 1024 * 1024
@@ -93,8 +95,12 @@ async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]
         )
 
     validated: list[TelegramFile] = []
+    if not files:
+        logger.info("photo missing")
+
     for upload in files:
         filename = upload.filename or "photo"
+        logger.info("photo received: %s, %s", filename, upload.content_type or "unknown")
         suffix = f".{filename.rsplit('.', 1)[-1].lower()}" if "." in filename else ""
         allowed_suffixes = ALLOWED_CONTACT_FILE_TYPES.get(upload.content_type or "")
         if not allowed_suffixes or suffix not in allowed_suffixes:
@@ -117,6 +123,7 @@ async def _validate_contact_files(files: list[UploadFile]) -> list[TelegramFile]
         if not content:
             raise HTTPException(status_code=422, detail=f"Файл «{filename}» пуст")
 
+        await upload.seek(0)
         validated.append(
             TelegramFile(filename=filename, content_type=upload.content_type or "", content=content)
         )
@@ -234,6 +241,7 @@ async def submit_lead(
     website: Annotated[str | None, Form(max_length=300)] = None,
     company_url: Annotated[str | None, Form(max_length=300)] = None,
     form_started_at: Annotated[str | None, Form(max_length=40)] = None,
+    photo: Annotated[UploadFile | None, File()] = None,
     files: Annotated[list[UploadFile] | None, File()] = None,
     photos: Annotated[list[UploadFile] | None, File()] = None,
     attachments: Annotated[list[UploadFile] | None, File()] = None,
@@ -291,6 +299,7 @@ async def submit_lead(
         preferred_contact_method or preferred_contact
     )
     validated_files = await _validate_contact_files([
+        *([photo] if photo else []),
         *(files or []),
         *(photos or []),
         *(attachments or []),

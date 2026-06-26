@@ -274,12 +274,27 @@ async def _telegram_request(
         response = await client.post(
             f"https://api.telegram.org/bot{token}/{method}", data=data, files=files
         )
+        logger.info(
+            "Telegram %s response: status=%s body=%s",
+            method,
+            response.status_code,
+            response.text[:1000],
+        )
         payload = response.json()
     except (httpx.HTTPError, ValueError) as exc:
         raise TelegramDeliveryError from exc
 
     if response.is_error or not payload.get("ok"):
+        if method == "sendPhoto":
+            logger.warning(
+                "Telegram photo failed: status=%s, body=%s",
+                response.status_code,
+                response.text[:1000],
+            )
         raise TelegramDeliveryError
+
+    if method in {"sendPhoto", "sendMediaGroup"}:
+        logger.info("Telegram photo sent")
 
 
 async def _telegram_request_with_retry(
@@ -315,39 +330,52 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
     timeout = httpx.Timeout(30.0)
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
-            for message in messages:
-                await _telegram_request_with_retry(
-                    client,
-                    "sendMessage",
-                    data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
-                )
-
-            if len(files) == 1:
+            if files:
                 upload = files[0]
                 await _telegram_request_with_retry(
                     client,
                     "sendPhoto",
-                    data={"chat_id": chat_id, "caption": "Фото к заявке PRIDE Forged"},
+                    data={
+                        "chat_id": chat_id,
+                        "caption": messages[0],
+                        "parse_mode": "HTML",
+                    },
                     files={"photo": (upload.filename, upload.content, upload.content_type)},
                 )
-            elif len(files) > 1:
-                media = [
-                    {
-                        "type": "photo",
-                        "media": f"attach://photo{index}",
-                        **({"caption": "Фото к заявке PRIDE Forged"} if index == 0 else {}),
-                    }
-                    for index, _ in enumerate(files)
-                ]
-                await _telegram_request_with_retry(
-                    client,
-                    "sendMediaGroup",
-                    data={"chat_id": chat_id, "media": json.dumps(media, ensure_ascii=False)},
-                    files={
-                        f"photo{index}": (upload.filename, upload.content, upload.content_type)
-                        for index, upload in enumerate(files)
-                    },
-                )
+
+                for message in messages[1:]:
+                    await _telegram_request_with_retry(
+                        client,
+                        "sendMessage",
+                        data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
+                    )
+
+                remaining_files = files[1:]
+                if remaining_files:
+                    media = [
+                        {
+                            "type": "photo",
+                            "media": f"attach://photo{index}",
+                            **({"caption": "Дополнительные фото к заявке PRIDE Forged"} if index == 0 else {}),
+                        }
+                        for index, _ in enumerate(remaining_files)
+                    ]
+                    await _telegram_request_with_retry(
+                        client,
+                        "sendMediaGroup",
+                        data={"chat_id": chat_id, "media": json.dumps(media, ensure_ascii=False)},
+                        files={
+                            f"photo{index}": (upload.filename, upload.content, upload.content_type)
+                            for index, upload in enumerate(remaining_files)
+                        },
+                    )
+            else:
+                for message in messages:
+                    await _telegram_request_with_retry(
+                        client,
+                        "sendMessage",
+                        data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
+                    )
     except (TelegramDeliveryError, TelegramNotConfiguredError):
         return
     except Exception:
