@@ -4,6 +4,7 @@ from typing import Annotated
 
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
     File,
     Form,
@@ -204,6 +205,7 @@ def _check_lead_rate_limit(client_ip: str) -> None:
 @router.post("/contact", status_code=status.HTTP_201_CREATED, tags=["contact"])
 async def submit_lead(
     request: Request,
+    background_tasks: BackgroundTasks,
     name: Annotated[str | None, Form(max_length=100)] = None,
     phone: Annotated[str | None, Form(max_length=50)] = None,
     car: Annotated[str | None, Form(max_length=150)] = None,
@@ -253,7 +255,8 @@ async def submit_lead(
             return {"ok": True, "message": "Заявка отправлена"}
 
         _check_lead_rate_limit(_client_ip(request))
-        await send_contact_to_telegram(
+        background_tasks.add_task(
+            send_contact_to_telegram,
             [
                 format_lead_message(
                     name=payload.name.strip(),
@@ -317,7 +320,7 @@ async def submit_lead(
         fitment_wishes=fitment_wishes,
     )
 
-    await send_contact_to_telegram(messages, validated_files)
+    background_tasks.add_task(send_contact_to_telegram, messages, validated_files)
 
     return {"ok": True, "message": "Заявка отправлена"}
 

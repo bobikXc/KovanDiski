@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -29,6 +30,8 @@ class TelegramFile:
 
 TELEGRAM_MESSAGE_LIMIT = 3900
 TELEGRAM_PLACEHOLDER_VALUES = {"put_token_here", "put_chat_id_here"}
+TELEGRAM_REQUEST_ATTEMPTS = 3
+TELEGRAM_RETRY_DELAY_SECONDS = 2
 CONTACT_METHOD_LABELS = {
     "call": "Звонок",
     "telegram": "Telegram",
@@ -273,12 +276,33 @@ async def _telegram_request(
         )
         payload = response.json()
     except (httpx.HTTPError, ValueError) as exc:
-        logger.warning("Telegram notification failed (%s)", type(exc).__name__)
         raise TelegramDeliveryError from exc
 
     if response.is_error or not payload.get("ok"):
-        logger.warning("Telegram notification failed: %s rejected with status %s", method, response.status_code)
         raise TelegramDeliveryError
+
+
+async def _telegram_request_with_retry(
+    client: httpx.AsyncClient,
+    method: str,
+    *,
+    data: dict[str, str],
+    files: dict[str, tuple[str, bytes, str]] | None = None,
+) -> None:
+    last_error: Exception | None = None
+
+    for attempt in range(1, TELEGRAM_REQUEST_ATTEMPTS + 1):
+        logger.info("Telegram notification attempt %s/%s", attempt, TELEGRAM_REQUEST_ATTEMPTS)
+        try:
+            await _telegram_request(client, method, data=data, files=files)
+            return
+        except TelegramDeliveryError as exc:
+            last_error = exc
+            if attempt < TELEGRAM_REQUEST_ATTEMPTS:
+                await asyncio.sleep(TELEGRAM_RETRY_DELAY_SECONDS)
+
+    logger.warning("Telegram notification failed after retries")
+    raise TelegramDeliveryError from last_error
 
 
 async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> None:
@@ -288,11 +312,11 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
         logger.warning("Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured")
         return
 
-    timeout = httpx.Timeout(10.0)
+    timeout = httpx.Timeout(30.0)
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             for message in messages:
-                await _telegram_request(
+                await _telegram_request_with_retry(
                     client,
                     "sendMessage",
                     data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
@@ -300,7 +324,7 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
 
             if len(files) == 1:
                 upload = files[0]
-                await _telegram_request(
+                await _telegram_request_with_retry(
                     client,
                     "sendPhoto",
                     data={"chat_id": chat_id, "caption": "Фото к заявке PRIDE Forged"},
@@ -315,7 +339,7 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
                     }
                     for index, _ in enumerate(files)
                 ]
-                await _telegram_request(
+                await _telegram_request_with_retry(
                     client,
                     "sendMediaGroup",
                     data={"chat_id": chat_id, "media": json.dumps(media, ensure_ascii=False)},
@@ -325,7 +349,9 @@ async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile
                     },
                 )
     except (TelegramDeliveryError, TelegramNotConfiguredError):
-        logger.warning("Telegram notification failed")
+        return
+    except Exception:
+        logger.exception("Telegram notification failed after retries")
         return
 
     logger.info("Telegram notification sent")
