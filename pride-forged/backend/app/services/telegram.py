@@ -399,6 +399,7 @@ def _send_telegram_file_once(
             tmp_path = tmp_file.name
             tmp_file.write(file_bytes)
             tmp_file.flush()
+            os.fsync(tmp_file.fileno())
         finally:
             tmp_file.close()
 
@@ -434,7 +435,7 @@ def _send_telegram_file_once(
                 "-F",
                 "parse_mode=HTML",
                 "-F",
-                f"{field_name}=@{tmp_path};filename={filename};type={content_type}",
+                f"{field_name}=@{tmp_path}",
             ],
             timeout=130,
         )
