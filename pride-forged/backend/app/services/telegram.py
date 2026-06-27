@@ -380,16 +380,23 @@ def _send_text_messages(messages: list[str]) -> None:
 
 
 def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> None:
-    token = settings.telegram_bot_token
-    chat_id = settings.telegram_chat_id
-    if not _is_config_value_present(token) or not _is_config_value_present(chat_id):
-        logger.warning(
-            "Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID "
-            "is not configured"
-        )
-        return
+    print(
+        "telegram background task started",
+        len(messages),
+        len(files),
+        flush=True,
+    )
 
     try:
+        token = settings.telegram_bot_token
+        chat_id = settings.telegram_chat_id
+        if not _is_config_value_present(token) or not _is_config_value_present(chat_id):
+            logger.warning(
+                "Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID "
+                "is not configured"
+            )
+            return
+
         if files:
             upload = files[0]
             try:
@@ -399,7 +406,8 @@ def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> 
                     upload.content_type,
                     upload.content,
                 )
-            except TelegramDeliveryError:
+            except TelegramDeliveryError as exc:
+                print("telegram task error:", repr(exc), flush=True)
                 send_telegram_message_sync(
                     "Заявка получена, "
                     "но фото не удалось отправить."
@@ -410,9 +418,8 @@ def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> 
             return
 
         _send_text_messages(messages)
-    except (TelegramDeliveryError, TelegramNotConfiguredError):
-        return
     except Exception as exc:
+        print("telegram task error:", repr(exc), flush=True)
         logger.warning("Telegram notification failed: %s", exc.__class__.__name__)
         return
 

@@ -336,7 +336,14 @@ async def submit_lead(
         fitment_wishes=fitment_wishes,
     )
 
+    print(
+        "adding telegram background task",
+        len(messages),
+        len(validated_files),
+        flush=True,
+    )
     background_tasks.add_task(send_contact_to_telegram, messages, validated_files)
+    print("telegram background task added", flush=True)
 
     return {"ok": True, "message": "Заявка отправлена"}
 
