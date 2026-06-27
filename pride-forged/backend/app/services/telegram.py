@@ -384,19 +384,40 @@ def _send_telegram_file_once(
     field_name: str,
     caption: str,
     filename: str,
+    content_type: str,
     file_bytes: bytes,
 ) -> None:
     token, chat_id = _telegram_config()
     tmp_path = ""
     try:
-        with tempfile.NamedTemporaryFile(
+        tmp_file = tempfile.NamedTemporaryFile(
             delete=False,
             dir="/tmp",
-            prefix="telegram-",
             suffix=_safe_tmp_suffix(filename),
-        ) as tmp_file:
-            tmp_file.write(file_bytes)
+        )
+        try:
             tmp_path = tmp_file.name
+            tmp_file.write(file_bytes)
+            tmp_file.flush()
+        finally:
+            tmp_file.close()
+
+        if not os.path.exists(tmp_path) or os.path.getsize(tmp_path) <= 0:
+            logger.warning(
+                "telegram curl %s temp file invalid: path=%s size=%s",
+                method,
+                tmp_path,
+                os.path.getsize(tmp_path) if os.path.exists(tmp_path) else "missing",
+            )
+            raise TelegramDeliveryError
+
+        tmp_size = os.path.getsize(tmp_path)
+        logger.info(
+            "telegram curl %s temp file ready: path=%s size=%s",
+            method,
+            tmp_path,
+            tmp_size,
+        )
 
         _run_telegram_curl(
             method,
@@ -413,7 +434,7 @@ def _send_telegram_file_once(
                 "-F",
                 "parse_mode=HTML",
                 "-F",
-                f"{field_name}=@{tmp_path}",
+                f"{field_name}=@{tmp_path};filename={filename};type={content_type}",
             ],
             timeout=130,
         )
@@ -431,7 +452,14 @@ def _send_telegram_photo_once(
     content_type: str,
     file_bytes: bytes,
 ) -> None:
-    _send_telegram_file_once("sendPhoto", "photo", caption, filename, file_bytes)
+    _send_telegram_file_once(
+        "sendPhoto",
+        "photo",
+        caption,
+        filename,
+        content_type,
+        file_bytes,
+    )
 
     logger.info("telegram curl sendPhoto sent")
 
@@ -442,7 +470,14 @@ def _send_telegram_document_once(
     content_type: str,
     file_bytes: bytes,
 ) -> None:
-    _send_telegram_file_once("sendDocument", "document", caption, filename, file_bytes)
+    _send_telegram_file_once(
+        "sendDocument",
+        "document",
+        caption,
+        filename,
+        content_type,
+        file_bytes,
+    )
 
     logger.info("telegram curl sendDocument sent")
 
