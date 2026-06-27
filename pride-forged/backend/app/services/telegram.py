@@ -355,6 +355,7 @@ def _send_telegram_message_once(text: str) -> None:
         "sendMessage",
         [
             "curl",
+            "-4",
             "-sS",
             "-X",
             "POST",
@@ -424,6 +425,7 @@ def _send_telegram_file_once(
             method,
             [
                 "curl",
+                "-4",
                 "-sS",
                 "-X",
                 "POST",
