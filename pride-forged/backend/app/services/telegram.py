@@ -1,12 +1,12 @@
 import logging
-import asyncio
-import json
 from dataclasses import dataclass
 from datetime import datetime
 from html import escape
+from time import sleep
+from typing import Callable
 from zoneinfo import ZoneInfo
 
-import httpx
+import requests
 
 from app.core.config import settings
 
@@ -259,156 +259,161 @@ def format_contact_messages(
     return messages
 
 
-async def _telegram_request(
-    client: httpx.AsyncClient,
-    method: str,
-    *,
-    data: dict[str, str],
-    files: dict[str, tuple[str, bytes, str]] | None = None,
-) -> None:
-    token = settings.telegram_bot_token
-    if not _is_config_value_present(token):
-        raise TelegramNotConfiguredError
+def _telegram_error_name(exc: Exception) -> str:
+    cause = exc.__cause__
+    return cause.__class__.__name__ if cause else exc.__class__.__name__
 
+
+def _validate_telegram_response(response: requests.Response) -> None:
     try:
-        response = await client.post(
-            f"https://api.telegram.org/bot{token}/{method}", data=data, files=files
-        )
-        logger.info(
-            "Telegram %s response: status=%s body=%s",
-            method,
-            response.status_code,
-            response.text[:1000],
-        )
         payload = response.json()
-    except (httpx.HTTPError, ValueError) as exc:
+    except ValueError as exc:
         raise TelegramDeliveryError from exc
 
-    if response.is_error or not payload.get("ok"):
-        if method == "sendPhoto":
-            logger.warning(
-                "Telegram photo failed: status=%s, body=%s",
-                response.status_code,
-                response.text[:1000],
-            )
-        raise TelegramDeliveryError
+    if response.ok and payload.get("ok"):
+        return
 
-    if method == "sendPhoto":
-        logger.info("telegram sendPhoto sent")
-    elif method == "sendMessage":
-        logger.info("telegram sendMessage sent")
+    raise TelegramDeliveryError
 
 
-async def _telegram_request_with_retry(
-    client: httpx.AsyncClient,
-    method: str,
-    *,
-    data: dict[str, str],
-    files: dict[str, tuple[str, bytes, str]] | None = None,
-) -> None:
+def _telegram_request_with_retry(method: str, operation: Callable[[], None]) -> None:
     last_error: Exception | None = None
 
     for attempt in range(1, TELEGRAM_REQUEST_ATTEMPTS + 1):
         logger.info("telegram %s attempt %s/%s", method, attempt, TELEGRAM_REQUEST_ATTEMPTS)
         try:
-            await _telegram_request(client, method, data=data, files=files)
+            operation()
             return
         except TelegramDeliveryError as exc:
             last_error = exc
             logger.warning(
-                "telegram %s failed attempt %s/%s",
+                "telegram %s failed attempt %s/%s: %s",
                 method,
                 attempt,
                 TELEGRAM_REQUEST_ATTEMPTS,
-                exc_info=True,
+                _telegram_error_name(exc),
             )
             if attempt < TELEGRAM_REQUEST_ATTEMPTS:
-                await asyncio.sleep(TELEGRAM_RETRY_DELAYS_SECONDS[attempt - 1])
+                sleep(TELEGRAM_RETRY_DELAYS_SECONDS[attempt - 1])
 
     logger.warning("telegram %s failed after retries", method)
     raise TelegramDeliveryError from last_error
 
 
-async def _send_text_messages(
-    client: httpx.AsyncClient,
-    *,
-    chat_id: str,
-    messages: list[str],
-) -> None:
-    for message in messages:
-        await _telegram_request_with_retry(
-            client,
-            "sendMessage",
-            data={"chat_id": chat_id, "text": message, "parse_mode": "HTML"},
-        )
-
-
-async def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> None:
+def _telegram_config() -> tuple[str, str]:
     token = settings.telegram_bot_token
     chat_id = settings.telegram_chat_id
     if not _is_config_value_present(token) or not _is_config_value_present(chat_id):
-        logger.warning("Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID is not configured")
+        raise TelegramNotConfiguredError
+
+    return token or "", chat_id or ""
+
+
+def _send_telegram_message_once(text: str) -> None:
+    token, chat_id = _telegram_config()
+    try:
+        response = requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            data={
+                "chat_id": chat_id,
+                "text": text,
+                "parse_mode": "HTML",
+            },
+            timeout=(10, 60),
+        )
+        _validate_telegram_response(response)
+    except requests.RequestException as exc:
+        raise TelegramDeliveryError from exc
+
+    logger.info("telegram sendMessage sent")
+
+
+def _send_telegram_photo_once(
+    caption: str,
+    filename: str,
+    content_type: str,
+    file_bytes: bytes,
+) -> None:
+    token, chat_id = _telegram_config()
+    try:
+        response = requests.post(
+            f"https://api.telegram.org/bot{token}/sendPhoto",
+            data={
+                "chat_id": chat_id,
+                "caption": caption,
+                "parse_mode": "HTML",
+            },
+            files={
+                "photo": (filename, file_bytes, content_type),
+            },
+            timeout=(10, 120),
+        )
+        _validate_telegram_response(response)
+    except requests.RequestException as exc:
+        raise TelegramDeliveryError from exc
+
+    logger.info("telegram sendPhoto sent")
+
+
+def send_telegram_message_sync(text: str) -> None:
+    _telegram_request_with_retry(
+        "sendMessage",
+        lambda: _send_telegram_message_once(text),
+    )
+
+
+def send_telegram_photo_sync(
+    caption: str,
+    filename: str,
+    content_type: str,
+    file_bytes: bytes,
+) -> None:
+    _telegram_request_with_retry(
+        "sendPhoto",
+        lambda: _send_telegram_photo_once(caption, filename, content_type, file_bytes),
+    )
+
+
+def _send_text_messages(messages: list[str]) -> None:
+    for message in messages:
+        send_telegram_message_sync(message)
+
+
+def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> None:
+    token = settings.telegram_bot_token
+    chat_id = settings.telegram_chat_id
+    if not _is_config_value_present(token) or not _is_config_value_present(chat_id):
+        logger.warning(
+            "Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID "
+            "is not configured"
+        )
         return
 
-    timeout = httpx.Timeout(30.0)
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            if files:
-                upload = files[0]
-                try:
-                    await _telegram_request_with_retry(
-                        client,
-                        "sendPhoto",
-                        data={
-                            "chat_id": chat_id,
-                            "caption": messages[0],
-                            "parse_mode": "HTML",
-                        },
-                        files={"photo": (upload.filename, upload.content, upload.content_type)},
-                    )
-                except TelegramDeliveryError:
-                    logger.warning("telegram sendPhoto failed after retries")
-                    await _telegram_request_with_retry(
-                        client,
-                        "sendMessage",
-                        data={
-                            "chat_id": chat_id,
-                            "text": (
-                                "⚠️ <b>Фото не удалось отправить.</b>\n\n"
-                                f"{messages[0]}"
-                            ),
-                            "parse_mode": "HTML",
-                        },
-                    )
-                    logger.info("fallback sendMessage sent")
-                else:
-                    await _send_text_messages(client, chat_id=chat_id, messages=messages[1:])
-
-                remaining_files = files[1:]
-                if remaining_files:
-                    media = [
-                        {
-                            "type": "photo",
-                            "media": f"attach://photo{index}",
-                            **({"caption": "Дополнительные фото к заявке PRIDE Forged"} if index == 0 else {}),
-                        }
-                        for index, _ in enumerate(remaining_files)
-                    ]
-                    await _telegram_request_with_retry(
-                        client,
-                        "sendMediaGroup",
-                        data={"chat_id": chat_id, "media": json.dumps(media, ensure_ascii=False)},
-                        files={
-                            f"photo{index}": (upload.filename, upload.content, upload.content_type)
-                            for index, upload in enumerate(remaining_files)
-                        },
-                    )
+        if files:
+            upload = files[0]
+            try:
+                send_telegram_photo_sync(
+                    messages[0],
+                    upload.filename,
+                    upload.content_type,
+                    upload.content,
+                )
+            except TelegramDeliveryError:
+                send_telegram_message_sync(
+                    "Заявка получена, "
+                    "но фото не удалось отправить."
+                )
+                logger.info("telegram fallback sendMessage sent")
             else:
-                await _send_text_messages(client, chat_id=chat_id, messages=messages)
+                _send_text_messages(messages[1:])
+            return
+
+        _send_text_messages(messages)
     except (TelegramDeliveryError, TelegramNotConfiguredError):
         return
-    except Exception:
-        logger.exception("Telegram notification failed after retries")
+    except Exception as exc:
+        logger.warning("Telegram notification failed: %s", exc.__class__.__name__)
         return
 
     logger.info("Telegram notification sent")

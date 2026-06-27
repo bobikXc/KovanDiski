@@ -221,6 +221,7 @@ async def submit_lead(
     phone: Annotated[str | None, Form(max_length=50)] = None,
     car: Annotated[str | None, Form(max_length=150)] = None,
     comment: Annotated[str | None, Form(max_length=2000)] = None,
+    message: Annotated[str | None, Form(max_length=2000)] = None,
     source: Annotated[str | None, Form(max_length=300)] = None,
     request_type: Annotated[str | None, Form(max_length=40)] = None,
     preferred_time: Annotated[str | None, Form(max_length=80)] = None,
@@ -309,11 +310,12 @@ async def submit_lead(
         *(photos or []),
         *(attachments or []),
     ])
+    normalized_comment = comment if comment is not None else message
     messages = format_contact_messages(
         name=normalized_name,
         phone=normalized_phone,
         car=car,
-        comment=comment,
+        comment=normalized_comment,
         source=source,
         request_type=request_type,
         preferred_time=preferred_time,
