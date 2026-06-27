@@ -1,18 +1,12 @@
 import logging
-import json
 import os
 import re
-import subprocess
-import tempfile
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from html import escape
 from pathlib import Path
-from time import sleep
-from typing import Callable
 from zoneinfo import ZoneInfo
-
-from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +30,7 @@ TELEGRAM_MESSAGE_LIMIT = 3900
 TELEGRAM_PLACEHOLDER_VALUES = {"put_token_here", "put_chat_id_here"}
 TELEGRAM_REQUEST_ATTEMPTS = 5
 TELEGRAM_RETRY_DELAYS_SECONDS = (2, 4, 6, 8)
+TELEGRAM_OUTBOX_PENDING_DIR = Path("/telegram-outbox/pending")
 CONTACT_METHOD_LABELS = {
     "call": "Звонок",
     "telegram": "Telegram",
@@ -263,115 +258,6 @@ def format_contact_messages(
     return messages
 
 
-def _telegram_error_name(exc: Exception) -> str:
-    cause = exc.__cause__
-    return cause.__class__.__name__ if cause else exc.__class__.__name__
-
-
-def _telegram_request_with_retry(method: str, operation: Callable[[], None]) -> None:
-    last_error: Exception | None = None
-
-    for attempt in range(1, TELEGRAM_REQUEST_ATTEMPTS + 1):
-        logger.info("telegram %s attempt %s/%s", method, attempt, TELEGRAM_REQUEST_ATTEMPTS)
-        try:
-            operation()
-            return
-        except TelegramDeliveryError as exc:
-            last_error = exc
-            logger.warning(
-                "telegram %s failed attempt %s/%s: %s",
-                method,
-                attempt,
-                TELEGRAM_REQUEST_ATTEMPTS,
-                _telegram_error_name(exc),
-            )
-            if attempt < TELEGRAM_REQUEST_ATTEMPTS:
-                sleep(TELEGRAM_RETRY_DELAYS_SECONDS[attempt - 1])
-
-    logger.warning("telegram %s failed after retries", method)
-    raise TelegramDeliveryError from last_error
-
-
-def _telegram_config() -> tuple[str, str]:
-    token = settings.telegram_bot_token
-    chat_id = settings.telegram_chat_id
-    if not _is_config_value_present(token) or not _is_config_value_present(chat_id):
-        raise TelegramNotConfiguredError
-
-    return token or "", chat_id or ""
-
-
-def _validate_curl_result(method: str, result: subprocess.CompletedProcess[str]) -> None:
-    try:
-        payload = json.loads(result.stdout)
-    except ValueError as exc:
-        logger.warning(
-            "telegram curl %s failed: returncode=%s stdout=%s stderr=%s",
-            method,
-            result.returncode,
-            result.stdout[:1000],
-            result.stderr[:1000],
-        )
-        raise TelegramDeliveryError from exc
-
-    if result.returncode == 0 and payload.get("ok"):
-        return
-
-    logger.warning(
-        "telegram curl %s failed: returncode=%s stdout=%s stderr=%s",
-        method,
-        result.returncode,
-        result.stdout[:1000],
-        result.stderr[:1000],
-    )
-    raise TelegramDeliveryError
-
-
-def _run_telegram_curl(method: str, args: list[str], timeout: int) -> None:
-    try:
-        result = subprocess.run(
-            args,
-            capture_output=True,
-            check=False,
-            text=True,
-            timeout=timeout,
-        )
-    except (OSError, subprocess.SubprocessError) as exc:
-        logger.warning(
-            "telegram curl %s failed: returncode=%s stdout=%s stderr=%s",
-            method,
-            "n/a",
-            "",
-            repr(exc),
-        )
-        raise TelegramDeliveryError from exc
-
-    _validate_curl_result(method, result)
-
-
-def _send_telegram_message_once(text: str) -> None:
-    token, chat_id = _telegram_config()
-    _run_telegram_curl(
-        "sendMessage",
-        [
-            "curl",
-            "-4",
-            "-sS",
-            "-X",
-            "POST",
-            f"https://api.telegram.org/bot{token}/sendMessage",
-            "-d",
-            f"chat_id={chat_id}",
-            "-d",
-            f"text={text}",
-            "-d",
-            "parse_mode=HTML",
-        ],
-        timeout=70,
-    )
-    logger.info("telegram curl sendMessage sent")
-
-
 def _safe_tmp_suffix(filename: str) -> str:
     suffix = Path(filename).suffix.lower()
     if re.fullmatch(r"\.[a-z0-9]{1,10}", suffix):
@@ -380,155 +266,16 @@ def _safe_tmp_suffix(filename: str) -> str:
     return ".bin"
 
 
-def _send_telegram_file_once(
-    method: str,
-    field_name: str,
-    caption: str,
-    filename: str,
-    content_type: str,
-    file_bytes: bytes,
-) -> None:
-    token, chat_id = _telegram_config()
-    tmp_path = ""
-    try:
-        tmp_file = tempfile.NamedTemporaryFile(
-            delete=False,
-            dir="/tmp",
-            suffix=_safe_tmp_suffix(filename),
-        )
-        try:
-            tmp_path = tmp_file.name
-            tmp_file.write(file_bytes)
-            tmp_file.flush()
-            os.fsync(tmp_file.fileno())
-        finally:
-            tmp_file.close()
-
-        os.chmod(tmp_path, 0o644)
-        if not os.path.exists(tmp_path) or os.path.getsize(tmp_path) <= 0:
-            logger.warning(
-                "telegram curl %s temp file invalid: path=%s size=%s",
-                method,
-                tmp_path,
-                os.path.getsize(tmp_path) if os.path.exists(tmp_path) else "missing",
-            )
-            raise TelegramDeliveryError
-
-        tmp_size = os.path.getsize(tmp_path)
-        print(
-            "telegram tmp debug",
-            tmp_path,
-            os.path.exists(tmp_path),
-            os.path.getsize(tmp_path),
-            oct(os.stat(tmp_path).st_mode),
-            flush=True,
-        )
-        logger.info(
-            "telegram curl %s temp file ready: path=%s size=%s",
-            method,
-            tmp_path,
-            tmp_size,
-        )
-        print("telegram curl file arg", f"{field_name}=@{tmp_path}", flush=True)
-
-        _run_telegram_curl(
-            method,
-            [
-                "curl",
-                "-4",
-                "-sS",
-                "-X",
-                "POST",
-                f"https://api.telegram.org/bot{token}/{method}",
-                "-F",
-                f"chat_id={chat_id}",
-                "-F",
-                f"caption={caption}",
-                "-F",
-                "parse_mode=HTML",
-                "-F",
-                f"{field_name}=@{tmp_path}",
-            ],
-            timeout=130,
-        )
-    finally:
-        if tmp_path:
-            try:
-                os.unlink(tmp_path)
-            except OSError:
-                logger.warning("telegram temp file cleanup failed: %s", tmp_path)
+def _outbox_id() -> str:
+    created_at = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%Y%m%d%H%M%S")
+    return f"{created_at}-{uuid.uuid4().hex}"
 
 
-def _send_telegram_photo_once(
-    caption: str,
-    filename: str,
-    content_type: str,
-    file_bytes: bytes,
-) -> None:
-    _send_telegram_file_once(
-        "sendPhoto",
-        "photo",
-        caption,
-        filename,
-        content_type,
-        file_bytes,
-    )
-
-    logger.info("telegram curl sendPhoto sent")
-
-
-def _send_telegram_document_once(
-    caption: str,
-    filename: str,
-    content_type: str,
-    file_bytes: bytes,
-) -> None:
-    _send_telegram_file_once(
-        "sendDocument",
-        "document",
-        caption,
-        filename,
-        content_type,
-        file_bytes,
-    )
-
-    logger.info("telegram curl sendDocument sent")
-
-
-def send_telegram_message_sync(text: str) -> None:
-    _telegram_request_with_retry(
-        "sendMessage",
-        lambda: _send_telegram_message_once(text),
-    )
-
-
-def send_telegram_photo_sync(
-    caption: str,
-    filename: str,
-    content_type: str,
-    file_bytes: bytes,
-) -> None:
-    _telegram_request_with_retry(
-        "sendPhoto",
-        lambda: _send_telegram_photo_once(caption, filename, content_type, file_bytes),
-    )
-
-
-def send_telegram_document_sync(
-    caption: str,
-    filename: str,
-    content_type: str,
-    file_bytes: bytes,
-) -> None:
-    _telegram_request_with_retry(
-        "sendDocument",
-        lambda: _send_telegram_document_once(caption, filename, content_type, file_bytes),
-    )
-
-
-def _send_text_messages(messages: list[str]) -> None:
-    for message in messages:
-        send_telegram_message_sync(message)
+def _write_outbox_file(path: Path, content: bytes) -> None:
+    tmp_path = path.with_suffix(f"{path.suffix}.tmp")
+    tmp_path.write_bytes(content)
+    os.chmod(tmp_path, 0o644)
+    tmp_path.replace(path)
 
 
 def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> None:
@@ -540,50 +287,26 @@ def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> 
     )
 
     try:
-        token = settings.telegram_bot_token
-        chat_id = settings.telegram_chat_id
-        if not _is_config_value_present(token) or not _is_config_value_present(chat_id):
-            logger.warning(
-                "Telegram notification skipped: TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID "
-                "is not configured"
-            )
-            return
-
+        TELEGRAM_OUTBOX_PENDING_DIR.mkdir(parents=True, exist_ok=True)
+        notification_id = _outbox_id()
+        photo_path: Path | None = None
         if files:
             upload = files[0]
-            try:
-                send_telegram_photo_sync(
-                    messages[0],
-                    upload.filename,
-                    upload.content_type,
-                    upload.content,
-                )
-            except TelegramDeliveryError as exc:
-                print("telegram task error:", repr(exc), flush=True)
-                try:
-                    send_telegram_document_sync(
-                        messages[0],
-                        upload.filename,
-                        upload.content_type,
-                        upload.content,
-                    )
-                except TelegramDeliveryError as document_exc:
-                    print("telegram task error:", repr(document_exc), flush=True)
-                    send_telegram_message_sync(
-                        "Заявка получена, "
-                        "но фото не удалось отправить."
-                    )
-                    logger.info("telegram fallback sendMessage sent")
-                else:
-                    _send_text_messages(messages[1:])
-            else:
-                _send_text_messages(messages[1:])
-            return
+            suffix = _safe_tmp_suffix(upload.filename)
+            photo_path = TELEGRAM_OUTBOX_PENDING_DIR / f"{notification_id}{suffix}"
+            _write_outbox_file(photo_path, upload.content)
 
-        _send_text_messages(messages)
+        text = "\n\n".join(messages)
+        text_path = TELEGRAM_OUTBOX_PENDING_DIR / f"{notification_id}.txt"
+        _write_outbox_file(text_path, text.encode("utf-8"))
+
+        logger.info(
+            "telegram outbox queued id=%s text=%s photo=%s",
+            notification_id,
+            text_path,
+            photo_path or "",
+        )
     except Exception as exc:
         print("telegram task error:", repr(exc), flush=True)
-        logger.warning("Telegram notification failed: %s", exc.__class__.__name__)
+        logger.warning("Telegram outbox write failed: %s", exc.__class__.__name__)
         return
-
-    logger.info("Telegram notification sent")
