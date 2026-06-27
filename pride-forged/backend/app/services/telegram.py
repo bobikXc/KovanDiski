@@ -404,6 +404,7 @@ def _send_telegram_file_once(
         finally:
             tmp_file.close()
 
+        os.chmod(tmp_path, 0o644)
         if not os.path.exists(tmp_path) or os.path.getsize(tmp_path) <= 0:
             logger.warning(
                 "telegram curl %s temp file invalid: path=%s size=%s",
@@ -414,12 +415,21 @@ def _send_telegram_file_once(
             raise TelegramDeliveryError
 
         tmp_size = os.path.getsize(tmp_path)
+        print(
+            "telegram tmp debug",
+            tmp_path,
+            os.path.exists(tmp_path),
+            os.path.getsize(tmp_path),
+            oct(os.stat(tmp_path).st_mode),
+            flush=True,
+        )
         logger.info(
             "telegram curl %s temp file ready: path=%s size=%s",
             method,
             tmp_path,
             tmp_size,
         )
+        print("telegram curl file arg", f"{field_name}=@{tmp_path}", flush=True)
 
         _run_telegram_curl(
             method,
