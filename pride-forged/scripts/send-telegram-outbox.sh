@@ -27,7 +27,7 @@ find "$PENDING_DIR" -maxdepth 1 -type f -name '*.txt' | sort | while IFS= read -
   id="$(basename "$text_file" .txt)"
   photo_file=""
 
-  for candidate in "$PENDING_DIR/$id".jpg "$PENDING_DIR/$id".jpeg "$PENDING_DIR/$id".png "$PENDING_DIR/$id".webp "$PENDING_DIR/$id".bin; do
+  for candidate in "$PENDING_DIR/$id".jpg "$PENDING_DIR/$id".jpeg "$PENDING_DIR/$id".png "$PENDING_DIR/$id".webp; do
     if [ -f "$candidate" ]; then
       photo_file="$candidate"
       break
@@ -36,8 +36,8 @@ find "$PENDING_DIR" -maxdepth 1 -type f -name '*.txt' | sort | while IFS= read -
 
   response_file="$(mktemp)"
   if [ -n "$photo_file" ]; then
-    if curl -4 -sS -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendPhoto" \
-      -F "chat_id=$TELEGRAM_CHAT_ID" \
+    if curl -4 -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto" \
+      -F "chat_id=${TELEGRAM_CHAT_ID}" \
       -F "caption=$(cat "$text_file")" \
       -F "photo=@$photo_file" >"$response_file"; then
       curl_ok=1
@@ -45,8 +45,8 @@ find "$PENDING_DIR" -maxdepth 1 -type f -name '*.txt' | sort | while IFS= read -
       curl_ok=0
     fi
   else
-    if curl -4 -sS -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
-      -d "chat_id=$TELEGRAM_CHAT_ID" \
+    if curl -4 -sS -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+      -d "chat_id=${TELEGRAM_CHAT_ID}" \
       -d "text=$(cat "$text_file")" \
       -d "parse_mode=HTML" >"$response_file"; then
       curl_ok=1

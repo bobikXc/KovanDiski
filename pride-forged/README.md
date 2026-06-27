@@ -193,3 +193,11 @@ INTERNAL_API_URL=https://backend-domain/api
 - Не коммитьте `.env`, `.env.local`, `.env.production`, `frontend/.env.local`, `frontend/.env.production`, `backend/.env.local`, `backend/.env.production`.
 - Добавьте домен и TLS termination перед Nginx или в отдельном reverse proxy.
 - Подключите реальные изображения дисков в `frontend/public` или CDN.
+
+### Telegram outbox cron
+
+Backend writes Telegram notifications to `telegram-outbox/pending`. Send them from the VPS host with cron:
+
+```cron
+* * * * * /opt/KovanDiski/pride-forged/scripts/send-telegram-outbox.sh >> /var/log/pride-telegram-outbox.log 2>&1
+```

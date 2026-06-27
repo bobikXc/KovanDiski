@@ -9,13 +9,13 @@ Backend writes Telegram notifications to:
 The host sends pending notifications with:
 
 ```sh
-install -m 0755 /opt/KovanDiski/pride-forged/send-telegram-outbox.sh /opt/send-telegram-outbox.sh
+chmod +x /opt/KovanDiski/pride-forged/scripts/send-telegram-outbox.sh
 ```
 
 Cron example:
 
 ```cron
-* * * * * /opt/send-telegram-outbox.sh >> /var/log/pride-telegram-outbox.log 2>&1
+* * * * * /opt/KovanDiski/pride-forged/scripts/send-telegram-outbox.sh >> /var/log/pride-telegram-outbox.log 2>&1
 ```
 
 The script reads `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` from:

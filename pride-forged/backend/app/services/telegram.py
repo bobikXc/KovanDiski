@@ -30,7 +30,9 @@ TELEGRAM_MESSAGE_LIMIT = 3900
 TELEGRAM_PLACEHOLDER_VALUES = {"put_token_here", "put_chat_id_here"}
 TELEGRAM_REQUEST_ATTEMPTS = 5
 TELEGRAM_RETRY_DELAYS_SECONDS = (2, 4, 6, 8)
-TELEGRAM_OUTBOX_PENDING_DIR = Path("/telegram-outbox/pending")
+TELEGRAM_OUTBOX_DIR = Path("/telegram-outbox")
+TELEGRAM_OUTBOX_PENDING_DIR = TELEGRAM_OUTBOX_DIR / "pending"
+TELEGRAM_OUTBOX_SENT_DIR = TELEGRAM_OUTBOX_DIR / "sent"
 CONTACT_METHOD_LABELS = {
     "call": "Звонок",
     "telegram": "Telegram",
@@ -288,6 +290,7 @@ def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> 
 
     try:
         TELEGRAM_OUTBOX_PENDING_DIR.mkdir(parents=True, exist_ok=True)
+        TELEGRAM_OUTBOX_SENT_DIR.mkdir(parents=True, exist_ok=True)
         notification_id = _outbox_id()
         photo_path: Path | None = None
         if files:
@@ -300,12 +303,7 @@ def send_contact_to_telegram(messages: list[str], files: list[TelegramFile]) -> 
         text_path = TELEGRAM_OUTBOX_PENDING_DIR / f"{notification_id}.txt"
         _write_outbox_file(text_path, text.encode("utf-8"))
 
-        logger.info(
-            "telegram outbox queued id=%s text=%s photo=%s",
-            notification_id,
-            text_path,
-            photo_path or "",
-        )
+        logger.info("telegram outbox saved %s", notification_id)
     except Exception as exc:
         print("telegram task error:", repr(exc), flush=True)
         logger.warning("Telegram outbox write failed: %s", exc.__class__.__name__)
