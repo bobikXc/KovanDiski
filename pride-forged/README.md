@@ -201,3 +201,11 @@ Backend writes Telegram notifications to `telegram-outbox/pending`. Send them fr
 ```cron
 * * * * * /opt/KovanDiski/pride-forged/scripts/send-telegram-outbox.sh >> /var/log/pride-telegram-outbox.log 2>&1
 ```
+
+### Email outbox cron
+
+Backend writes email notifications to `email-outbox/pending`. Send them from the VPS host with cron:
+
+```cron
+*/5 * * * * /opt/KovanDiski/pride-forged/scripts/send-email-outbox.sh >> /var/log/pride-email-outbox.log 2>&1
+```

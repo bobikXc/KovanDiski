@@ -25,6 +25,7 @@ services:
       - .env.production
     volumes:
       - ./telegram-outbox:/telegram-outbox
+      - ./email-outbox:/email-outbox
     depends_on:
       postgres:
         condition: service_healthy
