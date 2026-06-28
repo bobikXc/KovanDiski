@@ -12,6 +12,12 @@ class Settings(BaseSettings):
     backend_cors_origins: str = Field(default="http://localhost,http://localhost:3000")
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_user: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str | None = None
+    leads_email_to: str | None = None
 
     @property
     def cors_origins(self) -> list[str]:

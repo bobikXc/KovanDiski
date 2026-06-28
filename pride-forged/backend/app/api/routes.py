@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.db.session import get_db
 from app.models import Brand, Fitment, VehicleModel, Wheel
 from app.schemas import BrandDetail, BrandRead, FitmentRead, VehicleModelRead, WheelRead
+from app.services.email import send_lead_email
 from app.services.telegram import (
     TelegramFile,
     format_contact_messages,
@@ -269,19 +270,21 @@ async def submit_lead(
             return {"ok": True, "message": "Заявка отправлена"}
 
         _check_lead_rate_limit(_client_ip(request))
+        messages = [
+            format_lead_message(
+                name=payload.name.strip(),
+                phone=payload.phone.strip(),
+                car=payload.car,
+                message=payload.message,
+                source=payload.source,
+            )
+        ]
         background_tasks.add_task(
             send_contact_to_telegram,
-            [
-                format_lead_message(
-                    name=payload.name.strip(),
-                    phone=payload.phone.strip(),
-                    car=payload.car,
-                    message=payload.message,
-                    source=payload.source,
-                )
-            ],
+            messages,
             [],
         )
+        background_tasks.add_task(send_lead_email, messages, [])
         return {"ok": True, "message": "Заявка отправлена"}
 
     if _is_honeypot_filled(website, company_url):
@@ -343,6 +346,7 @@ async def submit_lead(
         flush=True,
     )
     background_tasks.add_task(send_contact_to_telegram, messages, validated_files)
+    background_tasks.add_task(send_lead_email, messages, validated_files)
     print("telegram background task added", flush=True)
 
     return {"ok": True, "message": "Заявка отправлена"}
