@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { Reveal } from "@/components/ui/reveal";
@@ -56,10 +56,10 @@ export function WheelCalculatorCTA() {
                 Сравните штатные и новые параметры, чтобы понять, как изменится посадка колеса.
               </p>
               <Button asChild size="lg" className="group mt-8 w-full gap-3 shadow-[0_18px_48px_rgba(13,27,42,0.18)] hover:scale-[1.02] sm:w-auto">
-                <Link href="/tools/wheel-calculator">
+                <TrackedLink href="/tools/wheel-calculator" goal="click_calculate_price" params={{ location: "calculator_cta" }}>
                   Рассчитать параметры
                   <span className="transition duration-300 group-hover:translate-x-1">→</span>
-                </Link>
+                </TrackedLink>
               </Button>
             </div>
             <motion.div

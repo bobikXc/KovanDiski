@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { WheelCard, getWheelImageOrFallback } from "@/components/catalog/WheelCard";
 import { WheelDetailGallery } from "@/components/catalog/wheel-detail-gallery";
 import { EmptyState } from "@/components/common/EmptyState";
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { ApiRequestError } from "@/lib/api";
 import { normalizeWheelImages } from "@/lib/assets";
@@ -86,7 +87,9 @@ export default async function WheelPage({ params }: WheelPageProps) {
               </div>
 
               <Button asChild size="lg" className="wheel-detail-cta">
-                <Link href="/contact">Получить предложение</Link>
+                <TrackedLink href="/contact" goal="click_wheel_request" params={{ wheel: wheel.name, slug: wheel.slug }}>
+                  Получить предложение
+                </TrackedLink>
               </Button>
             </aside>
           </div>

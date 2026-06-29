@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import Link from "next/link";
 import type { ChangeEvent, FormEvent } from "react";
 import { useRef, useState } from "react";
 
@@ -12,6 +11,7 @@ import { LiquidCard } from "@/components/ui/liquid-card";
 import { cn } from "@/lib/utils";
 import { ApiRequestError, submitContact } from "@/lib/api";
 import { appendLeadSecurityFields, createLeadFormStartedAt, LeadHoneypotFields } from "@/lib/lead-security";
+import { reachGoal } from "@/lib/metrika";
 
 const MAX_FILES = 5;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -185,6 +185,7 @@ export function FitmentConfigurator() {
     setSubmitStatus("submitting");
     try {
       await submitContact(formData);
+      reachGoal("form_lead_success", { source: "home_fitment_form" });
       setRequestName("");
       setRequestPhone("");
       setRequestComment("");
@@ -402,7 +403,7 @@ export function FitmentConfigurator() {
                                 <svg viewBox="0 0 16 16" focusable="false"><path d="m3.25 8.2 3.05 3.05 6.45-6.5" /></svg>
                               </span>
                               <span className="contact-consent-copy">
-                                Я согласен на обработку персональных данных и ознакомлен с <Link href="/privacy">политикой конфиденциальности</Link>.
+                                Я согласен на <a href="/docs/personal-data-consent.pdf" target="_blank" rel="noopener noreferrer">обработку персональных данных</a> и ознакомлен с <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a>.
                               </span>
                             </label>
                             {requestConsentTouched && !requestConsent ? <p className="contact-consent-error" role="alert">Необходимо согласие на обработку персональных данных.</p> : null}

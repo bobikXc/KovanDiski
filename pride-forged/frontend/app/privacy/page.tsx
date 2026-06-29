@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { TrackedAnchor } from "@/components/tracked-link";
+
 export const metadata: Metadata = {
   title: "Политика конфиденциальности — PRIDE Forged",
   description: "Порядок обработки персональных данных пользователей сайта PRIDE Forged."
@@ -83,7 +85,7 @@ export default function PrivacyPage() {
               <h2>Контакты</h2>
               <p>По вопросам обработки данных можно связаться с PRIDE Forged:</p>
               <div className="privacy-contact-links">
-                <a href="tel:+79932891033">+7 993 289-10-33</a>
+                <TrackedAnchor href="tel:+79932891033" goal="click_phone" params={{ location: "privacy" }}>+7 993 289-10-33</TrackedAnchor>
                 <a href="mailto:prideforged@yandex.ru">prideforged@yandex.ru</a>
               </div>
             </div>
@@ -92,6 +94,10 @@ export default function PrivacyPage() {
 
         <p className="privacy-cookie-note">
           Также вы можете ознакомиться с <Link href="/cookies">политикой использования cookie</Link>.
+        </p>
+        <p className="privacy-cookie-note">
+          Актуальная версия документа доступна в PDF:{" "}
+          <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">политика конфиденциальности</a>.
         </p>
         <Link href="/contact" className="privacy-back-link">Вернуться к форме</Link>
       </div>

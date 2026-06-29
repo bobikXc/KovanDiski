@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -5,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LiquidCard } from "@/components/ui/liquid-card";
 import { getWheelAsset } from "@/lib/assets";
 import type { Wheel } from "@/lib/api";
+import { reachGoal } from "@/lib/metrika";
 
 export function getWheelImage(wheel: Wheel, index = 0) {
   return getWheelAsset(wheel, index);
@@ -23,7 +26,11 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
 
   return (
     <LiquidCard interactive className="wheel-card group flex h-full flex-col overflow-hidden rounded-[1.75rem] p-3 transition duration-500 ease-out hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_28px_82px_rgb(var(--accent-rgb)/0.18)] sm:p-4">
-      <Link href={`/catalog/${wheel.slug}`} className="block">
+      <Link
+        href={`/catalog/${wheel.slug}`}
+        className="block"
+        onClick={() => reachGoal("click_wheel_card", { wheel: wheel.name, slug: wheel.slug })}
+      >
         <div className="mesh-card relative mb-5 flex aspect-[1.08] items-center justify-center overflow-hidden rounded-[1.4rem]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_24%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />
           <div className="absolute inset-x-8 bottom-8 h-8 rounded-full bg-primary/25 blur-2xl" />
@@ -59,10 +66,20 @@ export function WheelCard({ wheel, index = 0 }: { wheel: Wheel; index?: number }
           </div>
           <div className="grid gap-3 sm:grid-cols-[0.92fr_1.08fr]">
             <Button asChild size="default" variant="outline" className="min-w-0 px-4 text-center">
-              <Link href={`/catalog/${wheel.slug}`}>Подробнее</Link>
+              <Link
+                href={`/catalog/${wheel.slug}`}
+                onClick={() => reachGoal("click_wheel_card", { wheel: wheel.name, slug: wheel.slug })}
+              >
+                Подробнее
+              </Link>
             </Button>
             <Button asChild size="default" className="min-w-0 px-4 text-center">
-              <Link href="/contact">Консультация</Link>
+              <Link
+                href="/contact"
+                onClick={() => reachGoal("click_wheel_request", { wheel: wheel.name, slug: wheel.slug })}
+              >
+                Консультация
+              </Link>
             </Button>
           </div>
         </div>

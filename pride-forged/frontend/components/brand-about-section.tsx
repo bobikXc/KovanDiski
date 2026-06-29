@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -49,7 +50,7 @@ export function BrandAboutSection() {
                 <Link href="/about">О бренде</Link>
               </Button>
               <Button asChild size="lg" className="brand-about-button w-full sm:w-auto">
-                <Link href="/contact">Консультация</Link>
+                <TrackedLink href="/contact" goal="click_lead_request" params={{ location: "brand_about_section" }}>Консультация</TrackedLink>
               </Button>
             </div>
           </Reveal>

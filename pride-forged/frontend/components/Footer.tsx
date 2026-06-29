@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BrandLogo } from "@/components/BrandLogo";
+import { TrackedAnchor } from "@/components/tracked-link";
 
 const footerLinks = [
   ["Каталог", "/catalog"],
@@ -36,19 +37,21 @@ export function Footer() {
         <div className="text-sm leading-7 text-graphite">
           <p className="font-semibold text-primary">PRIDE contacts</p>
           <p className="mt-2">Россия, Москва, Рябиновая улица, 55с8</p>
-          <a href="tel:+79932891033" className="block transition hover:text-accent">+7 993 289-10-33</a>
+          <TrackedAnchor href="tel:+79932891033" goal="click_phone" params={{ location: "footer" }} className="block transition hover:text-accent">+7 993 289-10-33</TrackedAnchor>
           <a href="mailto:prideforged@yandex.ru" className="block transition hover:text-accent">prideforged@yandex.ru</a>
           <div className="mt-3 flex flex-wrap gap-2">
             {socialLinks.map(([label, href]) => (
-              <a
+              <TrackedAnchor
                 key={label}
                 href={href}
+                goal={label === "Telegram" ? "click_telegram" : label === "WhatsApp" ? "click_whatsapp" : "click_max"}
+                params={{ location: "footer" }}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full border border-primary/10 px-3 py-1 text-xs font-bold text-primary transition hover:border-accent hover:text-accent"
               >
                 {label}
-              </a>
+              </TrackedAnchor>
             ))}
           </div>
         </div>
@@ -57,7 +60,9 @@ export function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
           <p className="uppercase tracking-[0.24em]">© 2026 PRIDE Forged. Bespoke forged wheels.</p>
           <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2" aria-label="Правовая информация">
-            <Link href="/privacy" className="transition hover:text-accent">Политика конфиденциальности</Link>
+            <a href="/docs/user-agreement.pdf" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent">Пользовательское соглашение</a>
+            <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent">Политика конфиденциальности</a>
+            <a href="/docs/personal-data-consent.pdf" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent">Согласие на обработку персональных данных</a>
             <Link href="/cookies" className="transition hover:text-accent">Политика cookie</Link>
           </nav>
         </div>

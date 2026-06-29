@@ -1,7 +1,6 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
 import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ContactMethodPicker, type PreferredContactMethod } from "@/components/contact-method-picker";
 import { ApiRequestError, submitContact } from "@/lib/api";
 import { appendLeadSecurityFields, createLeadFormStartedAt, LeadHoneypotFields } from "@/lib/lead-security";
+import { reachGoal } from "@/lib/metrika";
 
 type CallbackModalProps = {
   isOpen: boolean;
@@ -119,6 +119,7 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
     setIsSubmitting(true);
     try {
       await submitContact(formData);
+      reachGoal("form_call_success", { source });
       form.reset();
       setPreferredContactMethod("call");
       formStartedAtRef.current = createLeadFormStartedAt();
@@ -204,10 +205,14 @@ export function CallbackModal({ isOpen, onClose, source = "header-callback" }: C
               <label className="flex cursor-pointer items-start gap-3 text-sm leading-5 text-graphite">
                 <input name="personal_data_consent" type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer rounded border-[var(--border)] bg-[var(--surface-2)] accent-[var(--accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent" />
                 <span>
-                  Я согласен на обработку персональных данных и ознакомлен с{" "}
-                  <Link href="/privacy" onClick={onClose} className="font-semibold text-accent underline decoration-accent/50 underline-offset-2 hover:decoration-accent">
+                  Я согласен на{" "}
+                  <a href="/docs/personal-data-consent.pdf" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent underline decoration-accent/50 underline-offset-2 hover:decoration-accent">
+                    обработку персональных данных
+                  </a>
+                  {" "}и ознакомлен с{" "}
+                  <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent underline decoration-accent/50 underline-offset-2 hover:decoration-accent">
                     политикой конфиденциальности
-                  </Link>.
+                  </a>.
                 </span>
               </label>
 

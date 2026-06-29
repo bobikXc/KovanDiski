@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 
 import { CatalogWheelCard } from "@/components/catalog/CatalogWheelCard";
 import { EmptyState } from "@/components/common/EmptyState";
+import { TrackedLink } from "@/components/tracked-link";
 import { sortWheelsByCatalogOrder } from "@/lib/assets";
 import { getSiteData } from "@/lib/server-api";
 
@@ -46,7 +46,7 @@ export default async function CatalogPage() {
           </div>
           <div className="catalog-heading-aside">
             <p>Индивидуальная геометрия, точная посадка и финиш под характер вашего автомобиля.</p>
-            <Link href="/contact">Подобрать конфигурацию <span aria-hidden="true">↗</span></Link>
+            <TrackedLink href="/contact" goal="click_lead_request" params={{ location: "catalog_heading" }}>Подобрать конфигурацию <span aria-hidden="true">↗</span></TrackedLink>
           </div>
         </header>
 

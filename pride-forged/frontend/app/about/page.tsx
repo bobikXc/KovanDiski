@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -49,7 +50,7 @@ function AboutConsultation() {
           </Reveal>
           <Reveal delay={0.18}>
             <Button asChild size="lg" variant="secondary" className="mt-8 w-full shadow-[0_18px_40px_rgba(74,111,165,0.28)] sm:w-auto">
-              <Link href="/contact">Связаться с PRIDE</Link>
+              <TrackedLink href="/contact" goal="click_lead_request" params={{ location: "about_consultation" }}>Связаться с PRIDE</TrackedLink>
             </Button>
           </Reveal>
         </div>

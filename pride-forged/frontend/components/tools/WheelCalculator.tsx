@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PointerEvent as ReactPointerEvent, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { reachGoal } from "@/lib/metrika";
 import { cn } from "@/lib/utils";
 
 type WheelType = "monoblock" | "forged_multi_piece";
@@ -152,6 +153,7 @@ function AxisPickerGroup({ title, width, et, onWidthChange, onEtChange }: AxisPi
 }
 
 export function WheelCalculator() {
+  const hasSentCalculatorStart = useRef(false);
   const [wheelType, setWheelType] = useState<WheelType>("monoblock");
   const [diameter, setDiameter] = useState(20);
   const [width, setWidth] = useState(9);
@@ -190,6 +192,12 @@ export function WheelCalculator() {
     calculator_estimated_price: estimatedPriceLabel
   };
 
+  function sendCalculatorStart() {
+    if (hasSentCalculatorStart.current) return;
+    hasSentCalculatorStart.current = true;
+    reachGoal("calculator_start");
+  }
+
   return (
     <main className="bg-background text-primary">
       <section className="calculator-section calculator-hero relative z-10 border-b border-primary/10 px-5 pb-10 pt-20 sm:px-6 lg:px-8 lg:pb-12 lg:pt-24">
@@ -217,7 +225,10 @@ export function WheelCalculator() {
                   <button
                     key={value}
                     type="button"
-                    onClick={() => setWheelType(value)}
+                    onClick={() => {
+                      sendCalculatorStart();
+                      setWheelType(value);
+                    }}
                     aria-pressed={wheelType === value}
                     className={cn(
                       "min-h-10 rounded-[14px] px-2 text-sm font-extrabold transition",
@@ -237,7 +248,10 @@ export function WheelCalculator() {
                   <button
                     key={value}
                     type="button"
-                    onClick={() => setDiameter(value)}
+                    onClick={() => {
+                      sendCalculatorStart();
+                      setDiameter(value);
+                    }}
                     aria-pressed={diameter === value}
                     className={cn(
                       "h-11 rounded-[14px] border text-sm font-black transition",
@@ -255,7 +269,10 @@ export function WheelCalculator() {
                 <h2 className="text-lg font-black sm:text-xl">Ширина и вылет</h2>
                 <button
                   type="button"
-                  onClick={() => setIsStaggered((value) => !value)}
+                  onClick={() => {
+                    sendCalculatorStart();
+                    setIsStaggered((value) => !value);
+                  }}
                   aria-pressed={isStaggered}
                   className={cn(
                     "inline-flex w-full items-center justify-between gap-3 rounded-full border px-3 py-2 text-xs font-extrabold uppercase tracking-[0.1em] transition sm:w-auto",
@@ -283,12 +300,12 @@ export function WheelCalculator() {
               </div>
               {isStaggered ? (
                 <div className="mt-3 grid gap-3 xl:grid-cols-2">
-                  <AxisPickerGroup title="Передняя ось" width={frontWidth} et={frontEt} onWidthChange={setFrontWidth} onEtChange={setFrontEt} />
-                  <AxisPickerGroup title="Задняя ось" width={rearWidth} et={rearEt} onWidthChange={setRearWidth} onEtChange={setRearEt} />
+                  <AxisPickerGroup title="Передняя ось" width={frontWidth} et={frontEt} onWidthChange={(value) => { sendCalculatorStart(); setFrontWidth(value); }} onEtChange={(value) => { sendCalculatorStart(); setFrontEt(value); }} />
+                  <AxisPickerGroup title="Задняя ось" width={rearWidth} et={rearEt} onWidthChange={(value) => { sendCalculatorStart(); setRearWidth(value); }} onEtChange={(value) => { sendCalculatorStart(); setRearEt(value); }} />
                 </div>
               ) : (
                 <div className="mt-3">
-                  <AxisPickerGroup width={width} et={et} onWidthChange={setWidth} onEtChange={setEt} />
+                  <AxisPickerGroup width={width} et={et} onWidthChange={(value) => { sendCalculatorStart(); setWidth(value); }} onEtChange={(value) => { sendCalculatorStart(); setEt(value); }} />
                 </div>
               )}
             </div>
@@ -321,7 +338,12 @@ export function WheelCalculator() {
               Ориентировочная стоимость. Финальную цену рассчитаем после проверки параметров автомобиля и пожеланий по отделке.
             </p>
             <Button asChild className="mt-4 w-full">
-              <Link href={{ pathname: "/contact", query: contactQuery }}>Оставить заявку</Link>
+              <Link
+                href={{ pathname: "/contact", query: contactQuery }}
+                onClick={() => reachGoal("calculator_request_click", { source: "wheel_calculator" })}
+              >
+                Оставить заявку
+              </Link>
             </Button>
           </aside>
         </div>

@@ -10,6 +10,7 @@ import { LiquidCard } from "@/components/ui/liquid-card";
 import { Reveal } from "@/components/ui/reveal";
 import type { Wheel } from "@/lib/api";
 import { sortWheelsByCatalogOrder } from "@/lib/assets";
+import { reachGoal } from "@/lib/metrika";
 import { cn } from "@/lib/utils";
 
 const carousel: Variants = {
@@ -108,8 +109,9 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
     }
   }, [isDragging, updateScrollState]);
 
-  const handleCardClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+  const handleCardClick = useCallback((event: MouseEvent<HTMLAnchorElement>, wheel: Wheel) => {
     if (!suppressClickRef.current) {
+      reachGoal("click_wheel_card", { wheel: wheel.name, slug: wheel.slug });
       return;
     }
 
@@ -212,7 +214,7 @@ export function FeaturedWheels({ wheels }: { wheels: Wheel[] }) {
           >
             {featured.map((wheel, index) => (
               <motion.div key={wheel.slug} data-featured-wheel-card variants={card} transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.62, ease: [0.22, 1, 0.36, 1] }} className="w-[calc(100vw-2rem)] flex-none snap-start sm:w-[380px] md:w-[420px] lg:w-[520px]">
-                <Link href={`/catalog/${wheel.slug}`} draggable={false} onClick={handleCardClick} className="block h-full">
+                <Link href={`/catalog/${wheel.slug}`} draggable={false} onClick={(event) => handleCardClick(event, wheel)} className="block h-full">
                   <LiquidCard interactive className="wheel-card group h-full overflow-hidden p-4 transition duration-500 ease-out hover:border-accent/40 hover:shadow-[0_28px_82px_rgb(var(--accent-rgb)/0.18)] sm:p-6">
                     <div className="mesh-card relative flex aspect-[1.18] items-center justify-center overflow-hidden rounded-[1.7rem]">
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgb(var(--text-primary-rgb)/0.12),transparent_38%)]" />

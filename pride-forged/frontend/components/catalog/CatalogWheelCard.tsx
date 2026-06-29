@@ -1,8 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
 import { normalizeWheelImages } from "@/lib/assets";
 import type { Wheel } from "@/lib/api";
+import { reachGoal } from "@/lib/metrika";
 
 export function CatalogWheelCard({ wheel }: { wheel: Wheel }) {
   const images = normalizeWheelImages(wheel);
@@ -10,7 +13,11 @@ export function CatalogWheelCard({ wheel }: { wheel: Wheel }) {
   const hoverImage = images[1] ?? mainImage;
 
   return (
-    <Link href={`/catalog/${wheel.slug}`} className="catalog-wheel-card group">
+    <Link
+      href={`/catalog/${wheel.slug}`}
+      className="catalog-wheel-card group"
+      onClick={() => reachGoal("click_wheel_card", { wheel: wheel.name, slug: wheel.slug })}
+    >
       <div className="catalog-wheel-image-wrap">
         <div className="catalog-wheel-image-halo" aria-hidden="true" />
         <Image

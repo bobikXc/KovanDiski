@@ -5,8 +5,10 @@ import { Suspense } from "react";
 import { BackToTopButton } from "@/components/back-to-top-button";
 import { CookieConsent } from "@/components/cookie-consent";
 import { Footer } from "@/components/Footer";
+import { MetrikaPageview } from "@/components/metrika-pageview";
 import { Navbar } from "@/components/Navbar";
 import { ThemeProvider } from "@/components/theme-provider";
+import { YandexMetrika } from "@/components/yandex-metrika";
 import "./globals.css";
 
 const raleway = Raleway({
@@ -46,6 +48,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <Footer />
             <BackToTopButton />
             <CookieConsent />
+            <YandexMetrika />
+            <MetrikaPageview />
           </ThemeProvider>
         </Suspense>
       </body>

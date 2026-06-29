@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion, useReducedMotion, useScroll, useTransform, type Variants } from "framer-motion";
 
 import { HeroSlider } from "@/components/hero-slider";
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { LiquidCard } from "@/components/ui/liquid-card";
 
@@ -108,8 +108,8 @@ export function HeroSection() {
             />
           </motion.div>
           <motion.div variants={fadeUp} transition={{ duration: 0.78, ease: [0.22, 1, 0.36, 1] }} className="mt-2 flex flex-col gap-3 sm:mt-4 sm:flex-row md:mt-8">
-            <Button asChild size="lg"><Link href="/tools/wheel-calculator">Рассчитать стоимость</Link></Button>
-            <Button asChild variant="outline" size="lg"><Link href="/catalog">Каталог</Link></Button>
+            <Button asChild size="lg"><TrackedLink href="/tools/wheel-calculator" goal="click_calculate_price" params={{ location: "hero" }}>Рассчитать стоимость</TrackedLink></Button>
+            <Button asChild variant="outline" size="lg"><TrackedLink href="/catalog" goal="click_catalog" params={{ location: "hero" }}>Каталог</TrackedLink></Button>
           </motion.div>
           <motion.div variants={content} className="mt-5 grid max-w-[30rem] grid-cols-1 gap-2 sm:grid-cols-3 md:mt-8">
             {stats.map(([value, label]) => (

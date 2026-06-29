@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { TrackedAnchor } from "@/components/tracked-link";
+
 export const metadata: Metadata = {
   title: "Политика использования cookie — PRIDE Forged",
   description: "Информация об использовании файлов cookie на сайте PRIDE Forged."
@@ -19,9 +21,10 @@ const cookieCategories = [
   },
   {
     title: "Аналитические cookie",
-    description: "Могут использоваться при подключении соответствующих сервисов и только с согласия пользователя.",
+    description: "Используются сервисом веб-аналитики Яндекс.Метрика для анализа посещаемости и улучшения сайта.",
     items: [
       "помогают понимать, какие страницы посещают пользователи",
+      "помогают анализировать действия пользователей на сайте",
       "помогают улучшать структуру и удобство сайта",
       "их можно отключить в настройках cookie"
     ]
@@ -84,6 +87,16 @@ export default function CookiesPage() {
           <section className="privacy-section">
             <span className="privacy-section-number">03</span>
             <div>
+              <h2>Яндекс.Метрика</h2>
+              <p>
+                На сайте используется сервис веб-аналитики Яндекс.Метрика, который помогает анализировать посещаемость сайта, действия пользователей и улучшать качество сервиса. Яндекс.Метрика может использовать cookie-файлы.
+              </p>
+            </div>
+          </section>
+
+          <section className="privacy-section">
+            <span className="privacy-section-number">04</span>
+            <div>
               <h2>Как управлять cookie</h2>
               <p>При первом посещении сайта вы можете выбрать подходящий вариант:</p>
               <ul>
@@ -96,19 +109,19 @@ export default function CookiesPage() {
           </section>
 
           <section className="privacy-section privacy-contacts">
-            <span className="privacy-section-number">04</span>
+            <span className="privacy-section-number">05</span>
             <div>
               <h2>Контакты</h2>
               <p>По вопросам использования cookie можно связаться с PRIDE Forged:</p>
               <div className="privacy-contact-links">
-                <a href="tel:+79932891033">+7 993 289-10-33</a>
+                <TrackedAnchor href="tel:+79932891033" goal="click_phone" params={{ location: "cookies" }}>+7 993 289-10-33</TrackedAnchor>
                 <a href="mailto:prideforged@yandex.ru">prideforged@yandex.ru</a>
               </div>
             </div>
           </section>
         </div>
 
-        <Link href="/privacy" className="privacy-back-link">Политика конфиденциальности</Link>
+        <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer" className="privacy-back-link">Политика конфиденциальности</a>
       </div>
     </main>
   );

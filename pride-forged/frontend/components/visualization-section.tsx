@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { BeforeAfterSlider } from "@/components/before-after-slider";
+import { TrackedLink } from "@/components/tracked-link";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -40,7 +39,7 @@ export function VisualizationSection() {
               <Reveal delay={0.18}>
                 <div className="mt-8">
                   <Button asChild size="lg" className="visualization-cta w-full sm:w-auto">
-                    <Link href="/contact">Получить визуализацию</Link>
+                    <TrackedLink href={{ pathname: "/contact", query: { source: "visualization" } }} goal="click_visualization" params={{ location: "visualization_section" }}>Получить визуализацию</TrackedLink>
                   </Button>
                 </div>
               </Reveal>

@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { ChangeEvent, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ContactMethodPicker, type PreferredContactMethod } from "@/components/contact-method-picker";
 import { ApiRequestError, submitContact } from "@/lib/api";
 import { appendLeadSecurityFields, createLeadFormStartedAt, LeadHoneypotFields } from "@/lib/lead-security";
+import { reachGoal } from "@/lib/metrika";
 
 type ContactForm = { name: string; phone: string; car: string; comment: string };
 
@@ -27,6 +27,14 @@ const contactItems = [
   { label: "MAX", value: "MAX", href: "https://max.ru/u/f9LHodD0cOKgLFob6TakxBenvXyB_sdHBNXxxh-OqKuv1dEmcqPP5ldf1VQ", external: true },
   { label: "Email", value: "prideforged@yandex.ru", href: "mailto:prideforged@yandex.ru" }
 ];
+
+function getContactGoal(label: string) {
+  if (label === "Телефон") return "click_phone";
+  if (label === "Telegram") return "click_telegram";
+  if (label === "WhatsApp") return "click_whatsapp";
+  if (label === "MAX") return "click_max";
+  return null;
+}
 
 export default function ContactPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,11 +98,13 @@ export default function ContactPage() {
     const formData = new FormData();
     const searchParams = new URLSearchParams(window.location.search);
     const isCalculatorRequest = searchParams.get("source") === "calculator";
+    const isVisualizationRequest = searchParams.get("source") === "visualization";
+    const source = isCalculatorRequest ? "calculator_request" : isVisualizationRequest ? "visualization_request" : "contacts_form";
     formData.append("name", values.name.trim());
     formData.append("phone", values.phone.trim());
     formData.append("car", values.car?.trim() ?? "");
     formData.append("comment", values.comment?.trim() ?? "");
-    formData.append("source", isCalculatorRequest ? "calculator_request" : "contacts_form");
+    formData.append("source", source);
     formData.append("personal_data_consent", "true");
     formData.append("policy_accepted", "true");
     formData.append("preferred_contact_method", preferredContactMethod);
@@ -129,6 +139,9 @@ export default function ContactPage() {
 
     try {
       await submitContact(formData);
+      reachGoal(isCalculatorRequest ? "form_calculator_success" : isVisualizationRequest ? "form_visualization_success" : "form_contacts_success", {
+        source
+      });
       reset();
       clearFiles();
       setConsent(false);
@@ -169,7 +182,15 @@ export default function ContactPage() {
               <div key={item.label} className="contacts-info-item">
                 <span>{item.label}</span>
                 {item.href ? (
-                  <a href={item.href} target={item.external ? "_blank" : undefined} rel={item.external ? "noopener noreferrer" : undefined}>
+                  <a
+                    href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                    onClick={() => {
+                      const goal = getContactGoal(item.label);
+                      if (goal) reachGoal(goal, { location: "contacts" });
+                    }}
+                  >
                     {item.value}
                   </a>
                 ) : (
@@ -261,8 +282,10 @@ export default function ContactPage() {
                   </svg>
                 </span>
                 <span className="contact-consent-copy">
-                  Я согласен на обработку персональных данных и ознакомлен с{" "}
-                  <Link href="/privacy">политикой конфиденциальности</Link>.
+                  Я согласен на{" "}
+                  <a href="/docs/personal-data-consent.pdf" target="_blank" rel="noopener noreferrer">обработку персональных данных</a>
+                  {" "}и ознакомлен с{" "}
+                  <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a>.
                 </span>
               </label>
               {consentTouched && !consent && (
