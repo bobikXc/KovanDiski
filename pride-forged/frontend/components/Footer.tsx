@@ -57,9 +57,18 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-primary/10 px-4 py-5 text-xs text-graphite/60">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 sm:flex-row">
-          <p className="uppercase tracking-[0.24em]">© 2026 PRIDE Forged. Bespoke forged wheels.</p>
-          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2" aria-label="Правовая информация">
+        <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:items-start">
+          <div className="space-y-3 text-center md:text-left">
+            <p className="uppercase tracking-[0.24em]">© 2026 PRIDE Forged. Bespoke forged wheels.</p>
+            <div className="space-y-1 leading-5">
+              <p className="font-semibold text-graphite/80">Юридическая информация</p>
+              <p>Индивидуальный предприниматель Щукин Александр Александрович</p>
+              <p>ИНН 772459989795</p>
+              <p>ОГРНИП 321774600628100</p>
+              <p>Юридический адрес: 119634, Россия, г. Москва, улица Лукинская, д. 8, корп. 3</p>
+            </div>
+          </div>
+          <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 md:justify-end" aria-label="Правовая информация">
             <a href="/docs/user-agreement.pdf" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent">Пользовательское соглашение</a>
             <a href="/docs/privacy-policy.pdf" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent">Политика конфиденциальности</a>
             <a href="/docs/personal-data-consent.pdf" target="_blank" rel="noopener noreferrer" className="transition hover:text-accent">Согласие на обработку персональных данных</a>
